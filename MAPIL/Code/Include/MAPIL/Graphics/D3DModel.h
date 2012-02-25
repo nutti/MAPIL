@@ -1,0 +1,81 @@
+/**
+*	@file	D3DModel.h
+*	@brief	D3DModel class is derived class from Model class. D3DModel is
+*			implemented for Direct3D. The users shouldn't call method from this
+*			class directly.
+*	@date	2011.8.25 (Thu) 18:50
+*/
+
+#ifndef INCLUDED_MAPIL_D3DMODEL_H
+#define INCLUDED_MAPIL_D3DMODEL_H
+
+//-------------------------------------------------------------------
+// Includes.
+//-------------------------------------------------------------------
+
+#include "../CrossPlatform.h"
+
+#if defined ( API_DIRECT3D )
+
+#include <d3dx9.h>
+
+#include "Model.h"
+
+//-------------------------------------------------------------------
+// Definitions.
+//-------------------------------------------------------------------
+
+namespace MAPIL
+{
+	struct ModelData;
+	class GraphicsDevice;
+	class Archiver;
+	class D3DModel : public Model
+	{
+	private:
+		::LPD3DXMESH				m_pD3DMesh;			///< Mesh handler.
+		::D3DMATERIAL9*				m_pMaterial;		///< Material structure.
+		::LPDIRECT3DTEXTURE9*		m_pD3DTexture;		///< Texture handler.
+		DWORD						m_NumMaterial;		///< Number of the material.
+		MapilBool					m_IsUsed;			///< The flag shows that the object is already used.
+		/**
+		*	@brief		Draw model with no transformation. This is called in Draw method.
+		*/
+		MapilVoid DrawModel();
+	public:
+		/**
+		*	@brief		Constructor.
+		*	@param pDev	SharedPointer to the GraphicsDevice object.
+		*/
+		D3DModel( SharedPointer < GraphicsDevice > pDev );
+		/**
+		*	@brief Destructor.
+		*/
+		~D3DModel();
+		/**
+		*	@brief				Instantiate the D3DModel object.
+		*	@param pFileName	Name of the modeling file to load.
+		*/
+		MapilVoid Create( const MapilTChar* pFileName );
+		/**
+		*	@brief						Instantiate the D3DModel object.
+		*	@param pArchiver			Archiver.
+		*	@param pXFileName			Name of the modeling file to load.
+		*	@param pTextureFileName		Name of the texture file to load.
+		*/
+		MapilVoid Create( Archiver* pArchiver, const MapilTChar* pXFileName, const MapilTChar* pTextureFileName );
+		/**
+		*	@brief	Draw the model with no transformation.
+		*/
+		MapilVoid Draw();
+		/**
+		*	@brief		Draw the model with transformation.
+		*	@param mat	Transformation matrix.
+		*/
+		MapilVoid Draw( const Matrix4x4 < MapilFloat32 >& mat );
+	};
+}
+
+#endif	// API_DIRECT3D
+
+#endif	// INCLUDED_MAPIL_D3DMODEL_H
