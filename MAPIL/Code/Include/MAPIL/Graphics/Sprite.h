@@ -20,6 +20,7 @@
 #include "../Util/SharedPointer.hpp"
 #include "Texture.h"
 #include "GraphicsFont.h"
+#include "../Math/Matrix.hpp"
 #include "../Type.h"
 #include "ConstNums.h"
 

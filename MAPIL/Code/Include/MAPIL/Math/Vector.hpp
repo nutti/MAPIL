@@ -8,13 +8,12 @@
 #define INCLUDED_MAPIL_VECTOR_HPP
 
 #include "Point.hpp"
-#include "Matrix.hpp"
 #include "../Type.h"
 
 namespace MAPIL
 {
 	template < typename Type >
-	class Vector2 : public Point2 < Type >
+	class Vector2
 	{
 	public:
 		union
@@ -114,16 +113,6 @@ namespace MAPIL
 
 		return vTmp;
 	}
-
-	//Substitute (Overload of = operator)
-	//template < typename Type >
-	//Vector2 < Type >& Vector2 < Type > ::operator=( const Vector2 < Type >& v )
-	//{
-	//	m_X = v.m_X;
-	//	m_Y = v.m_Y;
-
-//		return *this;
-	//}
 
 	//Equivalence (Overload of == operator)
 	template < typename Type >
@@ -225,7 +214,7 @@ namespace MAPIL
 	}
 
 	template < typename Type >
-	class Vector3 : public Point3 < Type >
+	class Vector3
 	{
 	public:
 		union
@@ -540,7 +529,7 @@ namespace MAPIL
 	}
 
 	template < typename Type >
-	class Vector4 : public Point4 < Type >
+	class Vector4
 	{
 	public:
 		union
@@ -570,7 +559,7 @@ namespace MAPIL
 		//Substitute (Overload of = operator)
 		Vector4& operator=( const Vector4 < Type >& v );
 		// Multiply / Ternary operator ( Overload of * operator ).
-		Vector4& operator*( const Matrix4x4 < Type >& m );
+		//Vector4& operator*( const Matrix4x4 < Type >& m );
 		//Equivalence (Overload of == operator)
 		MapilBool operator==( const Vector4 < Type >& v );
 		//Add / Binary operator (Overload of += operator)
@@ -653,20 +642,6 @@ namespace MAPIL
 		m_Y = v.m_Y;
 		m_Z = v.m_Z;
 		m_W = v.m_W;
-
-		return *this;
-	}
-
-	// Multiply / Ternary operator ( Overload of * operator ).
-	template < typename Type >
-	Vector4 < Type >& Vector4 < Type > ::operator*( const Matrix4x4 < Type >& m )
-	{
-		Vector4 < Type > vTmp = *this;
-
-		m_X = vTmp.m_X * m.m_11 + vTmp.m_Y * m.m_21 + vTmp.m_Z * m.m_31 + vTmp.m_W * m.m_41;
-		m_Y = vTmp.m_X * m.m_12 + vTmp.m_Y * m.m_22 + vTmp.m_Z * m.m_32 + vTmp.m_W * m.m_42;
-		m_Z = vTmp.m_X * m.m_13 + vTmp.m_Y * m.m_23 + vTmp.m_Z * m.m_33 + vTmp.m_W * m.m_43;
-		m_W = vTmp.m_X * m.m_14 + vTmp.m_Y * m.m_24 + vTmp.m_Z * m.m_34 + vTmp.m_W * m.m_44;
 
 		return *this;
 	}
@@ -765,48 +740,268 @@ namespace MAPIL
 		return ( m_X * v.m_X + m_Y * v.m_Y + m_Z * v.m_Z + m_W * v.m_W );
 	}
 
-	// Rotate X. ( Right-handed system. )
-	//		template < typename Type >
-	//		Portabillity::PortVoid RotateXRH(	Vector3 < Type >* pOutV,
-	//									const Vector3 < Type >& inV,
-	//									MapilFloat32 angle )
-	//		{
-	////	pOutV->m_X = inV
-	//		}
-
 
 	template < typename Type, MapilInt32 DIM >
 	class VectorN
 	{
 	public:
-		Type	m_Elm[ DIM ];
+		Type			m_Elm[ DIM ];
 		VectorN();
 		VectorN( const VectorN < Type, DIM >& v );
 		~VectorN();
+		//Add / Ternary operator (Overload of + operator)
+		VectorN < Type, DIM > operator+( const VectorN < Type, DIM >& v );
+		//Subtract / Ternary operator (Overload of - operator)
+		VectorN < Type, DIM > operator-( const VectorN < Type, DIM >& v );
+		//Substitute (Overload of = operator)
+		VectorN < Type, DIM >& operator=( const VectorN < Type, DIM >& v );
+		// Multiply / Ternary operator ( Overload of * operator ).
+		VectorN < Type, DIM > operator*( Type value );
+		VectorN < Type, DIM > operator/( Type value );
+		//Equivalence (Overload of == operator)
+		MapilBool operator==( const VectorN < Type, DIM >& v );
+		//Add / Binary operator (Overload of += operator)
+		VectorN < Type, DIM >& operator+=( const VectorN < Type, DIM >& v );
+		//Subtract / Binary operator (Overload of -= operator)
+		VectorN < Type, DIM >& operator-=( const VectorN < Type, DIM >& v );
+		VectorN < Type, DIM >& operator*=( Type value );
+		VectorN < Type, DIM >& operator/=( Type value );
+		//Add
+		MapilVoid Add( const VectorN < Type, DIM >& v );
+		//Subtract
+		MapilVoid Sub( const VectorN < Type, DIM >& v );
+		//Multiply constant
+		MapilVoid Mul( Type num );
+		MapilVoid Div( Type num );
+		//Get sum of square
+		Type GetSumSquare() const;
+		//Get norm
+		Type GetNorm() const;
+		//Normalize
+		MapilVoid Normalize();
+		//Get inner product
+		Type GetInnerProduct( const VectorN < Type, DIM >& v ) const;
 	};
 
 	template < typename Type, MapilInt32 DIM >
 	VectorN < Type, DIM > ::VectorN()
 	{
-		for( MapilInt32 i = 0; i < DIM; ++i ){
-			m_Elm[ i ] = 0;
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] = 0;
 		}
 	}
 
 	template < typename Type, MapilInt32 DIM >
 	VectorN < Type, DIM > ::VectorN( const VectorN < Type, DIM >& v )
 	{
-		for( MapilInt32 i = 0; i < DIM; ++i ){
-			m_Elm[ i ] = v.m_Elm[ i ];
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] = v.m_Elm[ elm ];
 		}
 	}
 
 	template < typename Type, MapilInt32 DIM >
 	VectorN < Type, DIM > ::~VectorN()
 	{
-		for( MapilInt32 i = 0; i < DIM; ++i ){
-			m_Elm[ i ] = 0;
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] = 0;
 		}
+	}
+
+	//Add / Ternary operator (Overload of + operator)
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM > VectorN < Type, DIM > ::operator+( const VectorN < Type, DIM >& v )
+	{
+		VectorN < Type, DIM > vTmp;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			vTmp.m_Elm[ elm ] = m_Elm[ elm ] + v.m_Elm[ elm ];
+		}
+
+		return vTmp;
+	}
+
+	//Subtract / Ternary operator (Overload of - operator)
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM > VectorN < Type, DIM > ::operator-( const VectorN < Type, DIM >& v )
+	{
+		VectorN < Type, DIM > vTmp;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			vTmp.m_Elm[ elm ] = m_Elm[ elm ] - v.m_Elm[ elm ];
+		}
+
+		return vTmp;
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM > VectorN < Type, DIM > ::operator*( Type value )
+	{
+		VectorN < Type, DIM > vTmp;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			vTmp.m_Elm[ elm ] = m_Elm[ elm ] * value;
+		}
+
+		return vTmp;
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM > VectorN < Type, DIM > ::operator/( Type value )
+	{
+		VectorN < Type, DIM > vTmp;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			vTmp.m_Elm[ elm ] = m_Elm[ elm ] / value;
+		}
+
+		return vTmp;
+	}
+
+	//Substitute (Overload of = operator)
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM >& VectorN < Type, DIM > ::operator=( const VectorN < Type, DIM >& v )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] = v.m_Elm[ elm ];
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	MapilBool VectorN < Type, DIM > ::operator==( const VectorN < Type, DIM >& v )
+	{
+		MapilBool result = MapilTrue;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			if( m_Elm[ elm ] != v.m_Elm[ elm ] ){
+				result = MapilFalse;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	//Add / Binary operator (Overload of += operator)
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM >& VectorN < Type, DIM > ::operator+=( const VectorN < Type, DIM >& v )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] += v.m_Elm[ elm ];
+		}
+
+		return *this;
+	}
+
+	//Subtract / Binary operator (Overload of -= operator)
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM >& VectorN < Type, DIM > ::operator-=( const VectorN < Type, DIM >& v )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] -= v.m_Elm[ elm ];
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM >& VectorN < Type, DIM > ::operator*=( Type value )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] *= value;
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	VectorN < Type, DIM >& VectorN < Type, DIM > ::operator/=( Type value )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] /= value;
+		}
+
+		return *this;
+	}
+
+	//Add
+	template < typename Type, MapilInt32 DIM >
+	MapilVoid VectorN < Type, DIM > ::Add( const VectorN < Type, DIM >& v )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] += v.m_Elm[ elm ];
+		}
+	}
+
+	//Subtract
+	template < typename Type, MapilInt32 DIM >
+	MapilVoid VectorN < Type, DIM > ::Sub( const VectorN < Type, DIM >& v )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] -= v.m_Elm[ elm ];
+		}
+	}
+
+	//Multiply constant
+	template < typename Type, MapilInt32 DIM >
+	MapilVoid VectorN < Type, DIM > ::Mul( Type num )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] *= num;
+		}
+	}
+
+	template < typename Type, MapilInt32 DIM >
+	MapilVoid VectorN < Type, DIM > ::Div( Type num )
+	{
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] /= num;
+		}
+	}
+
+	//Get sum of square
+	template < typename Type, MapilInt32 DIM >
+	Type VectorN < Type, DIM > ::GetSumSquare() const
+	{
+		Type result = 0;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			result += m_Elm[ elm ] * m_Elm[ elm ];
+		}
+
+		return result;
+	}
+
+	//Get norm
+	template < typename Type, MapilInt32 DIM >
+	Type VectorN < Type, DIM > ::GetNorm() const
+	{
+		return ::sqrt( GetSumSquare() );
+	}
+
+	//Normalize
+	template < typename Type, MapilInt32 DIM >
+	MapilVoid VectorN < Type, DIM > ::Normalize()
+	{
+		Type norm = GetNorm();
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			m_Elm[ elm ] /= norm;
+		}
+	}
+
+	//Get inner product
+	template < typename Type, MapilInt32 DIM >
+	Type VectorN < Type, DIM > ::GetInnerProduct( const VectorN < Type, DIM >& v ) const
+	{
+		Type result = 0;
+
+		for( MapilInt32 elm = 0; elm < DIM; ++elm ){
+			result = m_Elm[ elm ] * v.m_Elm[ elm ];
+		}
+
+		return result;
 	}
 
 

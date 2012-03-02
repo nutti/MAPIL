@@ -8,44 +8,15 @@
 #define INCLUDED_MAPIL_MATRIX_HPP
 
 #include <math.h>
+#include "Vector.hpp"
 #include "../Type.h"
 #include "../Util/MapilObject.h"
 
 namespace MAPIL
 {
-	template < typename Type >
-	class Matrix : public MapilObject
-	{
-	public:
-		Matrix();
-		Matrix( const Matrix < Type >& m );
-		virtual Matrix& operator=( const Matrix < Type >& m );
-		virtual ~Matrix();
-	};
-	
-	template < typename Type >
-	Matrix < Type >::Matrix()
-	{
-	}
-	
-	template < typename Type >
-	Matrix < Type >::Matrix( const Matrix < Type >& m )
-	{
-	}
-	
-	template < typename Type >
-	Matrix < Type >& Matrix < Type >::operator=( const Matrix < Type >& m )
-	{
-		return *this;
-	}
-	
-	template < typename Type >
-	Matrix < Type >::~Matrix()
-	{
-	}
 
 	template < typename Type >
-	class Matrix2x2 : public Matrix < Type >
+	class Matrix2x2
 	{
 	public:
 		union
@@ -250,7 +221,7 @@ namespace MAPIL
 	}
 
 	template < typename Type >
-	class Matrix3x3 : public Matrix < Type >
+	class Matrix3x3
 	{
 	public:
 		union
@@ -531,7 +502,7 @@ namespace MAPIL
 	
 
 	template < typename Type >
-	class Matrix4x4 : public Matrix < Type >
+	class Matrix4x4
 	{
 	public:
 		union
@@ -979,24 +950,7 @@ namespace MAPIL
 	}
 
 
-	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
-	class MatrixNxN : public Matrix
-	{
-	public:
-		Type		m_Elm[ ROW ][ COLMUN ];
-		MatrixNxN();
-		~MatrixNxN();
-	};
-
-	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
-	MatrixNxN < Type, ROW, COLMUN > ::MatrixNxN()
-	{
-	}
-
-	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
-	MatrixNxN < Type, ROW, COLMUN > ::~MatrixNxN()
-	{
-	}
+	
 
 
 	// Multiply matrix. ( 1 )
@@ -1244,6 +1198,321 @@ namespace MAPIL
 		pOut->m_44 = in.m_44;
 	}
 
+
+
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	class MatrixNxN
+	{
+	public:
+		union
+		{
+			Type		m_Elm[ ROW * COLMUN ];
+			Type		m_Elms[ ROW ][ COLMUN ];
+		};
+		MatrixNxN();
+		~MatrixNxN();
+		MatrixNxN( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN > operator+( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN > operator-( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN > operator*( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN > operator*( Type value );
+		VectorN < Type, ROW > operator*( const VectorN < Type, ROW >& v );
+		MatrixNxN < Type, ROW, COLMUN > operator/( Type value );
+		MatrixNxN < Type, ROW, COLMUN >& operator=( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MapilBool operator==( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN >& operator+=( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN >& operator-=( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN >& operator*=( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MatrixNxN < Type, ROW, COLMUN >& operator*=( Type value );
+		MatrixNxN < Type, ROW, COLMUN >& operator/=( Type value );
+		MapilVoid Add( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MapilVoid Sub( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MapilVoid Mul( const MatrixNxN < Type, ROW, COLMUN >& m );
+		MapilVoid Mul( Type value );
+		MapilVoid Div( Type value );
+		MapilVoid Set( MapilInt32 index, Type value );
+		MapilVoid Set( MapilInt32 row, MapilInt32 colmun, Type value );
+		Type Get( MapilInt32 index ) const;
+		Type Get( MapilInt32 row, MapilInt32 colmun ) const;
+	};
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > ::MatrixNxN()
+	{
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > ::~MatrixNxN()
+	{
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > ::MatrixNxN( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] = m.m_Elms[ row ][ colmun ];
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > MatrixNxN < Type, ROW, COLMUN >::operator+( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MatrixNxN < Type, ROW, COLMUN > matTmp;
+
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++ colmun ){
+				matTmp.m_Elms[ row ][ colmun ] = this->m_Elms[ row ][ colmun ] + m.m_Elms[ row ][ colmun ];
+			}
+		}
+
+		return matTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > MatrixNxN < Type, ROW, COLMUN >::operator-( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MatrixNxN < Type, ROW, COLMUN > matTmp;
+
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++ colmun ){
+				matTmp.m_Elms[ row ][ colmun ] = this->m_Elms[ row ][ colmun ] - m.m_Elms[ row ][ colmun ];
+			}
+		}
+
+		return matTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > MatrixNxN < Type, ROW, COLMUN >::operator*( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MatrixNxN < Type, ROW, COLMUN > matTmp;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				for( MapilInt32 i = 0; i < ROW; ++i ){
+					matTmp.m_Elms[ row ][ colmun ] = this->m_Elms[ i ][ colmun ] * m.m_Elms[ row ][ i ];
+				}
+			}
+		}
+
+		return matTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	VectorN < Type, ROW > MatrixNxN < Type, ROW, COLMUN >::operator*( const VectorN < Type, ROW >& v )
+	{
+		VectorN < Type, ROW > vTmp;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				vTmp.m_Elm[ colmun ] = m_Elms[ colmun ][ row ] * v.m_Elm[ row ];
+			}
+		}
+
+		return vTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > MatrixNxN < Type, ROW, COLMUN >::operator*( Type value )
+	{
+		MatrixNxN < Type, ROW, COLMUN > matTmp;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				matTmp.m_Elms[ row ][ colmun ] *= value;
+			}
+		}
+
+		return matTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN > MatrixNxN < Type, ROW, COLMUN >::operator/( Type value )
+	{
+		MatrixNxN < Type, ROW, COLMUN > matTmp;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				matTmp.m_Elms[ row ][ colmun ] /= value;
+			}
+		}
+
+		return matTmp;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator=( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] = m.m_Elms[ row ][ colmun ];
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilBool MatrixNxN < Type, ROW, COLMUN >::operator==( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MapilBool result = MapilTrue;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				if( m_Elms[ row ][ colmun ] != m.m_Elms[ row ][ colmun ] ){
+					result = MapilFalse;
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator+=( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] += m.m_Elms[ row ][ colmun ];
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator-=( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] -= m.m_Elms[ row ][ colmun ];
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator*=( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MatrixNxN matTmp = *this;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				for( MapilInt32 i = 0; i < ROW; ++i ){
+					m_Elms[ row ][ colmun ] = matTmp.m_Elms[ i ][ colmun ] * m.m_Elms[ row ][ i ];
+				}
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator*=( Type value )
+	{
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+				m_Elms[ row ][ colmun ] *= value;
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MatrixNxN < Type, ROW, COLMUN >& MatrixNxN < Type, ROW, COLMUN >::operator/=( Type value )
+	{
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+				m_Elms[ row ][ colmun ] /= value;
+			}
+		}
+
+		return *this;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Add( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] += m.m_Elms[ row ][ colmun ];
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Sub( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				m_Elms[ row ][ colmun ] -= m.m_Elms[ row ][ colmun ];
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Mul( const MatrixNxN < Type, ROW, COLMUN >& m )
+	{
+		MatrixNxN matTmp = *this;
+
+		for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+			for( MapilInt32 row = 0; row < ROW; ++row ){
+				for( MapilInt32 i = 0; i < ROW; ++i ){
+					m_Elms[ row ][ colmun ] = matTmp.m_Elms[ i ][ colmun ] * m.m_Elms[ row ][ i ];
+				}
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Mul( Type value )
+	{
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+				m_Elms[ row ][ colmun ] *= value;
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Div( Type value )
+	{
+		for( MapilInt32 row = 0; row < ROW; ++row ){
+			for( MapilInt32 colmun = 0; colmun < COLMUN; ++colmun ){
+				m_Elms[ row ][ colmun ] /= value;
+			}
+		}
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Set( MapilInt32 index, Type value )
+	{
+		m_Elm[ index ] = value;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	MapilVoid MatrixNxN < Type, ROW, COLMUN >::Set( MapilInt32 row, MapilInt32 colmun, Type value )
+	{
+		m_Elms[ row ][ colmun ] = value;
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	Type MatrixNxN < Type, ROW, COLMUN >::Get( MapilInt32 index ) const
+	{
+		return m_Elm[ index ];
+	}
+
+	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >
+	Type MatrixNxN < Type, ROW, COLMUN >::Get( MapilInt32 row, MapilInt32 colmun ) const
+	{
+		return m_Elms[ row ][ colmun ];
+	}
 }
 
 #endif

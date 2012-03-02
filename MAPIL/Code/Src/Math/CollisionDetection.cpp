@@ -11,6 +11,7 @@
 #include "../../Include/MAPIL/CrossPlatform.h"
 
 #include "../../Include/MAPIL/Math/CollisionDetection.h"
+#include <math.h>
 
 //-------------------------------------------------------------------
 // Implementation.
