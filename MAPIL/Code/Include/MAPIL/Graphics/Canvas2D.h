@@ -84,7 +84,7 @@ namespace MAPIL
 									MapilInt32 endX,
 									MapilInt32 endY,
 									const ColorARGB < MapilFloat32 >& color,
-									MapilFloat32 width ) = 0;
+									MapilInt32 width ) = 0;
 		/**
 		*	@brief				Draw a 2-dimension line.
 		*	@param startX		X-Coordinate for the beginning point of the line.
@@ -101,7 +101,7 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilFloat32 >& endColor,
-										MapilFloat32 width ) = 0;
+										MapilInt32 width ) = 0;
 		/**
 		*	@brief			Draw a 2-dimension rectangle.
 		*	@param x1		X-Coordinate for the left-top point of the rectangle.
@@ -117,7 +117,7 @@ namespace MAPIL
 										MapilInt32 x2,
 										MapilInt32 y2,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled = MapilTrue ) = 0;
 		/**
 		*	@brief				Draw a 2-dimension circle.
@@ -130,9 +130,9 @@ namespace MAPIL
 		*/
 		virtual MapilVoid DrawCircle(	MapilInt32 centerX,
 										MapilInt32 centerY,
-										MapilFloat32 radius,
+										MapilInt32 radius,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled = MapilTrue ) = 0;
 		/**
 		*	@brief				Draw figure.

@@ -17,6 +17,10 @@
 #pragma comment ( lib, "libpngd.lib" )
 #pragma comment ( lib, "zlibd.lib" )
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 namespace MAPIL
 {
 	PNGFile::PNGFile() :	ImageFile(),

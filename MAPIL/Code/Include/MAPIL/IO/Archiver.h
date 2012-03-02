@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "../Util/MapilObject.h"
 #include "File.h"
 
 #include "../Type.h"
@@ -27,7 +28,7 @@
 namespace MAPIL
 {
 
-	class Archiver : public File
+	class Archiver : public MapilObject
 	{
 	private:
 		std::basic_string < MapilChar >						m_ArchiveName;	///< Archive file name.

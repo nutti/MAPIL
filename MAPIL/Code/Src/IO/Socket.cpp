@@ -8,7 +8,7 @@
 
 namespace MAPIL
 {
-	TCPClient::TCPClient() : IO()
+	TCPClient::TCPClient() : MapilObject()
 	{
 	}
 
@@ -16,7 +16,7 @@ namespace MAPIL
 	{
 	}
 	
-	TCPServer::TCPServer() : IO()
+	TCPServer::TCPServer() : MapilObject()
 	{
 	}
 
@@ -24,7 +24,7 @@ namespace MAPIL
 	{
 	}
 	
-	UDPClient::UDPClient() : IO()
+	UDPClient::UDPClient() : MapilObject()
 	{
 	}
 
@@ -32,7 +32,7 @@ namespace MAPIL
 	{
 	}
 	
-	UDPServer::UDPServer() : IO()
+	UDPServer::UDPServer() : MapilObject()
 	{
 	}
 

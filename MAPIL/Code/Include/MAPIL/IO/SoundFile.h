@@ -10,11 +10,12 @@
 #include "../CrossPlatform.h"
 
 #include "../Type.h"
+#include "../Util/MapilObject.h"
 #include "File.h"
 
 namespace MAPIL
 {
-	class SoundFile : public File
+	class SoundFile : public MapilObject
 	{
 	public:
 		// Constructor.

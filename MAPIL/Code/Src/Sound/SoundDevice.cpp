@@ -11,7 +11,7 @@
 
 namespace MAPIL
 {
-	SoundDevice::SoundDevice( SoundAPI api ) : Device() , m_pDev( NULL ), m_API( api )
+	SoundDevice::SoundDevice( SoundAPI api ) : m_pDev( NULL ), m_API( api )
 	{
 	}
 	

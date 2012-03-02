@@ -9,7 +9,7 @@
 
 #include "../CrossPlatform.h"
 
-#include "../Util/Device.h"
+#include "../Util/MapilObject.h"
 #include "../Util/SharedPointer.hpp"
 
 namespace MAPIL
@@ -21,7 +21,7 @@ namespace MAPIL
 		GUI_API_GTK			= 2,
 	};
 
-	class GUIDevice : public Device
+	class GUIDevice : public MapilObject
 	{
 	private:
 		GUIAPI			m_GUIAPI;

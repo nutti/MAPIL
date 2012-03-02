@@ -11,7 +11,7 @@
 namespace MAPIL
 {
 	// Constructor.
-	ModelFile::ModelFile() : File()
+	ModelFile::ModelFile() : MapilObject()
 	{
 	}
 

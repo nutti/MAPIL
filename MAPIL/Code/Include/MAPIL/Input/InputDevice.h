@@ -9,7 +9,7 @@
 
 #include "../CrossPlatform.h"
 
-#include "../Util/Device.h"
+#include "../Util/MapilObject.h"
 #include "../Type.h"
 #include "../Util/SharedPointer.hpp"
 
@@ -22,7 +22,7 @@ namespace MAPIL
 		INPUT_API_DIRECTINPUT = 2,
 	};
 
-	class InputDevice : public Device
+	class InputDevice : public MapilObject
 	{
 		InputAPI		m_API;
 	public:

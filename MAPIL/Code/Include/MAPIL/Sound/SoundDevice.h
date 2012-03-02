@@ -15,7 +15,7 @@
 #include "ALSoundDevice.h"
 #endif
 
-#include "../Util/Device.h"
+#include "../Util/MapilObject.h"
 #include "../Type.h"
 #include "../Util/SharedPointer.hpp"
 
@@ -28,7 +28,7 @@ namespace MAPIL
 		SOUND_API_OPENAL	= 2,
 	};
 
-	class SoundDevice : public Device
+	class SoundDevice : public MapilObject
 	{
 #if defined ( API_ALSA )
 		ALSASoundDevice*		m_pDev;

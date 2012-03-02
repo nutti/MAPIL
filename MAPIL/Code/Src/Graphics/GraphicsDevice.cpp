@@ -35,8 +35,7 @@
 
 namespace MAPIL
 {
-	GraphicsDevice::GraphicsDevice( GraphicsAPI api ) :	Device(),
-														m_GraphicsAPI( api )
+	GraphicsDevice::GraphicsDevice( GraphicsAPI api ) :	m_GraphicsAPI( api )
 #if defined ( API_DIRECT3D )
 		,
 		m_pWnd(),

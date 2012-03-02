@@ -86,9 +86,9 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width )
+										MapilInt32 width )
 	{
-		glLineWidth( width );
+		glLineWidth( static_cast < MapilFloat32 > ( width ) );
 		glBegin( GL_LINES );
 		glColor4f( color.m_R, color.m_G, color.m_B, color.m_A );
 		glVertex2i( startX, startY );
@@ -104,9 +104,9 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilFloat32 >& endColor,
-										MapilFloat32 width )
+										MapilInt32 width )
 	{
-		glLineWidth( width );
+		glLineWidth( static_cast < MapilFloat32 > ( width ) );
 		glBegin( GL_LINES );
 		glColor4f( startColor.m_R, startColor.m_G, startColor.m_B, startColor.m_A );
 		glVertex2i( startX, startY );
@@ -121,14 +121,14 @@ namespace MAPIL
 										MapilInt32 x2,
 										MapilInt32 y2,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		if( isFilled ){
 			glBegin( GL_QUADS );
 		}
 		else{
-			glLineWidth( width );
+			glLineWidth( static_cast < MapilFloat32 > ( width ) );
 			glBegin( GL_LINE_LOOP );
 		}
 		glColor4f( color.m_R, color.m_G, color.m_B, color.m_A );
@@ -142,9 +142,9 @@ namespace MAPIL
 	// Draw circle.
 	MapilVoid GLCanvas2D::DrawCircle(	MapilInt32 centerX,
 											MapilInt32 centerY,
-											MapilFloat32 radius,
+											MapilInt32 radius,
 											const ColorARGB < MapilFloat32 >& color,
-											MapilFloat32 width,
+											MapilInt32 width,
 											MapilBool isFilled )
 	{
 		const MapilDouble pi = 3.1415;
@@ -162,7 +162,7 @@ namespace MAPIL
 				glBegin( GL_TRIANGLES );
 			}
 			else{
-				glLineWidth( width );
+				glLineWidth( static_cast < MapilFloat32 > ( width ) );
 				glBegin( GL_LINES );
 			}
 			glColor4f( color.m_R, color.m_G, color.m_B, color.m_A );

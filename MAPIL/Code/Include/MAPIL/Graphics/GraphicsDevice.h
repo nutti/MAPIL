@@ -10,7 +10,7 @@
 #include "../CrossPlatform.h"
 
 #include "../Type.h"
-#include "../Util/Device.h"
+#include "../Util/MapilObject.h"
 #include "../Util/Color.hpp"
 #include "ConstNums.h"
 #include "../Util/SharedPointer.hpp"
@@ -34,7 +34,7 @@ namespace MAPIL
 		GRAPHICS_API_OPENGL		= 2,
 	};
 
-	class GraphicsDevice : public Device
+	class GraphicsDevice : public MapilObject
 	{
 #if defined ( API_DIRECT3D )
 		friend class D3DGraphicsController;

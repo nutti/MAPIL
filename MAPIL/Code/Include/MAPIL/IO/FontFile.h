@@ -9,12 +9,13 @@
 
 #include "../CrossPlatform.h"
 
+#include "../Util/MapilObject.h"
 #include "File.h"
 
 namespace MAPIL
 {
 
-	class FontFile : public File
+	class FontFile : public MapilObject
 	{
 	private:
 

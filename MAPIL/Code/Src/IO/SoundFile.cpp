@@ -10,7 +10,7 @@
 
 namespace MAPIL
 {
-	SoundFile::SoundFile() : File()
+	SoundFile::SoundFile()
 	{
 	}
 	

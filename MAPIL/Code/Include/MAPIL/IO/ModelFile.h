@@ -10,6 +10,7 @@
 #include "../CrossPlatform.h"
 
 #include "File.h"
+#include "../Util/MapilObject.h"
 
 #ifdef LIB_STL
 #include <vector>
@@ -53,7 +54,7 @@ namespace MAPIL
 		std::vector < Model >		m_Model;
 	};
 
-	class ModelFile : public File
+	class ModelFile : public MapilObject
 	{
 	private:
 
@@ -62,6 +63,16 @@ namespace MAPIL
 		ModelFile();
 		// Destructor.
 		virtual ~ModelFile();
+		/**
+		*	@brief				Open the file.
+		*	@param pFileName	File name to be opened.
+		*	@param mode			Open mode.
+		*/
+		virtual MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode ) = 0;
+		/**
+		*	@brief Close the file.
+		*/
+		virtual MapilVoid Close() = 0;
 		virtual MapilVoid Load( const MapilChar* pFileName ) = 0;
 		virtual MapilVoid CopyToModelData( ModelData* pData ) = 0;
 	};

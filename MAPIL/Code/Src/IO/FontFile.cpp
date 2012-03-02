@@ -11,7 +11,7 @@
 namespace MAPIL
 {
 	// Constructor.
-	FontFile::FontFile() : File()
+	FontFile::FontFile() : MapilObject()
 	{
 	}
 

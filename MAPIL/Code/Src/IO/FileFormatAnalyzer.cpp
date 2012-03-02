@@ -14,7 +14,7 @@
 
 namespace MAPIL
 {
-	FileFormatAnalyzer::FileFormatAnalyzer() :	File(),
+	FileFormatAnalyzer::FileFormatAnalyzer() :	MapilObject(),
 												m_FIn(),
 												m_Fmt( FILE_FORMAT_UNKNOWN )
 	{

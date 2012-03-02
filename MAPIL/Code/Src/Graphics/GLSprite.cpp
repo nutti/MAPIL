@@ -15,6 +15,10 @@
 #include "../../Include/MAPIL/Graphics/GLSprite.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 //-------------------------------------------------------------------
 // Implementation.
 //-------------------------------------------------------------------

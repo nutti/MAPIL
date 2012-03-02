@@ -9,6 +9,7 @@
 
 #include "../CrossPlatform.h"
 
+#include "../Util/MapilObject.h"
 #include "File.h"
 
 #include <fstream>
@@ -24,7 +25,7 @@ namespace MAPIL
 		FILE_FORMAT_MQO		= 23,
 	};
 
-	class FileFormatAnalyzer : public File
+	class FileFormatAnalyzer : public MapilObject
 	{
 	private:
 		std::basic_fstream < MapilChar >		m_FIn;

@@ -17,6 +17,10 @@
 #include "../../Include/MAPIL/Util/String.h"
 #include "../../Include/MAPIL/Math/Transformation.hpp"
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 //-------------------------------------------------------------------
 // Implementation.
 //-------------------------------------------------------------------
@@ -58,9 +62,9 @@ namespace MAPIL
 		MapilInt32 begin = 0;
 		MapilInt32 end = 0;
 		pStream->seekg( 0, std::ios::beg );
-		begin = pStream->tellg();
+		begin = static_cast < MapilInt32 > ( pStream->tellg() );
 		pStream->seekg( 0, std::ios::end );
-		end = pStream->tellg();
+		end = static_cast < MapilInt32 > ( pStream->tellg() );
 		size = end - begin;
 		pStream->seekg( 0, std::ios::beg );
 

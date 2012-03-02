@@ -19,7 +19,7 @@
 #include <Windows.h>
 #include <stdio.h>
 
-#include "../../../Src/IO/IO.h"
+#include "../Util/MapilObject.h"
 #include "../Type.h"
 
 //-------------------------------------------------------------------
@@ -28,7 +28,7 @@
 
 namespace MAPIL
 {
-	class Console : public IO
+	class Console : public MapilObject
 	{
 	private:
 		FILE*			m_pFile;			// File descriptor.

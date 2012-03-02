@@ -22,24 +22,34 @@ namespace MAPIL
 #define VERSION_DIRECT3D	0x0903		// 9.0c
 
 // Operating system.
-//#define OS_LINUX_32BIT				// Linux (32bit)
+#if defined ( WIN32 )
 #define OS_WIN_32BIT					// Windows (32bit)
+#else
+#define OS_LINUX_32BIT				// Linux (32bit)
+#endif
 
 // API.
+#if defined ( WIN32 )
 #define API_WIN32API					// Win32API.
 #define API_DIRECT3D					// Direct 3D.
-//#define API_DIRECT2D					// Direct 2D. (Not supported.)
-//#define API_DIRECTINPUT				// Direct Input. (Not supported.)
-//#define API_DIRECTSOUND				// Direct Sound. (Not supported.)
+#define API_DIRECT2D					// Direct 2D. (Not supported.)
+#define API_DIRECTINPUT					// Direct Input. (Not supported.)
+#define API_DIRECTSOUND					// Direct Sound. (Not supported.)
+#else
+#define API_GTK							// GTK.
+#define API_POSIX						// POSIX.
+#define API_ALSA						// ALSA.
+#endif
+
 #define API_OPENGL						// OpenGL.
-//#define API_GTK						// GTK.
-//#define API_POSIX						// POSIX.
 #define API_OPENAL						// OpenAL.
-//#define API_ALSA						// ALSA.
 
 // Character code.
+#if defined ( UNICODE )
 #define CHAR_CODE_UNICODE				// Unicode.
-//#define CHAR_CODE_MULTIBYTE			// Multi-byte.
+#else
+#define CHAR_CODE_MULTIBYTE			// Multi-byte.
+#endif
 
 // Library.
 #define LIB_STL							// STL.

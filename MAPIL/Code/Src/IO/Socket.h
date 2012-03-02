@@ -7,12 +7,12 @@
 #ifndef INCLUDED_MAPIL_SOCKET_H
 #define INCLUDED_MAPIL_SOCKET_H
 
-#include "IO.h"
+#include "../../Include/MAPIL/Util/MapilObject.h"
 #include "../../Include/MAPIL/Type.h"
 
 namespace MAPIL
 {
-	class TCPClient : public IO
+	class TCPClient : public MapilObject
 	{
 	private:
 		// Prohibit copy constructor.
@@ -39,7 +39,7 @@ namespace MAPIL
 										MapilInt32* pSize ) = 0;
 	};
 
-	class TCPServer : public IO
+	class TCPServer : public MapilObject
 	{
 	private:
 		// Prohibit copy constructor.
@@ -65,7 +65,7 @@ namespace MAPIL
 		virtual MapilVoid Receive( MapilChar* pReceiveData, MapilInt32 dataSize ) = 0;
 	};
 
-	class UDPClient : public IO
+	class UDPClient : public MapilObject
 	{
 	private:
 		// Prohibit copy constructor.
@@ -79,7 +79,7 @@ namespace MAPIL
 		virtual ~UDPClient();
 	};
 
-	class UDPServer : public IO
+	class UDPServer : public MapilObject
 	{
 	private:
 		// Prohibit copy constructor.

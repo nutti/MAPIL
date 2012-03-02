@@ -144,10 +144,10 @@ namespace MAPIL
 
 	LRESULT WinAPIGraphicsContext::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 	{
-		switch( msg ){
-			default:
-				break;
-		}
+		//switch( msg ){
+		//	default:
+		//		break;
+		//}
 
 		return DefWindowProc( hWnd, msg, wParam, lParam );
 	}

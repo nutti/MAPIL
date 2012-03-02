@@ -16,6 +16,10 @@
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/TChar.h"
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 namespace MAPIL
 {
 			
@@ -498,7 +502,9 @@ namespace MAPIL
 				face.m_MtrlNum = m_Object[ i ].m_Face[ j ].m_MaterialNum;
 				memcpy( face.m_Index, m_Object[ i ].m_Face[ j ].m_Index, sizeof( face.m_Index ) );
 				memcpy( face.m_TexCoord, m_Object[ i ].m_Face[ j ].m_TextureCoord, sizeof( face.m_TexCoord ) );
-				memset( face.m_Normal, -1.0f, sizeof( face.m_Normal ) );
+				for( MapilInt32 index = 0; index < sizeof( face.m_Normal ) / sizeof( face.m_Normal[ 0 ] ); ++index ){
+					face.m_Normal[ index ] = -1.0f;
+				}
 				memcpy( face.m_VertexCol, m_Material[ m_Object[ i ].m_Face[ j ].m_MaterialNum ].m_Color, sizeof( face.m_VertexCol ) );
 				obj.m_Face.push_back( face );
 			}

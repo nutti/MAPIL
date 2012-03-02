@@ -7,6 +7,7 @@
 #include "../../Include/MAPIL/CrossPlatform.h"
 
 #include "../../Include/MAPIL/Input/InputFactory.h"
+#include "../../Include/MAPIL/Input/InputDevice.h"
 
 namespace MAPIL
 {

@@ -99,7 +99,7 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width )
+										MapilInt32 width )
 	{
 		DrawLine( startX, startY, endX, endY, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width );
 	}
@@ -109,13 +109,13 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilUChar >& color,
-										MapilFloat32 width )
+										MapilInt32 width )
 	{
 		DrawLine( startX, startY, endX, endY, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width );
 	}
 
 	MapilVoid D3DCanvas2D::DrawLine(	MapilInt32 startX, MapilInt32 startY, MapilInt32 endX, MapilInt32 endY,
-										MapilUInt32 color, MapilFloat32 width )
+										MapilUInt32 color, MapilInt32 width )
 	{
 		HPEN pen = ::CreatePen( PS_SOLID, width, color );
 
@@ -132,7 +132,7 @@ namespace MAPIL
 										MapilInt32 endX,
 										MapilInt32 endY,
 										const ColorARGB < MapilFloat32 >& endColor,
-										MapilFloat32 width )
+										MapilInt32 width )
 	{
 	}
 
@@ -142,7 +142,7 @@ namespace MAPIL
 										MapilInt32 x2,
 										MapilInt32 y2,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		DrawRect( x1, y1, x2, y2, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width , isFilled );
@@ -153,7 +153,7 @@ namespace MAPIL
 										MapilInt32 x2,
 										MapilInt32 y2,
 										const ColorARGB < MapilUChar >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		DrawRect( x1, y1, x2, y2, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width, isFilled );
@@ -164,7 +164,7 @@ namespace MAPIL
 										MapilInt32 x2,
 										MapilInt32 y2,
 										MapilUInt32 color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		HPEN pen = ::CreatePen( PS_SOLID, width, color );
@@ -185,9 +185,9 @@ namespace MAPIL
 	// Draw circle.
 	MapilVoid D3DCanvas2D::DrawCircle(	MapilInt32 centerX,
 										MapilInt32 centerY,
-										MapilFloat32 radius,
+										MapilInt32 radius,
 										const ColorARGB < MapilFloat32 >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		DrawCircle( centerX, centerY, radius, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width, isFilled );
@@ -196,9 +196,9 @@ namespace MAPIL
 	// Draw circle.
 	MapilVoid D3DCanvas2D::DrawCircle(	MapilInt32 centerX,
 										MapilInt32 centerY,
-										MapilFloat32 radius,
+										MapilInt32 radius,
 										const ColorARGB < MapilUChar >& color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		DrawCircle( centerX, centerY, radius, GetColorRGBValue( color.m_R, color.m_G, color.m_B ), width, isFilled );
@@ -206,9 +206,9 @@ namespace MAPIL
 
 	MapilVoid D3DCanvas2D::DrawCircle(	MapilInt32 centerX,
 										MapilInt32 centerY,
-										MapilFloat32 radius,
+										MapilInt32 radius,
 										MapilUInt32 color,
-										MapilFloat32 width,
+										MapilInt32 width,
 										MapilBool isFilled )
 	{
 		HPEN pen = ::CreatePen( PS_SOLID, width, color );

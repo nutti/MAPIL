@@ -16,6 +16,10 @@
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/TChar.h"
 
+#ifdef OS_WIN_32BIT
+#pragma warning ( disable : 4996 )
+#endif
+
 namespace MAPIL
 {
 

@@ -13,7 +13,7 @@
 namespace MAPIL
 {
 	// Constructor.
-	Console::Console() : IO(), m_pFile( NULL )
+	Console::Console() : MapilObject(), m_pFile( NULL )
 	{
 	}
 

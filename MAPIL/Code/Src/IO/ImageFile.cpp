@@ -11,7 +11,7 @@
 namespace MAPIL
 {
 	// Constructor.
-	ImageFile::ImageFile() : File()
+	ImageFile::ImageFile() : MapilObject()
 	{
 	}
 

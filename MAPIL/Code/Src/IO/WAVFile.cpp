@@ -110,9 +110,9 @@ namespace MAPIL
 		MapilInt32 begin = 0;
 		MapilInt32 end = 0;
 		m_Stream.seekg( 0, std::ios::beg );
-		begin = m_Stream.tellg();
+		begin = static_cast < MapilInt32 > ( m_Stream.tellg() );
 		m_Stream.seekg( 0, std::ios::end );
-		end = m_Stream.tellg();
+		end = static_cast < MapilInt32 > ( m_Stream.tellg() );
 		m_FileSize = end - begin;
 		m_Stream.seekg( 0, std::ios::beg );
 	}
@@ -199,7 +199,7 @@ namespace MAPIL
 		MapilInt32 infoPos = 0;
 		MapilBool doesDetect = MapilFalse;
 		m_Stream.seekg( 0, std::ios::end );
-		infoPos = m_Stream.tellg();
+		infoPos = static_cast < MapilInt32 > ( m_Stream.tellg() );
 		--infoPos;
 		while( 1 ){
 			m_Stream.seekg( infoPos, std::ios::beg );

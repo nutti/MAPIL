@@ -15,6 +15,10 @@
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/TChar.h"
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 namespace MAPIL
 {
 	// Constructor.
@@ -586,7 +590,7 @@ namespace MAPIL
 			// ここ要修正。Xファイル読み込みのフォーマットがおかしい。
 			ModelData::Model::Object obj;
 			obj.m_NumVertex = m_Mesh[ i ].m_NumVertex;
-			for( MapilUInt32 j = 0; j < m_Mesh[ i ].m_NumVertex; ++j ){
+			for( MapilInt32 j = 0; j < m_Mesh[ i ].m_NumVertex; ++j ){
 				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_X );
 				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_Y );
 				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_Z );

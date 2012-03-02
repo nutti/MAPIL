@@ -28,28 +28,28 @@ namespace MAPIL
 		FILE_OPEN_WRITE_MODE	= 2,	///< Write mode.
 	};
 
-	class File
-	{
-	public:
-		/**
-		*	@brief Constructor.
-		*/
-		File();
-		/**
-		*	@brief Destructor.
-		*/
-		virtual ~File();
-		/**
-		*	@brief				Open the file.
-		*	@param pFileName	File name to be opened.
-		*	@param mode			Open mode.
-		*/
-		virtual MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode ) = 0;
-		/**
-		*	@brief Close the file.
-		*/
-		virtual MapilVoid Close() = 0;
-	};
+	//class File
+	//{
+	//public:
+	//	/**
+	//	*	@brief Constructor.
+	//	*/
+	//	File();
+	//	/**
+	//	*	@brief Destructor.
+	//	*/
+	//	virtual ~File();
+	//	/**
+	//	*	@brief				Open the file.
+	//	*	@param pFileName	File name to be opened.
+	//	*	@param mode			Open mode.
+	//	*/
+	//	virtual MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode ) = 0;
+	//	/**
+	//	*	@brief Close the file.
+	//	*/
+	//	virtual MapilVoid Close() = 0;
+	//};
 }
 
 #endif	// INCLUDED_MAPIL_FILE_H

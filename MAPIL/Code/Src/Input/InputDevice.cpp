@@ -11,7 +11,7 @@
 
 namespace MAPIL
 {
-	InputDevice::InputDevice( InputAPI api ) : Device(), m_API( api )
+	InputDevice::InputDevice( InputAPI api ) :  m_API( api )
 	{
 	}
 
