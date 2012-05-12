@@ -8,10 +8,18 @@
 
 #include "../../Include/MAPIL/Input/InputDevice.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
+#include "../../Include/MAPIL/Diag/MapilException.h"
+#include "../../Include/MAPIL/TChar.h"
 
 namespace MAPIL
 {
 	InputDevice::InputDevice( InputAPI api ) :  m_API( api )
+#if defined ( API_DIRECTINPUT )
+												,
+												m_DI(),
+												m_HWnd( NULL ),
+												m_HInst( NULL )
+#endif
 	{
 	}
 
@@ -19,10 +27,25 @@ namespace MAPIL
 	{
 		Destroy();
 		m_API = INPUT_API_UNKNOWN;
+#if defined ( API_DIRECTINPUT )
+		m_HWnd = NULL;
+		m_HInst = NULL;
+#endif
 	}
 
 	MapilVoid InputDevice::Create()
 	{
+		if( FAILED( ::DirectInput8Create(	m_HInst,
+											DIRECTINPUT_VERSION,
+											::IID_IDirectInput8,
+											reinterpret_cast < MapilVoid** > ( m_DI.GetPointerOfPointerWithChange() ),
+											NULL ) ) ){
+			throw MapilException(	TSTR( "MAPIL" ),
+									TSTR( "InputDevice" ),
+									TSTR( "Create" ),
+									TSTR( "Failed to create Direct Input." ),
+									-1 );
+		}
 	}
 
 	MapilVoid InputDevice::Destroy()

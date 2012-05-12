@@ -12,6 +12,10 @@
 #include "../Util/MapilObject.h"
 #include "../Type.h"
 #include "../Util/SharedPointer.hpp"
+#include "../Util/COMPointer.hpp"
+
+#include <dinput.h>
+
 
 namespace MAPIL
 {
@@ -25,6 +29,11 @@ namespace MAPIL
 	class InputDevice : public MapilObject
 	{
 		InputAPI		m_API;
+#if defined ( API_DIRECTINPUT )
+		COMPointer < IDirectInput8 >		m_DI;		///< Direct input interface.
+		::HWND								m_HWnd;		///< Window handle.
+		::HINSTANCE							m_HInst;	///< Instance handle.
+#endif
 	public:
 		InputDevice( InputAPI api );
 		~InputDevice();
