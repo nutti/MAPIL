@@ -16,7 +16,7 @@ namespace MAPIL
 	InputDevice::InputDevice( InputAPI api ) :  m_API( api )
 #if defined ( API_DIRECTINPUT )
 												,
-												m_DI(),
+												m_DI( NULL ),
 												m_HWnd( NULL ),
 												m_HInst( NULL )
 #endif
@@ -35,6 +35,8 @@ namespace MAPIL
 
 	MapilVoid InputDevice::Create()
 	{
+		m_HInst = GetModuleHandle( NULL );
+
 		if( FAILED( ::DirectInput8Create(	m_HInst,
 											DIRECTINPUT_VERSION,
 											::IID_IDirectInput8,
@@ -50,6 +52,11 @@ namespace MAPIL
 
 	MapilVoid InputDevice::Destroy()
 	{
+	}
+
+	COMPointer < IDirectInput8 > InputDevice::GetDev()
+	{
+		return m_DI;
 	}
 
 	InputAPI InputDevice::GetInputAPI() const

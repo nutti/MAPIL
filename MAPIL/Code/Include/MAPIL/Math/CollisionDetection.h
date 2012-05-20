@@ -10,18 +10,20 @@
 #include "../CrossPlatform.h"
 
 #include "../Math/Vector.hpp"
+#include "../IO/ModelFile.h"
 
 #include "../Type.h"
 
 namespace MAPIL
 {
-	MapilBool DetectColision(	const Vector3 < MapilFloat32 >& vVertex0,
+	MapilBool DetectCollision(	const Vector3 < MapilFloat32 >& vVertex0,
 								const Vector3 < MapilFloat32 >& vVertex1,
 								const Vector3 < MapilFloat32 >& vVertex2,
 								const Vector3 < MapilFloat32 >& vRayOrig,
 								const Vector3 < MapilFloat32 >& vRayDir,
 								Vector2 < MapilFloat32 >* pVCollisionPos,
 								MapilFloat32* pDistance );
+
 }
 
 #endif	// INCLUDED_MAPIL_COLLISIONDETECTION_H

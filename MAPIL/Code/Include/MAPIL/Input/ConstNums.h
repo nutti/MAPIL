@@ -161,13 +161,34 @@ namespace MAPIL
 	};
 
 	/**
-	*	@brief Mouse codes for the mouse.
+	*	@brief Button codes for the mouse.
 	*/
 	enum MouseButton
 	{
 		MOUSE_BUTTON_LEFT			= 0x01,			///< Left.
 		MOUSE_BUTTON_RIGHT			= 0x02,			///< Right.
 		MOUSE_BUTTON_CENTER			= 0x04,			///< Center.
+	};
+
+	/**
+	*	@brief Button codes for the gamepad.
+	*/
+	enum GamepadButton
+	{
+		GAMEPAD_BUTTON_UP			= 0x0001,			///< Up.
+		GAMEPAD_BUTTON_DOWN			= 0x0002,			///< Down.
+		GAMEPAD_BUTTON_LEFT			= 0x0004,			///< Left.
+		GAMEPAD_BUTTON_RIGHT		= 0x0008,			///< Right.
+		GAMEPAD_BUTTON_A			= 0x0010,			///< A.
+		GAMEPAD_BUTTON_B			= 0x0020,			///< B.
+		GAMEPAD_BUTTON_C			= 0x0040,			///< C.
+		GAMEPAD_BUTTON_X			= 0x0080,			///< X.
+		GAMEPAD_BUTTON_Y			= 0x0100,			///< Y.
+		GAMEPAD_BUTTON_Z			= 0x0200,			///< Z.
+		GAMEPAD_BUTTON_L			= 0x0400,			///< L.
+		GAMEPAD_BUTTON_R			= 0x0800,			///< R.
+		GAMEPAD_BUTTON_START		= 0x1000,			///< Start.
+		GAMEPAD_BUTTON_M			= 0x2000,			///< M.
 	};
 }
 

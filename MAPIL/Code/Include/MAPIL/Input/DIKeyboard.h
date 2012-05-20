@@ -13,14 +13,21 @@
 
 #include "Keyboard.h"
 #include "../Util/SharedPointer.hpp"
+#include "../GUI/WinAPIWindow.h"
 
 namespace MAPIL
 {
 	class DIKeyboard : public Keyboard
 	{
+	private:
+		::LPDIRECTINPUTDEVICE8			m_pKeyboardDev;
+		MapilBool						m_IsUsed;
+		SharedPointer < WinAPIWindow >	m_pWnd;
+		MapilBool						m_IsInputActive;
 	public:
 		DIKeyboard( SharedPointer < InputDevice > pDev );
 		~DIKeyboard();
+		MapilVoid Create( SharedPointer < Window > pWnd );
 		MapilVoid GetKeyMap( MapilUChar* pOut );
 		MapilBool IsPushed( MapilInt32 key );
 	};

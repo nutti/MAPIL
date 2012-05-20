@@ -9,7 +9,7 @@
 
 #include "../CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "Keyboard.h"
 #include "../Util/SharedPointer.hpp"
@@ -21,6 +21,7 @@ namespace MAPIL
 	public:
 		WinAPIKeyboard( SharedPointer < InputDevice > pDev );
 		~WinAPIKeyboard();
+		MapilVoid Create( SharedPointer < Window > pWnd );
 		MapilVoid GetKeyMap( MapilUChar* pOut );
 		MapilBool IsPushed( MapilInt32 key );
 	};

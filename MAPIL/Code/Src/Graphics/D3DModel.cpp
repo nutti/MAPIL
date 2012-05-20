@@ -324,6 +324,44 @@ namespace MAPIL
 		}
 	}
 
+	MapilBool D3DModel::DetectCollision(	const Vector3 < MapilFloat32 >& vRayDir,
+											const Vector3 < MapilFloat32 >& vRayOrig,
+											Vector2 < MapilFloat32 >* pVCollisionPos,
+											MapilFloat32* pDistance )
+	{
+		Assert(	m_IsUsed,
+				TSTR( "Mapil" ),
+				TSTR( "D3DModel" ),
+				TSTR( "DetectCollision" ),
+				TSTR( "The mesh isn't created yet." ),
+				-1 );
+
+		::D3DXVECTOR3 pos( vRayOrig.m_X, vRayOrig.m_Y, vRayOrig.m_Z );		// Position of the ray.
+		::D3DXVECTOR3 dir( vRayDir.m_X, vRayDir.m_Y, vRayDir.m_Z );			// Direction of the ray.
+		BOOL result = FALSE;												// Does collide?
+		DWORD faceIndex = 0;												// Index of the face which ray hits.
+		FLOAT collisionPosX = 0;											// X-coordinate of the position where ray hits.
+		FLOAT collisionPosY = 0;											// Y-coordinate of the position where ray hits.
+		FLOAT distance = 0;													// Distance between origin of the ray and where the ray hits.
+
+		::D3DXIntersect(	m_pD3DMesh,
+							&pos,
+							&dir,
+							&result,
+							&faceIndex,
+							&collisionPosX,
+							&collisionPosY,
+							&distance,
+							NULL,
+							NULL );
+
+		pVCollisionPos->m_X = collisionPosX;
+		pVCollisionPos->m_Y = collisionPosY;
+		*pDistance = distance;
+
+		return result ? MapilTrue : MapilFalse;					
+	}
+
 }
 
 #endif	// API_DIRECT3D

@@ -22,6 +22,10 @@ namespace MAPIL
 	{
 	}
 
+	MapilVoid WinAPIKeyboard::Create( SharedPointer < Window > pWnd )
+	{
+	}
+
 	MapilVoid WinAPIKeyboard::GetKeyMap( MapilUChar* pOut )
 	{
 		::GetKeyboardState( pOut );

@@ -235,6 +235,15 @@ namespace MAPIL
 
 		glFlush();
 	}
+
+	MapilBool GLModel::DetectCollision(	const Vector3 < MapilFloat32 >& vRayDir,
+										const Vector3 < MapilFloat32 >& vRayOrig,
+										Vector2 < MapilFloat32 >* pVCollisionPos,
+										MapilFloat32* pDistance )
+	{
+		return MapilFalse;
+	}
+
 }
 
 #endif	// API_OPENGL

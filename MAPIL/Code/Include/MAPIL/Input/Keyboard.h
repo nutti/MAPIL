@@ -12,6 +12,7 @@
 #include "Input.h"
 #include "../Util/SharedPointer.hpp"
 #include "ConstNums.h"
+#include "../GUI/Window.h"
 
 namespace MAPIL
 {
@@ -20,6 +21,7 @@ namespace MAPIL
 	public:
 		Keyboard( SharedPointer < InputDevice > pDev );
 		virtual ~Keyboard();
+		virtual MapilVoid Create( SharedPointer < Window > pWnd ) = 0;
 		virtual MapilVoid GetKeyMap( MapilUChar* pOut ) = 0;
 		virtual MapilBool IsPushed( MapilInt32 key ) = 0;
 	};

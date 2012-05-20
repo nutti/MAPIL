@@ -62,6 +62,18 @@ namespace MAPIL
 		*	@param mat	Transformation matrix.
 		*/
 		virtual MapilVoid Draw( const Matrix4x4 < MapilFloat32 >& mat ) = 0;
+		/**
+		*	@brief					Detect collision.
+		*	@param vRayDir			Direction of the ray.
+		*	@param vRayOrig			Position of the ray.
+		*	@param pVcollisionPos	Position where the ray hits.
+		*	@param pDistance		Distance between vRayOrig and where the ray hits.
+		*	@return					Does the ray collide with the polygon?
+		*/
+		virtual MapilBool DetectCollision(	const Vector3 < MapilFloat32 >& vRayDir,
+											const Vector3 < MapilFloat32 >& vRayOrig,
+											Vector2 < MapilFloat32 >* pVCollisionPos,
+											MapilFloat32* pDistance ) = 0;
 	};
 }
 

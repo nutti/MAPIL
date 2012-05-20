@@ -19,7 +19,7 @@
 
 namespace MAPIL
 {
-	MapilBool DetectColision(	const Vector3 < MapilFloat32 >& vVertex0,
+	MapilBool DetectCollision(	const Vector3 < MapilFloat32 >& vVertex0,
 								const Vector3 < MapilFloat32 >& vVertex1,
 								const Vector3 < MapilFloat32 >& vVertex2,
 								const Vector3 < MapilFloat32 >& vRayOrig,

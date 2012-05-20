@@ -22,6 +22,10 @@ namespace MAPIL
 	{
 	}
 
+	MapilVoid WinAPIMouse::Create( SharedPointer < Window > pWnd )
+	{
+	}
+
 	MapilVoid WinAPIMouse::GetPos( Vector2 < MapilInt32 >* pPos )
 	{
 		POINT p;

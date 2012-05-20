@@ -14,8 +14,10 @@
 #include "../Util/SharedPointer.hpp"
 #include "../Util/COMPointer.hpp"
 
+#if defined ( API_DIRECTINPUT )
+#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
-
+#endif
 
 namespace MAPIL
 {
@@ -39,6 +41,7 @@ namespace MAPIL
 		~InputDevice();
 		MapilVoid Create();
 		MapilVoid Destroy();
+		COMPointer < IDirectInput8 > GetDev();
 		InputAPI GetInputAPI() const;
 	};
 

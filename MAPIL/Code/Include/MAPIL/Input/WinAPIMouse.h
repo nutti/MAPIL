@@ -22,6 +22,7 @@ namespace MAPIL
 	public:
 		WinAPIMouse( SharedPointer < InputDevice > pDev );
 		~WinAPIMouse();
+		MapilVoid Create( SharedPointer < Window > pWnd );
 		MapilVoid GetPos( Vector2 < MapilInt32 >* pPos );
 		MapilVoid SetPos( const Vector2 < MapilInt32 >& pos );
 		MapilBool IsPushed( MapilInt32 button );

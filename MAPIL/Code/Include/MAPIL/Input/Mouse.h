@@ -12,6 +12,7 @@
 #include "Input.h"
 #include "../Math/Vector.hpp"
 #include "../Util/SharedPointer.hpp"
+#include "../GUI/Window.h"
 
 namespace MAPIL
 {
@@ -20,6 +21,7 @@ namespace MAPIL
 	public:
 		Mouse( SharedPointer < InputDevice > pDev );
 		virtual ~Mouse();
+		virtual MapilVoid Create( SharedPointer < Window > pWnd ) = 0;
 		virtual MapilVoid GetPos( Vector2 < MapilInt32 >* pPos ) = 0;
 		virtual MapilVoid SetPos( const Vector2 < MapilInt32 >& pos ) = 0;
 		virtual MapilBool IsPushed( MapilInt32 button ) = 0;
