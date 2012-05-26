@@ -85,7 +85,7 @@ namespace MAPIL
 				TSTR( "Mapil" ),
 				TSTR( "DIKeyboard" ),
 				TSTR( "GetKeyMap" ),
-				TSTR( "Keyboad isn't created yet." ),
+				TSTR( "Keyboad is not created yet." ),
 				-1 );
 
 		HRESULT hr;

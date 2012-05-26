@@ -10,6 +10,7 @@
 #include "../CrossPlatform.h"
 
 #include "Sound.h"
+#include "../Math/Vector.hpp"
 
 namespace MAPIL
 {
@@ -26,6 +27,11 @@ namespace MAPIL
 		virtual MapilVoid Pause() = 0;
 		virtual MapilVoid Destroy() = 0;
 		virtual MapilVoid SetVolume() = 0;
+		/**
+		*	@brief		Set sound source position.
+		*	@param pos	Position.
+		*/
+		virtual MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos ) = 0;
 	};
 }
 

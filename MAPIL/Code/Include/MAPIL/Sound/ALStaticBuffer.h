@@ -52,6 +52,7 @@ namespace MAPIL
 		ALuint				m_Src;			///< Handler.
 		ALuint				m_Buf;			///< Handler.
 		MapilBool			m_IsPlaying;	///< Is sound playing now?
+		MapilFloat32		m_Pos[ 3 ];		///< Sound source position.
 	public:
 		/**
 		*	@brief Constructor.
@@ -93,6 +94,11 @@ namespace MAPIL
 		*	@brief Set volume.
 		*/
 		MapilVoid SetVolume();
+		/**
+		*	@brief Set sound source position.
+		*	@param pos	Position.
+		*/
+		MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos );
 	};
 }
 

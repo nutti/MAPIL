@@ -41,6 +41,7 @@ namespace MAPIL
 																					m_HasTermSig( MapilFalse ),
 																					m_HasExtArchive( MapilFalse )
 	{
+		ZeroObject( m_Pos, sizeof( m_Pos ) );
 	}
 
 	ALStreamingBuffer::~ALStreamingBuffer()
@@ -59,6 +60,8 @@ namespace MAPIL
 		alSourceStop( m_Src );
 		alDeleteSources( 1, &m_Src );
 		alDeleteBuffers( 2, m_Bufs );
+
+		ZeroObject( m_Pos, sizeof( m_Pos ) );
 	}
 
 	MapilInt32 ALStreamingBuffer::WAVFileThread()
@@ -340,6 +343,16 @@ namespace MAPIL
 		m_Volume = volume;
 		alSourcef( m_Src, AL_GAIN, m_Volume );
 	}
+
+	MapilVoid ALStreamingBuffer::SetPosition( const Vector3 < MapilFloat32 >& pos )
+	{
+		m_Pos[ 0 ] = pos.m_X;
+		m_Pos[ 1 ] = pos.m_Y;
+		m_Pos[ 2 ] = pos.m_Z;
+
+		alSource3f( m_Src, AL_POSITION, m_Pos[ 0 ], m_Pos[ 1 ], m_Pos[ 2 ] );
+	}
+
 
 #elif defined ( API_POSIX )
 	ALStreamingBuffer::ALStreamingBuffer( SharedPointer < SoundDevice > pDev ) :	StreamingBuffer( pDev ),

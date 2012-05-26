@@ -20,6 +20,7 @@
 #include "../Util/SharedPointer.hpp"
 #include "../GUI/WinAPIWindow.h"
 
+
 namespace MAPIL
 {
 	class DIGamepad : public Input
@@ -35,11 +36,13 @@ namespace MAPIL
 			::IDirectInput8*				m_pDev;
 			::LPDIRECTINPUTDEVICE8			m_pGamepadDev;
 		};
+
+		static BOOL CALLBACK GetGamepad( ::LPDIDEVICEINSTANCE pDIDev, LPVOID pParam );
 	public:
 		DIGamepad( SharedPointer < InputDevice > pDev );
 		~DIGamepad();
 		MapilVoid Create( SharedPointer < Window > pWnd );
-		static BOOL CALLBACK GetJoystick( ::LPDIDEVICEINSTANCE pDIDev, LPVOID pParam );
+		MapilBool IsPushed( MapilInt32 button );
 	};
 }
 

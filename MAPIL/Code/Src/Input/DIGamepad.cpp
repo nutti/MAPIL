@@ -37,11 +37,11 @@ namespace MAPIL
 
 	MapilVoid DIGamepad::Create( SharedPointer < Window > pWnd )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "MAPIL" ),
+		Assert(	!m_IsUsed,
+				TSTR( "Mapil" ),
 				TSTR( "DIGamepad" ),
 				TSTR( "Create" ),
-				TSTR( "Gamepad isn't created yet." ),
+				TSTR( "Keyboard was already created." ),
 				-1 );
 
 		CallBackParam param;
@@ -49,7 +49,7 @@ namespace MAPIL
 		param.m_pGamepadDev = m_pGamepadDev;
 
 		m_pDev->GetDev().GetPointer()->EnumDevices(	DI8DEVCLASS_GAMECTRL,
-													reinterpret_cast < ::LPDIENUMDEVICESCALLBACK > ( DIGamepad::GetJoystick ),
+													reinterpret_cast < ::LPDIENUMDEVICESCALLBACK > ( DIGamepad::GetGamepad ),
 													&param,
 													DIEDFL_ATTACHEDONLY );
 
@@ -102,7 +102,14 @@ namespace MAPIL
 		m_IsUsed = MapilTrue;
 	}
 
-	BOOL CALLBACK DIGamepad::GetJoystick( ::LPDIDEVICEINSTANCE pDIDev, LPVOID pParam )
+	//BOOL CALLBACK GetGamepads( ::LPDIDEVICEINSTANCE pDIDev, LPVOID pParam )
+	//{
+	//	HRESULT hr;
+	//	hr = p->m_pDev->CreateDevice( pDIDev->guidInstance, &g_lpDIJoypad2[g_dijoycount++], NULL );
+	//	return DIENUM_CONTINUE;
+	//}
+
+	BOOL CALLBACK DIGamepad::GetGamepad( ::LPDIDEVICEINSTANCE pDIDev, LPVOID pParam )
 	{
 		HRESULT hr;
 
@@ -114,6 +121,64 @@ namespace MAPIL
 		}
 
 		return DIENUM_STOP;		// Device enumeration is finished.
+	}
+
+	MapilBool DIGamepad::IsPushed( MapilInt32 button )
+	{
+		::HRESULT hr;
+		::DIJOYSTATE state;
+
+		hr = m_pGamepadDev->Poll();
+		if( FAILED( hr ) ){
+			hr = m_pGamepadDev->Acquire();
+			while( hr == DIERR_INPUTLOST ){
+				hr = m_pGamepadDev->Acquire();
+			}
+		}
+
+		// Get gamepad state.
+		hr = m_pGamepadDev->GetDeviceState( sizeof( ::DIJOYSTATE ), &state );
+		if( hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED ){
+			hr = m_pGamepadDev->Acquire();
+			while( hr == DIERR_INPUTLOST ){
+				hr = m_pGamepadDev->Acquire();
+			}
+		}
+
+		switch( button ){
+			case GAMEPAD_BUTTON_UP:
+				return state.lY < 0 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_DOWN:
+				return state.lY > 0 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_LEFT:
+				return state.lX < 0 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_RIGHT:
+				return state.lX > 0 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_A:
+				return state.rgbButtons[ 0 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_B:
+				return state.rgbButtons[ 1 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_C:
+				return state.rgbButtons[ 2 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_X:
+				return state.rgbButtons[ 3 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_Y:
+				return state.rgbButtons[ 4 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_Z:
+				return state.rgbButtons[ 5 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_L:
+				return state.rgbButtons[ 6 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_R:
+				return state.rgbButtons[ 7 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_START:
+				return state.rgbButtons[ 8 ] & 0x80 ? MapilTrue : MapilFalse;
+			case GAMEPAD_BUTTON_M:
+				return state.rgbButtons[ 9 ] & 0x80 ? MapilTrue : MapilFalse;
+			default:
+				break;
+		}
+
+		return MapilFalse;
 	}
 }
 

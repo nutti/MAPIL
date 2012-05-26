@@ -48,19 +48,20 @@ namespace MAPIL
 	class ALStreamingBuffer : public StreamingBuffer, public WinAPIThread
 	{
 	private:
-		WAVFile*			m_pWavFile;		///< WAVFile class.
-		Archiver*			m_pArchiver;	///< Archiver class.
+		WAVFile*			m_pWavFile;					///< WAVFile class.
+		Archiver*			m_pArchiver;				///< Archiver class.
 		std::basic_string < MapilChar >		m_FileName;
-		MapilInt32			m_DataSize;		///< Size of sound data.
-		ALuint				m_Src;			///< Handler.
-		ALuint				m_Bufs[ 2 ];	///< Handler.
-		ALuint				m_BufSize;		///< Buffer size.
-		MapilBool			m_IsPlaying;	///< Is sound playing now?
-		MapilBool			m_IsPausing;	///< Is sound pausing now?
-		MapilBool			m_HasTermSig;	///< Does this class have the signal of terminal?
-		MapilFloat32		m_Volume;		///< Volume.
-		MapilBool			m_HasWavFile;	///< Is based on WAVFile class?
-		MapilBool			m_HasExtArchive;	///< Has the external archive file?
+		MapilInt32			m_DataSize;					///< Size of sound data.
+		ALuint				m_Src;						///< Handler.
+		ALuint				m_Bufs[ 2 ];				///< Handler.
+		ALuint				m_BufSize;					///< Buffer size.
+		MapilBool			m_IsPlaying;				///< Is sound playing now?
+		MapilBool			m_IsPausing;				///< Is sound pausing now?
+		MapilBool			m_HasTermSig;				///< Does this class have the signal of terminal?
+		MapilFloat32		m_Volume;					///< Volume.
+		MapilBool			m_HasWavFile;				///< Is based on WAVFile class?
+		MapilBool			m_HasExtArchive;			///< Has the external archive file?
+		MapilFloat32		m_Pos[ 3 ];					///< Sound source position.
 		/**
 		*	@brief	The process contents of the thread.
 		*	@return	Return value of the thread.
@@ -115,6 +116,11 @@ namespace MAPIL
 		*	@brief Set volume.
 		*/
 		MapilVoid SetVolume( MapilFloat32 volume );
+		/**
+		*	@brief Set sound source position.
+		*	@param pos	Position.
+		*/
+		MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos );
 	};
 #elif defined( API_POSIX )
 	class SoundDevice;

@@ -30,6 +30,7 @@ namespace MAPIL
 																			m_DataSize( 0 ),
 																			m_IsPlaying( MapilFalse )
 	{
+		ZeroObject( m_Pos, sizeof( m_Pos ) );
 	}
 
 	ALStaticBuffer::~ALStaticBuffer()
@@ -45,6 +46,8 @@ namespace MAPIL
 
 		alDeleteSources( 1, &m_Src );
 		alDeleteBuffers( 1, &m_Buf );
+
+		ZeroObject( m_Pos, sizeof( m_Pos ) );
 	}
 
 	MapilVoid ALStaticBuffer::Create( const MapilTChar* pFileName )
@@ -146,6 +149,15 @@ namespace MAPIL
 
 	MapilVoid ALStaticBuffer::SetVolume()
 	{
+	}
+
+	MapilVoid ALStaticBuffer::SetPosition( const Vector3 < MapilFloat32 >& pos )
+	{
+		m_Pos[ 0 ] = pos.m_X;
+		m_Pos[ 1 ] = pos.m_Y;
+		m_Pos[ 2 ] = pos.m_Z;
+
+		alSource3f( m_Src, AL_POSITION, m_Pos[ 0 ], m_Pos[ 1 ], m_Pos[ 2 ] );
 	}
 }
 
