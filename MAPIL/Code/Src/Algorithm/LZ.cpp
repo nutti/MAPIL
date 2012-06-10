@@ -69,10 +69,14 @@ namespace MAPIL
 		return 0;
 	}
 
-	MapilVoid LZ::Compress( MapilChar* pRaw, MapilInt32 rawLen, MapilChar** ppComp, MapilInt32* pCompLen )
+	MapilVoid LZ::Compress(	MapilChar* pRaw,
+							MapilInt32 rawLen,
+							MapilChar** ppComp,
+							MapilInt32 bufLen,
+							MapilInt32* pCompLen )
 	{
 		m_pRaw = pRaw;
-		m_pComp = new MapilChar [ rawLen * 2 ];
+		m_pComp = new MapilChar [ rawLen * 2 ];		// Internal buffer.
 		ZeroObject( m_pComp, rawLen * 2 );
 		m_pWinBeg = pRaw;
 		m_pWinEnd = pRaw;
@@ -85,6 +89,12 @@ namespace MAPIL
 			MapilUChar len;
 			MapilInt32 result;
 			result = Search( &index, &len );
+			// Check if the string pointer is in the valid range.
+			MapilInt32 surplus = m_pDataEnd - m_pWinEnd;
+			if( len > surplus ){
+				len = surplus;
+			}
+
 			if( result == 1 ){
 				if( index > 0 && len >= MINIMUM_ADOPTION_SIZE ){
 					*q++ = ESCAPE_CHAR;
@@ -109,13 +119,23 @@ namespace MAPIL
 		}
 
 		*pCompLen = q - m_pComp;
-		*ppComp = m_pComp;
+		// If length is bigger than buffer length, it is an error case.
+		if( bufLen < *pCompLen ){
+			return;
+		}
+		::memcpy( *ppComp, m_pComp, *pCompLen );
+
+		SafeDeleteArray( m_pComp );
 	}
 
-	MapilVoid LZ::Expand( MapilChar* pComp, MapilInt32 compLen, MapilChar** ppRaw, MapilInt32* pRawLen )
+	MapilVoid LZ::Expand(	MapilChar* pComp,
+							MapilInt32 compLen,
+							MapilChar** ppRaw,
+							MapilInt32 bufLen,
+							MapilInt32* pRawLen )
 	{
 		m_pComp = pComp;
-		m_pRaw = new MapilChar [ compLen * 1000 ];
+		m_pRaw = new MapilChar [ compLen * 1000 ];		// Internal buffer.
 		ZeroObject( m_pRaw, compLen * 1000 );
 		
 		MapilChar* p = m_pComp;
@@ -143,6 +163,12 @@ namespace MAPIL
 		}
 
 		*pRawLen = q - m_pRaw;
-		*ppRaw = m_pRaw;
+		// If length is bigger than buffer length, it is an error case.
+		if( bufLen < *pRawLen ){
+			return;
+		}
+		::memcpy( *ppRaw, m_pRaw, *pRawLen );
+
+		SafeDeleteArray( m_pRaw );
 	}
 }

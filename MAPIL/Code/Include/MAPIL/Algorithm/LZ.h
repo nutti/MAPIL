@@ -30,17 +30,25 @@ namespace MAPIL
 		MapilChar*			m_pWinBeg;
 		MapilChar*			m_pWinEnd;
 		MapilChar*			m_pDataEnd;
-		const MapilUChar	WINDOW_SIZE;
-		const MapilUChar	MINIMUM_ADOPTION_SIZE;
-		const MapilChar		ESCAPE_CHAR;
+		const MapilUChar	WINDOW_SIZE;				///< Window (Memory) size.
+		const MapilUChar	MINIMUM_ADOPTION_SIZE;		///< Minimum adoption size. (Data is compressed under this size.)
+		const MapilChar		ESCAPE_CHAR;				///< Escape character.
 
 		MapilInt32 Search( MapilUChar* pIndex, MapilUChar* pLen );
 	public:
 		LZ( MapilUChar winSize, MapilUChar minAdoptionSize, MapilChar escape = '[' );
 		~LZ();
 		MapilVoid Reset();
-		MapilVoid Compress( MapilChar* pRaw, MapilInt32 rawLen, MapilChar** ppComp, MapilInt32* pCompLen );
-		MapilVoid Expand( MapilChar* pComp, MapilInt32 compLen, MapilChar** ppRaw, MapilInt32* pRawLen );
+		MapilVoid Compress(	MapilChar* pRaw,
+							MapilInt32 rawLen,
+							MapilChar** ppComp,
+							MapilInt32 bufLen,
+							MapilInt32* pCompLen );
+		MapilVoid Expand(	MapilChar* pComp,
+							MapilInt32 compLen,
+							MapilChar** ppRaw,
+							MapilInt32 bufLen,
+							MapilInt32* pRawLen );
 	};
 }
 
