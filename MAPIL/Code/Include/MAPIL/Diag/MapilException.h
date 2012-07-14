@@ -7,12 +7,23 @@
 #ifndef INCLUDED_MAPIL_MAPIL_EXCEPTION_H
 #define INCLUDED_MAPIL_MAPIL_EXCEPTION_H
 
+#include "../CrossPlatform.h"
+
 #include <string>
 
 #include "Exception.h"
+#include "../Util/MapilObject.h"
 
 namespace MAPIL
 {
+
+#if defined ( OS_WIN_32BIT ) 
+#define CURRENT_POSITION			__FUNCTION__
+#define CURRENT_POSITION_DETAIL		__FUNCSIG__
+#elif defined( OS_LINUX_32BIT )
+#define CURRENT_POSITION_DETAIL		__PRETTY_FUNCTION__
+#endif
+
 	class MapilException : public Exception
 	{
 		std::basic_string < MapilTChar >		m_SpaceName;
@@ -37,6 +48,19 @@ namespace MAPIL
 							MapilInt32 codeNum );
 		// Constructor. (3)
 		MapilException( const MapilException& e );
+		// Constructor. (4)
+		MapilException(	const MapilObject* pObj,
+						const MapilTChar* pFuncName,
+						const MapilTChar* pProblemDesc,
+						MapilInt32 codeNum );
+		// Constructor. (5)
+		MapilException(	const MapilTChar* pPosition,
+						const MapilTChar* pProblemDesc,
+						MapilInt32 codeNum );
+		// Constructor. (6)
+		MapilException(	const MapilChar* pPosition,
+						const MapilTChar* pProblemDesc,
+						MapilInt32 codeNum );
 		//Substitute (Overload of = operator)
 		MapilException& operator=( const MapilException& e );
 		// Destructor.

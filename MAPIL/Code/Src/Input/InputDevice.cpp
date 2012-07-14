@@ -13,12 +13,12 @@
 
 namespace MAPIL
 {
-	InputDevice::InputDevice( InputAPI api ) :  m_API( api )
+	InputDevice::InputDevice( MapilInt32 api ) :	m_API( api )
 #if defined ( API_DIRECTINPUT )
-												,
-												m_DI( NULL ),
-												m_HWnd( NULL ),
-												m_HInst( NULL )
+													,
+													m_DI( NULL ),
+													m_HWnd( NULL ),
+													m_HInst( NULL )
 #endif
 	{
 	}
@@ -59,12 +59,12 @@ namespace MAPIL
 		return m_DI;
 	}
 
-	InputAPI InputDevice::GetInputAPI() const
+	MapilInt32 InputDevice::GetInputAPI() const
 	{
 		return m_API;
 	}
 
-	IInputDevice CreateInputDevice( InputAPI api )
+	IInputDevice CreateInputDevice( MapilInt32 api )
 	{
 		SharedPointer < InputDevice > pID( new InputDevice( api ) );
 

@@ -28,7 +28,7 @@ namespace MAPIL
 
 	GUIFactory* CreateGUIFactory( SharedPointer < GUIDevice > pDev )
 	{
-		GUIAPI api = pDev->GetGUIAPI();
+		MapilInt32 api = pDev->GetGUIAPI();
 		
 		if( api == GUI_API_WIN32API ){
 			return new WinAPIGUIFactory( pDev );

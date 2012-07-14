@@ -45,7 +45,7 @@ namespace MAPIL
 
 	GraphicsFactory* CreateGraphicsFactory( SharedPointer < GraphicsDevice > pDev )
 	{
-		GraphicsAPI api = pDev->GetGraphicsAPI();
+		MapilInt32 api = pDev->GetGraphicsAPI();
 
 		if( api == GRAPHICS_API_DIRECT3D ){
 			//return SharedPointer < GraphicsFactory > ( new D3DGraphicsFactory( pDev ) );

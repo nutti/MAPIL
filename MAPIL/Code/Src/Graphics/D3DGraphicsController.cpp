@@ -238,7 +238,7 @@ namespace MAPIL
 	}
 
 	// Set alpha blend mode
-	MapilVoid D3DGraphicsController::SetAlphaBlendMode( AlphaBlendMode mode )
+	MapilVoid D3DGraphicsController::SetAlphaBlendMode( MapilInt32 mode )
 	{
 		switch( mode ){
 			case ALPHA_BLEND_MODE_NO_TRANSPARENT:			//No transparent (SRC*RGBA(1,1,1,1)+DEST*RGBA(0,0,0,0))
@@ -294,7 +294,7 @@ namespace MAPIL
 	}
 
 	// Set cull mode
-	MapilVoid D3DGraphicsController::SetCullMode( CullMode mode )
+	MapilVoid D3DGraphicsController::SetCullMode( MapilInt32 mode )
 	{
 		switch( mode ){
 			case CULL_MODE_DISABLED:			//Disabled
@@ -314,7 +314,7 @@ namespace MAPIL
 	}
 
 	// Set texture mode
-	MapilVoid D3DGraphicsController::SetTextureMode( TextureMode mode )
+	MapilVoid D3DGraphicsController::SetTextureMode( MapilInt32 mode )
 	{
 	}
 

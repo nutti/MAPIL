@@ -10,7 +10,7 @@
 
 namespace MAPIL
 {
-	GUIDevice::GUIDevice( GUIAPI api ) : m_GUIAPI( api )
+	GUIDevice::GUIDevice( MapilInt32 api ) : m_GUIAPI( api )
 	{
 	}
 
@@ -22,12 +22,12 @@ namespace MAPIL
 	{
 	}
 
-	GUIAPI GUIDevice::GetGUIAPI() const
+	MapilInt32 GUIDevice::GetGUIAPI() const
 	{
 		return m_GUIAPI;
 	}
 
-	IGUIDevice CreateGUIDevice( GUIAPI api )
+	IGUIDevice CreateGUIDevice( MapilInt32 api )
 	{
 		SharedPointer < GUIDevice > pGD( new GUIDevice( api ) );
 

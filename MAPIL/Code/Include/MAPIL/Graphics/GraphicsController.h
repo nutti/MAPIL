@@ -91,17 +91,17 @@ namespace MAPIL
 		*	@brief			Set alpha blend mode.
 		*	@param mode		Alpha blend mode to be set.
 		*/
-		virtual MapilVoid SetAlphaBlendMode( AlphaBlendMode mode ) = 0;
+		virtual MapilVoid SetAlphaBlendMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Set culling mode.
 		*	@param mode		Culling mode to be set.
 		*/
-		virtual MapilVoid SetCullMode( CullMode mode ) = 0;
+		virtual MapilVoid SetCullMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Set texture mode.
 		*	@param mode		Texture mode to be set.
 		*/
-		virtual MapilVoid SetTextureMode( TextureMode mode ) = 0;
+		virtual MapilVoid SetTextureMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Set fog parameter.
 		*	@param col		Color of the fog.

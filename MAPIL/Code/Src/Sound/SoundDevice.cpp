@@ -11,7 +11,7 @@
 
 namespace MAPIL
 {
-	SoundDevice::SoundDevice( SoundAPI api ) : m_pDev( NULL ), m_API( api )
+	SoundDevice::SoundDevice( MapilInt32 api ) : m_pDev( NULL ), m_API( api )
 	{
 	}
 	
@@ -48,7 +48,7 @@ namespace MAPIL
 	}
 #endif
 
-	ISoundDevice CreateSoundDevice( SoundAPI api )
+	ISoundDevice CreateSoundDevice( MapilInt32 api )
 	{
 		SharedPointer < SoundDevice > pSD( new SoundDevice( api ) );
 

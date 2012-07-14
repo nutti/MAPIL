@@ -16,25 +16,26 @@ namespace MAPIL
 {
 	enum GUIAPI
 	{
-		GUI_API_UNKNOWN		= 0,
+		GUI_API_NONE		= 0,
 		GUI_API_WIN32API	= 1,
 		GUI_API_GTK			= 2,
+		GUI_API_UNKNOWN		= 3,
 	};
 
 	class GUIDevice : public MapilObject
 	{
 	private:
-		GUIAPI			m_GUIAPI;
+		MapilInt32			m_GUIAPI;
 	public:
-		explicit GUIDevice( GUIAPI api );
+		explicit GUIDevice( MapilInt32 api );
 		virtual ~GUIDevice();
 		MapilVoid Create();
-		GUIAPI GetGUIAPI() const;
+		MapilInt32 GetGUIAPI() const;
 	};
 
 	typedef SharedPointer < GUIDevice >		IGUIDevice;
 
-	IGUIDevice CreateGUIDevice( GUIAPI api );
+	IGUIDevice CreateGUIDevice( MapilInt32 api );
 }
 
 #endif	// INCLUDED_MAPIL_GUIDEVICE_H

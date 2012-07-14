@@ -29,9 +29,10 @@ namespace MAPIL
 {
 	enum GraphicsAPI
 	{
-		GRAPHICS_API_UNKNOWN	= 0,
+		GRAPHICS_API_NONE		= 0,
 		GRAPHICS_API_DIRECT3D	= 1,
 		GRAPHICS_API_OPENGL		= 2,
+		GRAPHICS_API_UNKNOWN	= 3,
 	};
 
 	class GraphicsDevice : public MapilObject
@@ -79,9 +80,9 @@ namespace MAPIL
 #endif	// API_WIN32API
 		MapilVoid InitOpenGL();
 #endif	// API_OPENGL
-		GraphicsAPI				m_GraphicsAPI;
+		MapilInt32				m_GraphicsAPI;
 	public:
-		GraphicsDevice( GraphicsAPI api );
+		explicit GraphicsDevice( MapilInt32 api );
 		virtual ~GraphicsDevice();
 #if defined ( API_DIRECT3D )
 		COMPointer < ::IDirect3D9 > GetD3D();
@@ -90,7 +91,7 @@ namespace MAPIL
 		MapilVoid ChangeWndMode( MapilInt32 mode );
 #endif
 		MapilVoid Create( SharedPointer < GraphicsContext > pWnd );
-		GraphicsAPI GetGraphicsAPI() const;
+		MapilInt32 GetGraphicsAPI() const;
 		SharedPointer < GraphicsContext > GetContext();
 	};
 
@@ -98,7 +99,7 @@ namespace MAPIL
 
 	
 
-	IGraphicsDevice CreateGraphicsDevice( GraphicsAPI api );
+	IGraphicsDevice CreateGraphicsDevice( MapilInt32 api );
 }
 
 #endif

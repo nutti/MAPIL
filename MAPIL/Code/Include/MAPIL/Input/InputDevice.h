@@ -23,31 +23,32 @@ namespace MAPIL
 {
 	enum InputAPI
 	{
-		INPUT_API_UNKNOWN	= 0,
-		INPUT_API_WIN32API	= 1,
-		INPUT_API_DIRECTINPUT = 2,
+		INPUT_API_NONE			= 0,
+		INPUT_API_WIN32API		= 1,
+		INPUT_API_DIRECTINPUT	= 2,
+		INPUT_API_UNKNOWN		= 3,
 	};
 
 	class InputDevice : public MapilObject
 	{
-		InputAPI		m_API;
+		MapilInt32		m_API;
 #if defined ( API_DIRECTINPUT )
 		COMPointer < IDirectInput8 >		m_DI;		///< Direct input interface.
 		::HWND								m_HWnd;		///< Window handle.
 		::HINSTANCE							m_HInst;	///< Instance handle.
 #endif
 	public:
-		InputDevice( InputAPI api );
+		explicit InputDevice( MapilInt32 api );
 		~InputDevice();
 		MapilVoid Create();
 		MapilVoid Destroy();
 		COMPointer < IDirectInput8 > GetDev();
-		InputAPI GetInputAPI() const;
+		MapilInt32 GetInputAPI() const;
 	};
 
 	typedef SharedPointer < InputDevice >		IInputDevice;
 
-	IInputDevice CreateInputDevice( InputAPI api );
+	IInputDevice CreateInputDevice( MapilInt32 api );
 
 }
 

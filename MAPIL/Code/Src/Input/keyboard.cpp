@@ -18,7 +18,7 @@ namespace MAPIL
 	{
 	}
 
-	MapilInt32 GetKeyboardKeyNum( InputAPI api, KeyboardKey key )
+	MapilInt32 GetKeyboardKeyNum( MapilInt32 api, KeyboardKey key )
 	{
 		if( api == INPUT_API_WIN32API ){
 			MapilUChar table[ 256 ] = {	0x00, 0x00, 0x00, 0x03,				// Ctrl-Break.

@@ -61,6 +61,9 @@
 // Util.
 #include "Util\String.h"
 
+// C-interfaces
+#include "Util\CInterface.h"
+
 #pragma comment( lib, "MAPIL.lib" )
 
 #endif

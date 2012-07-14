@@ -13,6 +13,7 @@ namespace MAPIL
 #define _vsctprintf _vscwprintf
 #define _tcscpy_s wcscpy_s
 #define _tcslen wcslen
+#define _stprintf swprintf
 #endif
 
 #ifdef CHAR_CODE_MULTIBYTE
@@ -21,6 +22,7 @@ namespace MAPIL
 #define _vsctprintf _vscprintf
 #define _tcscpy_s strcpy_s
 #define _tcslen strlen
+#define _stprintf sprintf
 #endif
 
 }

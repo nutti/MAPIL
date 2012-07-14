@@ -118,7 +118,7 @@ namespace MAPIL
 	}
 	
 	// Set alpha blend mode
-	MapilVoid GLGraphicsController::SetAlphaBlendMode( AlphaBlendMode mode )
+	MapilVoid GLGraphicsController::SetAlphaBlendMode( MapilInt32 mode )
 	{
 		switch( mode ){
 			case ALPHA_BLEND_MODE_NO_TRANSPARENT:
@@ -154,7 +154,7 @@ namespace MAPIL
 	}
 	
 	// Set cull mode
-	MapilVoid GLGraphicsController::SetCullMode( CullMode mode )
+	MapilVoid GLGraphicsController::SetCullMode( MapilInt32 mode )
 	{
 		glFrontFace( GL_CCW );
 
@@ -180,7 +180,7 @@ namespace MAPIL
 	}
 	
 	// Set texture mode
-	MapilVoid GLGraphicsController::SetTextureMode( TextureMode mode )
+	MapilVoid GLGraphicsController::SetTextureMode( MapilInt32 mode )
 	{
 		switch( mode ){
 			case TEXTURE_MODE_2D:

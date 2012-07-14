@@ -25,7 +25,7 @@ namespace MAPIL
 														m_WndName()
 	{
 	}
-
+	
 	WinAPIGraphicsContext::~WinAPIGraphicsContext()
 	{
 		UnregisterClass( m_ClassName.c_str(), m_HInst );

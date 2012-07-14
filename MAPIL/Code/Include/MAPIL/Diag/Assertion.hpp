@@ -68,7 +68,7 @@ namespace MAPIL
 			strDebug += pMethodName;
 			strDebug += TSTR( "\n\nError : " );
 			strDebug += pProblemDesc;
-#ifdef API_WIN32API
+#if defined ( OS_WIN_32BIT )
 			OutputDebugString( strDebug.c_str() );
 #endif
 			exit( exitNum );
@@ -76,6 +76,43 @@ namespace MAPIL
 #endif
 #ifdef MAKE_MODE_RELEASE
 #endif
+	}
+
+	/**
+	*	@brief	Assert parameter and exit the program when 
+	*			the param is false.
+	*	@param	param The sentence which will be asserted.
+	*	@param	exitNum The exit code.
+	*/
+	inline MapilVoid Assert(	MapilInt32 param,
+								const MapilChar* pPosition,
+								const MapilTChar* pProblemDesc,
+								MapilInt32 exitNum )
+	{
+#ifdef MAKE_MODE_DEBUG
+		if( !( param ) ){
+			MapilTChar str[ 1024 ];
+			ZeroObject( str, sizeof( str ) );
+			ConvertToTChar( pPosition, strlen( pPosition ), str, 1024 );
+
+			m_Str += TSTR( "\n-------------- MAPIL Assertion Report -----------------\n" );
+			m_Str += TSTR( "Location : " );
+			m_Str += str;
+			m_Str += TSTR( "\nProblem : " );
+			m_Str += pProblemDesc;
+			m_Str += TSTR( "\nReturn Code : " );
+			_stprintf( str, TSTR( "%d" ), codeNum );
+			m_Str += str;
+			m_Str += TSTR( "\n-------------- MAPIL Assertion Report End--------------\n\n" );
+#if defined ( OS_WIN_32BIT )
+			OutputDebugString( strDebug.c_str() );
+#endif
+			exit( exitNum );
+		}
+#endif
+#ifdef MAKE_MODE_RELEASE
+#endif
+
 	}
 }
 

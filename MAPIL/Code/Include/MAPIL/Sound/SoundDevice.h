@@ -23,9 +23,10 @@ namespace MAPIL
 {
 	enum SoundAPI
 	{
-		SOUND_API_UNKNOWN	= 0,
+		SOUND_API_NONE		= 0,
 		SOUND_API_ALSA		= 1,
 		SOUND_API_OPENAL	= 2,
+		SOUND_API_UNKNOWN	= 3,
 	};
 
 	class SoundDevice : public MapilObject
@@ -37,9 +38,9 @@ namespace MAPIL
 #else
 		MapilVoid*				m_pDev;		// For dummy.
 #endif
-		SoundAPI				m_API;
+		MapilInt32				m_API;
 	public:
-		SoundDevice( SoundAPI api );
+		explicit SoundDevice( MapilInt32 api );
 		~SoundDevice();
 		MapilVoid Create();
 		MapilVoid Destroy();
@@ -52,7 +53,7 @@ namespace MAPIL
 
 	typedef SharedPointer < SoundDevice >		ISoundDevice;
 
-	ISoundDevice CreateSoundDevice( SoundAPI api );
+	ISoundDevice CreateSoundDevice( MapilInt32 api );
 }
 
 #endif

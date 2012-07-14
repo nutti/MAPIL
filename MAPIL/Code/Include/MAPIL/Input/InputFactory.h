@@ -12,6 +12,7 @@
 #include "../Util/MapilObject.h"
 #include "../Util/SharedPointer.hpp"
 #include "../TChar.h"
+#include "InputDevice.h"
 
 namespace MAPIL
 {

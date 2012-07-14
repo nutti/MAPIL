@@ -35,12 +35,12 @@
 
 namespace MAPIL
 {
-	GraphicsDevice::GraphicsDevice( GraphicsAPI api ) :	m_GraphicsAPI( api )
+	GraphicsDevice::GraphicsDevice( MapilInt32 api ) :	m_GraphicsAPI( api )
 #if defined ( API_DIRECT3D )
-		,
-		m_pWnd(),
-		m_pD3D( NULL ),
-		m_pD3DDev( NULL )
+														,
+														m_pWnd(),
+														m_pD3D( NULL ),
+														m_pD3DDev( NULL )
 #endif
 #if defined ( API_OPENGL )
 #if defined ( API_WIN32API )
@@ -107,7 +107,7 @@ namespace MAPIL
 #endif
 	}
 
-	GraphicsAPI GraphicsDevice::GetGraphicsAPI() const
+	MapilInt32 GraphicsDevice::GetGraphicsAPI() const
 	{
 		return m_GraphicsAPI;
 	}
@@ -173,11 +173,7 @@ namespace MAPIL
 		//Create Direct 3D object
 		IDirect3D9* pD3D = NULL;
 		if( !( pD3D = Direct3DCreate9( D3D_SDK_VERSION ) ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "GraphicsDevice" ),
-									TSTR( "InitD3D" ),
-									TSTR( "Creation of Direct 3D object failed.\n" ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Creation of Direct 3D object failed" ), -1 );
 		}
 
 		COMPointer < IDirect3D9 > p( pD3D );
@@ -582,7 +578,7 @@ namespace MAPIL
 
 #endif
 
-	IGraphicsDevice CreateGraphicsDevice( GraphicsAPI api )
+	IGraphicsDevice CreateGraphicsDevice( MapilInt32 api )
 	{
 		SharedPointer < GraphicsDevice > pGD( new GraphicsDevice( api ) );
 

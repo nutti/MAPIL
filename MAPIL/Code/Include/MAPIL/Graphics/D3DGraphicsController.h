@@ -42,8 +42,8 @@ namespace MAPIL
 		MapilBool								m_IsLightEnable;		///< Lighting status.
 		MapilBool								m_IsAlphaBlendEnable;	///< Alpha blend status.
 		MapilBool								m_IsFogEnable;			///< Fog status.
-		AlphaBlendMode							m_AlphaBlendMode;		///< Alpha blend mode.
-		CullMode								m_CullMode;				///< Culling mode.
+		MapilInt32								m_AlphaBlendMode;		///< Alpha blend mode.
+		MapilInt32								m_CullMode;				///< Culling mode.
 		RECT									m_LastWndPos;			///< Last position of the window.
 		GraphicsFactory*						m_pGraphicsFactory;		///< Graphics factory.
 		/**
@@ -121,17 +121,17 @@ namespace MAPIL
 		*	@brief			Set alpha blend mode.
 		*	@param mode		Alpha blend mode to be set.
 		*/
-		MapilVoid SetAlphaBlendMode( AlphaBlendMode mode );
+		MapilVoid SetAlphaBlendMode( MapilInt32 mode );
 		/**
 		*	@brief			Set culling mode.
 		*	@param mode		Culling mode to be set.
 		*/
-		MapilVoid SetCullMode( CullMode mode );
+		MapilVoid SetCullMode( MapilInt32 mode );
 		/**
 		*	@brief			Set texture mode.
 		*	@param mode		Texture mode to be set.
 		*/
-		MapilVoid SetTextureMode( TextureMode mode );
+		MapilVoid SetTextureMode( MapilInt32 mode );
 		/**
 		*	@brief			Set fog parameter.
 		*	@param col		Color of the fog.
