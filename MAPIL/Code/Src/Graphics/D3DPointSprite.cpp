@@ -16,6 +16,7 @@
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 #include "../../Include/MAPIL/Diag/MapilException.h"
+#include "../../Include/MAPIL/Diag/Assertion.hpp"
 #include "../../Include/MAPIL/TChar.h"
 #include "../../Include/MAPIL/Math/Transformation.hpp"
 
@@ -135,8 +136,8 @@ namespace MAPIL
 		}
 	}
 
-	MapilVoid D3DPointSprite::UpdateCommon(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
-											MapilFloat32 size, DWORD color )
+	MapilVoid D3DPointSprite::Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
+										MapilFloat32 size, MapilUInt32 color )
 	{
 		if( m_VertexManageMethod == VERTEX_MANAGEMENT_NONE ){
 			m_pNonBufVertex[ index ].m_X = vPos.m_X;
@@ -180,39 +181,38 @@ namespace MAPIL
 									-1 );
 		}
 
-		DWORD colorVal = D3DCOLOR_ARGB(	static_cast < MapilInt32 > ( color.m_A * 255 ),
-										static_cast < MapilInt32 > ( color.m_R * 255 ),
-										static_cast < MapilInt32 > ( color.m_G * 255 ),
-										static_cast < MapilInt32 > ( color.m_B * 255 ) );
+		MapilInt32 colorVal = D3DCOLOR_ARGB(	static_cast < MapilInt32 > ( color.m_A * 255 ),
+												static_cast < MapilInt32 > ( color.m_R * 255 ),
+												static_cast < MapilInt32 > ( color.m_G * 255 ),
+												static_cast < MapilInt32 > ( color.m_B * 255 ) );
 
-		UpdateCommon( index, vPos, size, colorVal );
+		Update( index, vPos, size, colorVal );
 	}
 
 	MapilVoid D3DPointSprite::Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
 										MapilFloat32 size, const ColorARGB < MapilUChar >& color )
 	{
-		if( index >= m_NumVertex || index < 0 ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "D3DPointSprite" ),
-									TSTR( "Move" ),
-									TSTR( "Bad index value was substituted." ),
-									-1 );
-		}
+		Assert( index < m_NumVertex || index >= 0, CURRENT_POSITION, TSTR( "Bad index value was substituted." ), -1 );
 
-		DWORD colorVal = D3DCOLOR_ARGB(	color.m_A, color.m_R, color.m_G, color.m_B );
+		MapilInt32 colorVal = D3DCOLOR_ARGB( color.m_A, color.m_R, color.m_G, color.m_B );
 
-		UpdateCommon( index, vPos, size, colorVal );
+		Update( index, vPos, size, colorVal );
 	}
 
 	MapilVoid D3DPointSprite::Draw()
 	{
+		// Disable alpha blending.
+		DWORD blendingStatus;
+		m_pDev->GetDev().GetPointer()->GetRenderState( ::D3DRS_ALPHABLENDENABLE, &blendingStatus );
+		m_pDev->GetDev().GetPointer()->SetRenderState( ::D3DRS_ALPHABLENDENABLE, TRUE );
+
 		// If this procedure isn't here, privious operation remains.
 		D3DXMATRIXA16 matWorld;
 		D3DXMatrixIdentity( &matWorld );
 		m_pDev->GetDev().GetPointer()->SetTransform( D3DTS_WORLD, &matWorld );
 
 		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSPRITEENABLE, TRUE );		//Enable point sprite
-		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSCALEENABLE, TRUE );			//Enable point scale
+		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSCALEENABLE, TRUE );		//Enable point scale
 
 		//Minimum size of point
 		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSIZE_MIN, TransformFloatIntoDWORD( 0.00f ) );
@@ -243,6 +243,9 @@ namespace MAPIL
 		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSIZE, TransformFloatIntoDWORD( 1.00f ) );
 		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSPRITEENABLE, FALSE );
 		m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_POINTSCALEENABLE, FALSE );
+
+		// Restore alpha blending status.
+		m_pDev->GetDev().GetPointer()->SetRenderState( ::D3DRS_ALPHABLENDENABLE, blendingStatus );
 	}
 
 }

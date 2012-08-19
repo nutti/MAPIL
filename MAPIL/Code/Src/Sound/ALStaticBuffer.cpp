@@ -28,7 +28,9 @@ namespace MAPIL
 																			m_pWavFile( NULL ),
 																			m_pWavData( NULL ),
 																			m_DataSize( 0 ),
-																			m_IsPlaying( MapilFalse )
+																			m_IsPlaying( MapilFalse ),
+																			m_IsPausing( MapilFalse ),
+																			m_Volume( 100 )
 	{
 		ZeroObject( m_Pos, sizeof( m_Pos ) );
 	}
@@ -129,26 +131,36 @@ namespace MAPIL
 	{
 		alSourcePlay( m_Src );
 		m_IsPlaying = MapilTrue;
+		m_IsPausing = MapilFalse;
 	}
 
 	MapilVoid ALStaticBuffer::Stop()
 	{
 		alSourceStop( m_Src );
 		m_IsPlaying = MapilFalse;
+		m_IsPausing = MapilFalse;
 	}
 
 	MapilVoid ALStaticBuffer::Pause()
 	{
+		::alSourcePause( m_Src );
 		m_IsPlaying = MapilFalse;
+		m_IsPausing = MapilTrue;
 	}
 
 	MapilVoid ALStaticBuffer::Destroy()
 	{
 		m_IsPlaying = MapilFalse;
+		m_IsPausing = MapilFalse;
 	}
 
-	MapilVoid ALStaticBuffer::SetVolume()
+	MapilVoid ALStaticBuffer::SetVolume( MapilUInt32 volume )
 	{
+		if( volume > 100 ){
+			m_Volume = 100;
+		}
+		m_Volume = volume;
+		::alSourcef( m_Src, AL_GAIN, m_Volume );
 	}
 
 	MapilVoid ALStaticBuffer::SetPosition( const Vector3 < MapilFloat32 >& pos )
@@ -158,6 +170,16 @@ namespace MAPIL
 		m_Pos[ 2 ] = pos.m_Z;
 
 		alSource3f( m_Src, AL_POSITION, m_Pos[ 0 ], m_Pos[ 1 ], m_Pos[ 2 ] );
+	}
+
+	MapilBool ALStaticBuffer::IsPausing() const
+	{
+		return m_IsPausing;
+	}
+
+	MapilBool ALStaticBuffer::IsStopping() const
+	{
+		return !m_IsPlaying;
 	}
 }
 

@@ -24,6 +24,7 @@ namespace MAPIL
 {
 	D3DGraphicsFactory::D3DGraphicsFactory( SharedPointer < GraphicsDevice > pDev ) :	GraphicsFactory( pDev ),
 																						m_CanvasRM( pDev ),
+																						m_Canvas3DRM( pDev ),
 																						m_SpriteRM( pDev ),
 																						m_CameraRM( pDev ),
 																						m_GraphicsCtrlRM( pDev ),
@@ -37,6 +38,7 @@ namespace MAPIL
 																						m_NPoly3DRM( pDev )
 	{
 		m_CanvasRM.Init();
+		m_Canvas3DRM.Init();
 		m_SpriteRM.Init();
 		m_CameraRM.Init();
 		m_GraphicsCtrlRM.Init();
@@ -57,6 +59,11 @@ namespace MAPIL
 	ICanvas2D D3DGraphicsFactory::CreateCanvas2D( const MapilTChar* pKeyStr )
 	{
 		return m_CanvasRM.Create( pKeyStr );
+	}
+
+	ICanvas3D D3DGraphicsFactory::CreateCanvas3D( const MapilTChar* pKeyStr )
+	{
+		return m_Canvas3DRM.Create( pKeyStr );
 	}
 
 	ISprite D3DGraphicsFactory::CreateSprite( const MapilTChar* pKeyStr )
@@ -100,6 +107,16 @@ namespace MAPIL
 	ITexture D3DGraphicsFactory::CreateTexture( const MapilTChar* pKeyStr )
 	{
 		return m_TexRM.Create( pKeyStr );
+	}
+
+	MapilVoid D3DGraphicsFactory::CreateTextures( const MapilTChar* pKeyStr, ITexture* pTexture, MapilInt32 count )
+	{
+		for( MapilInt32 i = 0; i < count; ++i ){
+			std::basic_string < MapilTChar > keyStr = pKeyStr;
+			keyStr += TSTR( ":" );
+			keyStr += i;
+			pTexture[ i ] = CreateTexture( keyStr.c_str() );
+		}
 	}
 
 	IPointSprite D3DGraphicsFactory::CreatePointSprite( const MapilTChar* pKeyStr )

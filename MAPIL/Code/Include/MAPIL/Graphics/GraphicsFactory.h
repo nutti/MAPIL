@@ -21,6 +21,8 @@
 #include "GraphicsDevice.h"
 #include "../Util/SharedPointer.hpp"
 
+#include <vector>
+
 //-------------------------------------------------------------------
 // Definitions.
 //-------------------------------------------------------------------
@@ -28,6 +30,7 @@
 namespace MAPIL
 {
 	class Canvas2D;
+	class Canvas3D;
 	class Sprite;
 	class Camera;
 	class GraphicsController;
@@ -41,6 +44,7 @@ namespace MAPIL
 	class NSidedPolygon3D;
 
 	typedef SharedPointer < Canvas2D >					ICanvas2D;				///< Interface of the Canvas2D class.
+	typedef SharedPointer < Canvas3D >					ICanvas3D;				///< Interface of the Canvas3D class.
 	typedef SharedPointer < Sprite >					ISprite;				///< Interface of the Sprite class.
 	typedef SharedPointer < Camera >					ICamera;				///< Interface of the Camera class.
 	typedef SharedPointer < GraphicsController >		IGraphicsController;	///< Interface of the GraphicsController class.
@@ -73,6 +77,12 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		virtual ICanvas2D CreateCanvas2D( const MapilTChar* pKeyStr ) = 0;
+		/**
+		*	@brief			Create a Canvas3D object and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@return			The interface of the created object.
+		*/
+		virtual ICanvas3D CreateCanvas3D( const MapilTChar* pKeyStr ) = 0;
 		/**
 		*	@brief			Create a Sprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.
@@ -121,6 +131,13 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		virtual ITexture CreateTexture( const MapilTChar* pKeyStr ) = 0;
+		/**
+		*	@brief			Create a Texture objects and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@param pTexture Texture array to be created.
+		*	@param count	Creation count.
+		*/
+		virtual MapilVoid CreateTextures( const MapilTChar* pKeyStr, ITexture* pTexture, MapilInt32 count ) = 0;
 		/**
 		*	@brief			Create a PointSprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.

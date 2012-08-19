@@ -75,6 +75,15 @@ namespace MAPIL
 		virtual MapilVoid Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
 									MapilFloat32 size, const ColorARGB < MapilUChar >& color ) = 0;
 		/**
+		*	@brief			Update the vertex.
+		*	@param index	Index of the vertex to be updated.
+		*	@param vPos		Position of the vertex.
+		*	@param size		Point size.
+		*	@param color	Color of the vertex.
+		*/
+		virtual MapilVoid Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
+									MapilFloat32 size, MapilUInt32 color ) = 0;
+		/**
 		*	@brief	Draw all the registered vertices.
 		*/
 		virtual MapilVoid Draw() = 0;

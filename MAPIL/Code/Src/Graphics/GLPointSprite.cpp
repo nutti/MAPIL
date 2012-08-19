@@ -21,6 +21,7 @@
 
 #include "../../Include/MAPIL/Graphics/GLPointSprite.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
+#include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 
@@ -93,12 +94,7 @@ namespace MAPIL
 	MapilVoid GLPointSprite::Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
 										MapilFloat32 size, const ColorARGB < MapilUChar >& color )
 	{
-		Assert(	index < m_NumVertex && index >= 0,
-				TSTR( "Mapil" ),
-				TSTR( "GLPointSprite" ),
-				TSTR( "Update" ),
-				TSTR( "Index is over range." ),
-				-1 );
+		Assert(	index < m_NumVertex && index >= 0, CURRENT_POSITION, TSTR( "Index is over range." ), -1 );
 		m_Size = size;
 		m_pColor[ index * 4 ] = color.m_R / 255.0f;
 		m_pColor[ index * 4 + 1 ] = color.m_G / 255.0f;
@@ -107,6 +103,17 @@ namespace MAPIL
 		m_pPos[ index * 3 ] = vPos.m_X;
 		m_pPos[ index * 3 + 1 ] = vPos.m_Y;
 		m_pPos[ index * 3 + 2 ] = vPos.m_Z;
+	}
+
+	MapilVoid GLPointSprite::Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
+										MapilFloat32 size, MapilUInt32 color )
+	{
+		Assert(	index < m_NumVertex && index >= 0, CURRENT_POSITION, TSTR( "Index is over range." ), -1 );
+		
+		Update( index, vPos, size, MAPIL::ColorARGB < MapilUChar > (	( color >> 24 ) & 0xFF,
+																		( color >> 16 ) & 0xFF,
+																		( color >> 8  ) & 0xFF,
+																		color & 0xFF ) );
 	}
 
 	MapilVoid GLPointSprite::Draw()

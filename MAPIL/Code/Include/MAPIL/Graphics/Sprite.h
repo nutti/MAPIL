@@ -72,6 +72,15 @@ namespace MAPIL
 		virtual MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
 										const Matrix4x4 < MapilFloat32 >& mat ) = 0;
 		/**
+		*	@brief			Draw texture.
+		*	@param pTexture	SharedPointer to the Texture object to be drawn.
+		*	@param mat		Transformation matrix.
+		*	@param color	Texture color.
+		*/
+		virtual MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
+										const Matrix4x4 < MapilFloat32 >& mat,
+										MapilUInt32 color ) = 0;
+		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.
 		*	@param pStr		A string to be drawn.

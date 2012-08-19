@@ -71,7 +71,7 @@ namespace MAPIL
 		return size;
 	}
 
-	MapilVoid Archiver::Open( const MapilChar* pFileName, FileOpenMode mode )
+	MapilVoid Archiver::Open( const MapilChar* pFileName, MapilInt32 mode )
 	{
 		m_ArchiveName = pFileName;
 
@@ -215,4 +215,9 @@ namespace MAPIL
 		m_FileTotal = 0;
 	}
 
+
+	const MapilChar* Archiver::GetArchiveFileName() const
+	{
+		return m_ArchiveName.c_str();
+	}
 }

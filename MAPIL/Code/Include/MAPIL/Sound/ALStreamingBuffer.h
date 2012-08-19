@@ -113,6 +113,11 @@ namespace MAPIL
 		*/
 		MapilVoid Destroy();
 		/**
+		*	@brief			Set volume.
+		*	@param volume	Volume.
+		*/
+		MapilVoid SetVolume( MapilUInt32 volume );
+		/**
 		*	@brief Set volume.
 		*/
 		MapilVoid SetVolume( MapilFloat32 volume );
@@ -121,6 +126,16 @@ namespace MAPIL
 		*	@param pos	Position.
 		*/
 		MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos );
+		/**
+		*	@brief	Is streaming buffer pausing now?
+		*	@return	True if streaming buffer is pausing.
+		*/
+		MapilBool IsPausing() const;
+		/**
+		*	@brief	Is streaming buffer stoping now?
+		*	@return	True if streaming buffer is pausing.
+		*/
+		MapilBool IsStopping() const;
 	};
 #elif defined( API_POSIX )
 	class SoundDevice;

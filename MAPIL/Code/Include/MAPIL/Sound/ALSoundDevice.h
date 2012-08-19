@@ -51,6 +51,11 @@ namespace MAPIL
 		*	@brief Initialize ALSoundDevice class.
 		*/
 		MapilVoid Init();
+		/**
+		*	@brief			Set master volume.
+		*	@param volume	Volume.
+		*/
+		MapilVoid SetVolume( MapilUInt32 volume );
 	};
 }
 

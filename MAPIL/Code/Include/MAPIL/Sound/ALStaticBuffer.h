@@ -49,9 +49,11 @@ namespace MAPIL
 		WAVFile*			m_pWavFile;		///< WAVFile class.
 		MapilChar*			m_pWavData;		///< Sound data.
 		MapilInt32			m_DataSize;		///< Size of sound data.
+		MapilUInt32			m_Volume;		///< Volume.
 		ALuint				m_Src;			///< Handler.
 		ALuint				m_Buf;			///< Handler.
 		MapilBool			m_IsPlaying;	///< Is sound playing now?
+		MapilBool			m_IsPausing;	///< Is sound pausing now?
 		MapilFloat32		m_Pos[ 3 ];		///< Sound source position.
 	public:
 		/**
@@ -93,12 +95,22 @@ namespace MAPIL
 		/**
 		*	@brief Set volume.
 		*/
-		MapilVoid SetVolume();
+		MapilVoid SetVolume( MapilUInt32 volume );
 		/**
 		*	@brief Set sound source position.
 		*	@param pos	Position.
 		*/
 		MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos );
+		/**
+		*	@brief	Is static buffer pausing now?
+		*	@return	True if static buffer is pausing.
+		*/
+		MapilBool IsPausing() const;
+		/**
+		*	@brief	Is static buffer stoping now?
+		*	@return	True if static buffer is pausing.
+		*/
+		MapilBool IsStopping() const;
 	};
 }
 

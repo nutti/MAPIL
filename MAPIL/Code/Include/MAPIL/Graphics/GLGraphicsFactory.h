@@ -20,6 +20,7 @@
 #include "GraphicsFactory.h"
 #include "GraphicsResourceManager.hpp"
 #include "GLCanvas2D.h"
+#include "GLCanvas3D.h"
 #include "GLCamera.h"
 #include "GLGraphicsController.h"
 #include "GLDirectionalLight.h"
@@ -40,7 +41,8 @@ namespace MAPIL
 	class GLGraphicsFactory : public GraphicsFactory
 	{
 	private:
-		GraphicsResourceManager < GLCanvas2D >				m_CanvasRM;			///< Resource manager for the GLCanvas object.
+		GraphicsResourceManager < GLCanvas2D >				m_CanvasRM;			///< Resource manager for the GLCanvas2D object.
+		GraphicsResourceManager < GLCanvas3D >				m_Canvas3DRM;		///< Resource manager for the GLCanvas3D object.
 		GraphicsResourceManager < GLSprite >				m_SpriteRM;			///< Resource manager for the GLSprite object.
 		GraphicsResourceManager < GLCamera >				m_CameraRM;			///< Resource manager for the GLCamera object.
 		GraphicsResourceManager < GLGraphicsController >	m_GraphicsCtrlRM;	///< Resource manager for the GLGraphicsController object.
@@ -67,6 +69,12 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		ICanvas2D CreateCanvas2D( const MapilTChar* pKeyStr );
+		/**
+		*	@brief			Create a GLCanvas3D object and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@return			The interface of the created object.
+		*/
+		ICanvas3D CreateCanvas3D( const MapilTChar* pKeyStr );
 		/**
 		*	@brief			Create a GLSprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.
@@ -115,6 +123,13 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		ITexture CreateTexture( const MapilTChar* pKeyStr );
+		/**
+		*	@brief			Create a Texture objects and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@param pTexture Texture array to be created.
+		*	@param count	Creation count.
+		*/
+		MapilVoid CreateTextures( const MapilTChar* pKeyStr, ITexture* pTexture, MapilInt32 count );
 		/**
 		*	@brief			Create a GLPointSprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.

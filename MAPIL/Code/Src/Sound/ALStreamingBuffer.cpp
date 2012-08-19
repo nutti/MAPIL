@@ -338,10 +338,21 @@ namespace MAPIL
 		m_IsPlaying = MapilFalse;
 	}
 
+	MapilVoid ALStreamingBuffer::SetVolume( MapilUInt32 volume )
+	{
+		if( volume > 100 ){
+			volume = 100;
+		}
+		SetVolume( volume / 100.0f );
+	}
+
 	MapilVoid ALStreamingBuffer::SetVolume( MapilFloat32 volume )
 	{
+		if( volume > 1.0f ){
+			volume = 1.0f;
+		}
 		m_Volume = volume;
-		alSourcef( m_Src, AL_GAIN, m_Volume );
+		::alSourcef( m_Src, AL_GAIN, m_Volume );
 	}
 
 	MapilVoid ALStreamingBuffer::SetPosition( const Vector3 < MapilFloat32 >& pos )
@@ -353,6 +364,15 @@ namespace MAPIL
 		alSource3f( m_Src, AL_POSITION, m_Pos[ 0 ], m_Pos[ 1 ], m_Pos[ 2 ] );
 	}
 
+	MapilBool ALStreamingBuffer::IsPausing() const
+	{
+		return m_IsPausing;
+	}
+
+	MapilBool ALStreamingBuffer::IsStopping() const
+	{
+		return !m_IsPlaying;
+	}
 
 #elif defined ( API_POSIX )
 	ALStreamingBuffer::ALStreamingBuffer( SharedPointer < SoundDevice > pDev ) :	StreamingBuffer( pDev ),

@@ -19,7 +19,10 @@
 
 #include "../../Include/MAPIL/Graphics/D3DGraphicsFactory.h"
 
+#include "../../Include/MAPIL/IO/Archiver.h"
+
 #include <vector>
+#include <list>
 #include <string>
 
 namespace MAPIL
@@ -31,6 +34,27 @@ namespace MAPIL
 		MapilBool	m_IsUsed;
 	};
 
+	// Batch work of texture.
+	struct TextureBatchWork
+	{
+		MapilUInt32					m_ID;
+		Matrix4x4 < MapilFloat32 >	m_TransMat;
+		MapilUInt32					m_Color;
+	};
+
+	// Batch work of string.
+	struct StringBatchWork
+	{
+		std::basic_string < MapilTChar >	m_Str;
+		Matrix4x4 < MapilFloat32 >			m_TransMat;
+		MapilUInt32							m_Color;
+	};
+
+	typedef std::list < TextureBatchWork >		TextureBatch;
+	typedef std::list < StringBatchWork >		StringBatch;
+
+	typedef ResourceTag < IRectangle3D >		Rectangle3DTag;
+	typedef ResourceTag < IModel >				ModelTag;
 	typedef ResourceTag < ICamera >				CameraTag;
 	typedef ResourceTag < IGraphicsFont >		GraphicsFontTag;
 	typedef ResourceTag < IPointSprite >		PointSpriteTag;
@@ -38,6 +62,8 @@ namespace MAPIL
 	typedef ResourceTag < IStaticBuffer >		StaticBufferTag;
 	typedef ResourceTag < IStreamingBuffer >	StreamingBufferTag;
 
+	typedef std::vector < Rectangle3DTag >		Rectangle3DList;
+	typedef std::vector < ModelTag >			ModelList;
 	typedef std::vector < CameraTag >			CameraList;
 	typedef std::vector < GraphicsFontTag >		GraphicsFontList;
 	typedef std::vector < PointSpriteTag >		PointSpriteList;
@@ -74,17 +100,28 @@ namespace MAPIL
 		IGraphicsContext	m_GC;
 		IGraphicsController	m_GraphicsCtrl;
 		ICanvas2D			m_Canvas2D;
+		ICanvas3D			m_Canvas3D;
 		ISprite				m_Sprite;
+		ICamera				m_Camera;
 		IGraphicsFont		m_GraphicsFont;
 		IKeyboard			m_Keyboard;
 
 		// Local resources.
+		Rectangle3DList			m_LocalRectangle3DList;
+		ModelList				m_LocalModelList;
 		CameraList				m_LocalCameraList;
 		GraphicsFontList		m_LocalGraphicsFontList;
 		PointSpriteList			m_LocalPointSpriteList;
 		TextureList				m_LocalTextureList;
 		StaticBufferList		m_LocalStaticBufferList;
 		StreamingBufferList		m_LocalStreamingBufferList;
+
+		// Batch
+		TextureBatch			m_TextureBatch;
+		StringBatch				m_StringBatch;
+
+		// Archiver.
+		std::vector < Archiver* >	m_ArchiverList;
 	};
 
 	ResourceHolder::ResourceHolder() :	m_GUIAPI( GUI_API_NONE ),
@@ -103,12 +140,17 @@ namespace MAPIL
 										m_SoundDev(),
 										m_pSoundFactory( NULL ),
 
+										m_LocalRectangle3DList(),
+										m_LocalModelList(),
 										m_LocalCameraList(),
 										m_LocalGraphicsFontList(),
 										m_LocalPointSpriteList(),
 										m_LocalTextureList(),
 										m_LocalStaticBufferList(),
-										m_LocalStreamingBufferList()
+										m_LocalStreamingBufferList(),
+
+										m_TextureBatch(),
+										m_StringBatch()
 	{
 	}
 
@@ -118,6 +160,10 @@ namespace MAPIL
 		SafeDelete( m_pInputFactory );
 		SafeDelete( m_pGraphicsFactory );
 		SafeDelete( m_pGUIFactory );
+
+		for( MapilUInt32 i = 0; i < m_ArchiverList.size(); ++i ){
+			SafeDelete( m_ArchiverList[ i ] );
+		}
 	}
 
 	static MapilTChar* ToTSTR( const MapilChar* pStr )
@@ -180,9 +226,18 @@ namespace MAPIL
 		// Craete graphics controller.
 		p->m_GraphicsCtrl = p->m_pGraphicsFactory->CreateGraphicsController( TSTR( "Global Graphics Ctrl" ) );
 		p->m_GraphicsCtrl->Create( p->m_GC );
-		// Create canvas object.
+		// Create canvas 2D object.
 		p->m_Canvas2D = p->m_pGraphicsFactory->CreateCanvas2D( TSTR( "Global Canvas 2D" ) );
 		p->m_Canvas2D->Create();
+		// Create canvas 3D object.
+		p->m_Canvas3D = p->m_pGraphicsFactory->CreateCanvas3D( TSTR( "Global Canvas 3D" ) );
+		p->m_Canvas3D->Create();
+		// Create camera object.
+		p->m_Camera = p->m_pGraphicsFactory->CreateCamera( TSTR( "Global Camera" ) );
+		p->m_Camera->Create(	0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, 0.0f );
 		// Create sprite object.
 		p->m_Sprite = p->m_pGraphicsFactory->CreateSprite( TSTR( "Global Sprite" ) );
 		p->m_Sprite->Create();
@@ -245,6 +300,7 @@ namespace MAPIL
 		SetupGUI( pWndName, width, height );
 		SetupGraphics();
 		SetupInput();
+		SetupSound();
 
 		return 0;
 	}
@@ -344,9 +400,10 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
-		std::basic_string < MapilTChar > str = TSTR( "Local Texture " );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
 		MapilInt32 index = GetEmptyIndex( &p->m_LocalTextureList );
-		str += index;
 		TextureTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
@@ -361,12 +418,120 @@ namespace MAPIL
 		return index;
 	}
 
+	// Create texture from archive file.
+	MapilInt32 CreateTexture( MapilUInt32 archiveHandle, const MapilChar* pFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		MapilInt32 index = GetEmptyIndex( &p->m_LocalTextureList );
+		TextureTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
+		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		if( index == p->m_LocalTextureList.size() ){
+			p->m_LocalTextureList.push_back( tag );
+		}
+		else{
+			p->m_LocalTextureList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create texture. ( With split. )
+	MapilVoid CreateSplitedTexture(	MapilInt32* pIndex,
+									const MapilChar* pFileName,
+									MapilInt32 column,
+									MapilInt32 row,
+									MapilInt32 width,
+									MapilInt32 height )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+
+		// Splited textures.
+		ITexture* pTexture = new ITexture [ column * row ];
+		p->m_pGraphicsFactory->CreateTextures( str.c_str(), pTexture, row * column );
+		// Base texture.
+		ITexture base;
+		base = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
+		base->Create( str.c_str() );
+		// Split the base texture.
+		base->SplitCopy( pTexture, column, row, width, height );
+
+		for( MapilInt32 i = 0; i < row * column; ++i ){
+			MapilInt32 index = GetEmptyIndex( &p->m_LocalTextureList );
+			TextureTag tag;
+			tag.m_IsUsed = MapilTrue;
+			tag.m_Resource = pTexture[ i ];
+			if( index == p->m_LocalTextureList.size() ){
+				p->m_LocalTextureList.push_back( tag );
+			}
+			else{
+				p->m_LocalTextureList[ index ] = tag;
+			}
+			pIndex[ i ] = index;
+		}
+
+		SafeDeleteArray( pTexture );
+	}
+
+	// Create texture from archive file.
+	MapilVoid CreateSplitedTexture(	MapilInt32* pIndex,
+									MapilUInt32 archiveHandle,
+									const MapilChar* pFilePath,
+									MapilInt32 column,
+									MapilInt32 row,
+									MapilInt32 width,
+									MapilInt32 height )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+
+		// Splited textures.
+		ITexture* pTexture = new ITexture [ column * row ];
+		p->m_pGraphicsFactory->CreateTextures( str.c_str(), pTexture, row * column );
+		// Base texture.
+		ITexture base;
+		base = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
+		base->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		// Split the base texture.
+		base->SplitCopy( pTexture, column, row, width, height );
+
+		for( MapilInt32 i = 0; i < row * column; ++i ){
+			MapilInt32 index = GetEmptyIndex( &p->m_LocalTextureList );
+			TextureTag tag;
+			tag.m_IsUsed = MapilTrue;
+			tag.m_Resource = pTexture[ i ];
+			if( index == p->m_LocalTextureList.size() ){
+				p->m_LocalTextureList.push_back( tag );
+			}
+			else{
+				p->m_LocalTextureList[ index ] = tag;
+			}
+			pIndex[ i ] = index;
+		}
+
+		SafeDeleteArray( pTexture );
+	}
+
 	// Create point sprite.
 	MapilInt32 CreatePointSprite( MapilInt32 num, MapilInt32 texture )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
-		std::basic_string < MapilTChar > str = TSTR( "Local Texture " );
+		std::basic_string < MapilTChar > str = TSTR( "Local Point Sprite " );
 		MapilInt32 index = GetEmptyIndex( &p->m_LocalPointSpriteList );
 		str += index;
 		PointSpriteTag tag;
@@ -388,9 +553,10 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pSoundFactory != NULL, CURRENT_POSITION, TSTR( "Sound factory is not created yet." ), -1 );
-		std::basic_string < MapilTChar > str = TSTR( "Local Static Buffer " );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
 		MapilInt32 index = GetEmptyIndex( &p->m_LocalStaticBufferList );
-		str += index;
 		StaticBufferTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pSoundFactory->CreateStaticBuffer( str.c_str() );
@@ -405,18 +571,69 @@ namespace MAPIL
 		return index;
 	}
 
+	// Create static buffer from archive file.
+	MapilUInt32 CreateStaticBuffer( MapilUInt32 archiveHandle, const MapilChar* pFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pSoundFactory != NULL, CURRENT_POSITION, TSTR( "Sound factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		MapilInt32 index = GetEmptyIndex( &p->m_LocalStaticBufferList );
+		StaticBufferTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pSoundFactory->CreateStaticBuffer( str.c_str() );
+		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		if( index == p->m_LocalStaticBufferList.size() ){
+			p->m_LocalStaticBufferList.push_back( tag );
+		}
+		else{
+			p->m_LocalStaticBufferList[ index ] = tag;
+		}
+
+		return index;
+	}
+
 	// Create streaming buffer.
 	MapilInt32 CreateStreamingBuffer( const MapilChar* pFileName )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pSoundFactory != NULL, CURRENT_POSITION, TSTR( "Sound factory is not created yet." ), -1 );
-		std::basic_string < MapilTChar > str = TSTR( "Local Streaming Buffer " );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
 		MapilInt32 index = GetEmptyIndex( &p->m_LocalStreamingBufferList );
-		str += index;
 		StreamingBufferTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pSoundFactory->CreateStreamingBuffer( str.c_str() );
 		tag.m_Resource->Create( str.c_str() );
+		if( index == p->m_LocalStreamingBufferList.size() ){
+			p->m_LocalStreamingBufferList.push_back( tag );
+		}
+		else{
+			p->m_LocalStreamingBufferList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create streaming buffer from archive file.
+	MapilUInt32 CreateStreamingBuffer( MapilUInt32 archiveHandle, const MapilChar* pFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pSoundFactory != NULL, CURRENT_POSITION, TSTR( "Sound factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		MapilInt32 index = GetEmptyIndex( &p->m_LocalStreamingBufferList );
+		StreamingBufferTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pSoundFactory->CreateStreamingBuffer( str.c_str() );
+		MapilTChar arName[ 1024 ];
+		ConvertToTChar( p->m_ArchiverList[ archiveHandle ]->GetArchiveFileName(), -1, arName, 1024 );
+		tag.m_Resource->Create( arName, str.c_str() );
 		if( index == p->m_LocalStreamingBufferList.size() ){
 			p->m_LocalStreamingBufferList.push_back( tag );
 		}
@@ -569,6 +786,30 @@ namespace MAPIL
 		p->m_GraphicsCtrl->EnableZBuffer( MapilFalse );
 	}
 
+	// Enable fog.
+	MapilVoid EnableFog()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		p->m_GraphicsCtrl->EnableFog( MapilTrue );
+	}
+
+	// Disable fog.
+	MapilVoid DisableFog()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		p->m_GraphicsCtrl->EnableFog( MapilFalse );
+	}
+
+	// Set fog parameter.
+	MapilVoid SetFogParam( MapilUInt32 color, MapilInt32 mode, MapilFloat32 begin, MapilFloat32 end, MapilFloat32 density )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		p->m_GraphicsCtrl->SetFogParam( color, mode, begin, end, density );
+	}
+
 	// Set texture mode.
 	MapilVoid SetTextureMode( MapilInt32 mode )
 	{
@@ -619,7 +860,7 @@ namespace MAPIL
 
 		// Convert char to tchar.
 		MapilTChar tstr[ MAXIMUM_STRING_LENGTH ];
-		ConvertToTChar( pStr, MAXIMUM_STRING_LENGTH, tstr, MAXIMUM_STRING_LENGTH );
+		ConvertToTChar( str, -1, tstr, MAXIMUM_STRING_LENGTH );
 
 		p->m_Sprite->DrawString(	p->m_GraphicsFont,
 									tstr,
@@ -628,8 +869,40 @@ namespace MAPIL
 									STRING_COLOR );
 	}
 
+	// Draw color string ( with gloval sprite and global font ).
+	MapilVoid DrawString( MapilFloat32 x, MapilFloat32 y, MapilUInt32 color, const MapilChar* pStr, ... )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+
+		const int MAXIMUM_STRING_LENGTH = 1024;
+
+		// Analyze the variable length argument.
+		::va_list list;
+		va_start( list, pStr );
+		MapilChar str[ MAXIMUM_STRING_LENGTH ];
+		::vsprintf_s( str, MAXIMUM_STRING_LENGTH, pStr, list );
+		va_end( list );
+
+		// Convert char to tchar.
+		MapilTChar tstr[ MAXIMUM_STRING_LENGTH ];
+		ConvertToTChar( str, -1, tstr, MAXIMUM_STRING_LENGTH );
+
+		p->m_Sprite->DrawString(	p->m_GraphicsFont,
+									tstr,
+									IMAGE_TRANSFORMATION_METHOD_CENTER_MOVE,
+									Vector2 < MapilFloat32 > ( x, y ),
+									color );
+	}
+
 	// Draw texture ( with global sprite. )
 	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle )
+	{
+		DrawTexture( index, x, y, angle, 0xFFFFFFFF );
+	}
+
+	// Draw texture ( with global sprite ).
+	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle, MapilUInt32 color )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
@@ -646,15 +919,112 @@ namespace MAPIL
 		CreateRotationZMat( &rotMat, angle );
 		CreateTranslationMat( &transMat, x, y );
 		mat = offsetMat * rotMat * transMat;	// Centering -> Rotation -> Translation.
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
+	}
+
+	// Draw texture ( with global sprite ).
+	MapilVoid DrawTexture(	MapilUInt32 index,
+							MapilFloat32 posX, MapilFloat32 posY,
+							MapilFloat32 scaleX, MapilFloat32 scaleY,
+							MapilFloat32 angle )
+	{
+		DrawTexture( index, posX, posY, scaleX, scaleY, angle, 0xFFFFFFFF );
+	}
+
+	// Draw texture ( with global sprite ).
+	MapilVoid DrawTexture(	MapilUInt32 index,
+							MapilFloat32 posX, MapilFloat32 posY,
+							MapilFloat32 scaleX, MapilFloat32 scaleY,
+							MapilFloat32 angle, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > mat;
+		Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+		Matrix4x4 < MapilFloat32 > rotMat;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		CreateTranslationMat(	&offsetMat,
+								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
+								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+		CreateRotationZMat( &rotMat, angle );
+		CreateScalingMat( &scaleMat, scaleX, scaleY );
+		CreateTranslationMat( &transMat, posX, posY );
+		mat = offsetMat * scaleMat * rotMat * transMat;	// Centering -> Scaling -> Rotation -> Translation.
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
+	}
+
+	// Draw texture without centering. ( with global sprite ).
+	MapilVoid DrawTextureNonCentering(	MapilUInt32 index,
+										MapilFloat32 posX, MapilFloat32 posY,
+										MapilFloat32 scaleX, MapilFloat32 scaleY,
+										MapilFloat32 angle )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > mat;
+		Matrix4x4 < MapilFloat32 > rotMat;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		CreateRotationZMat( &rotMat, angle );
+		CreateScalingMat( &scaleMat, scaleX, scaleY );
+		CreateTranslationMat( &transMat, posX, posY );
+		mat = scaleMat * rotMat * transMat;	// Scaling -> Rotation -> Translation.
 		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat );
+	}
+
+	// Draw polygon 3D. (without resource holding.)
+	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		p->m_Canvas3D->DrawPolygon( pFmt, polygonTotal );
+	}
+
+	// Draw polygon 3D. (without resource holding.)
+	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal, MapilUInt32 textureID )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert(	p->m_LocalTextureList[ textureID ].m_IsUsed == MapilTrue, CURRENT_POSITION, TSTR( "Invalid texture id." ), -1 );
+		p->m_Canvas3D->DrawPolygon( pFmt, polygonTotal, p->m_LocalTextureList[ textureID ].m_Resource );
+	}
+
+	// Set master volume.
+	MapilVoid SetMasterVolume( MapilUInt32 volume )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_pSoundFactory != NULL, CURRENT_POSITION, TSTR( "Sound factory is not created yet." ), -1 );
+		p->m_SoundDev->SetVolume( volume );
+	}
+
+	// Set static buffer volume.
+	MapilVoid SetStaticBufferVolume( MapilUInt32 index, MapilUInt32 volume )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStaticBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalStaticBufferList[ index ].m_Resource->SetVolume( volume );
+	}
+
+	// Set streaming buffer volume.
+	MapilVoid SetStreamingBufferVolume( MapilUInt32 index, MapilUInt32 volume )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStreamingBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalStreamingBufferList[ index ].m_Resource->SetVolume( volume );
 	}
 
 	// Play static buffer.
 	MapilVoid PlayStaticBuffer( MapilUInt32 index )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert(	p->m_LocalStaticBufferList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		Assert(	p->m_LocalStaticBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 		p->m_LocalStaticBufferList[ index ].m_Resource->Play();
 	}
 
@@ -683,6 +1053,54 @@ namespace MAPIL
 		Assert(	p->m_LocalStreamingBufferList.size() > index,
 				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 		p->m_LocalStreamingBufferList[ index ].m_Resource->Stop();
+	}
+
+	// Pause static buffer.
+	MapilVoid PauseStaticBuffer( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStaticBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalStaticBufferList[ index ].m_Resource->Pause();
+	}
+
+	// Pause streaming buffer.
+	MapilVoid PauseStreamingBuffer( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStreamingBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalStreamingBufferList[ index ].m_Resource->Pause();
+	}
+
+	// Is static buffer pausing?
+	MapilBool IsStaticBufferPausing( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStaticBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		return p->m_LocalStaticBufferList[ index ].m_Resource->IsPausing();
+	}
+
+	// Is static buffer stopping?
+	MapilBool IsStaticBufferStopping( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStaticBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		return p->m_LocalStaticBufferList[ index ].m_Resource->IsStopping();
+	}
+
+	// Is streaming buffer pausing?
+	MapilBool IsStreamingBufferPausing( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStreamingBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		return p->m_LocalStreamingBufferList[ index ].m_Resource->IsPausing();
+	}
+
+	// Is streaming buffer stopping?
+	MapilBool IsStreamingBufferStopping( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalStreamingBufferList.size() > index, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		return p->m_LocalStreamingBufferList[ index ].m_Resource->IsStopping();
 	}
 
 	// Reflesh resources.
@@ -721,11 +1139,12 @@ namespace MAPIL
 		p->m_LocalCameraList[ index ].m_Resource->SetProjectionTransMat( fovy, aspect, nearClip, farClip );
 	}
 
+
 	// Set view translation. ( Camera )
-	MapilVoid EnableCamera(	MapilUInt32 index,
-							MapilFloat32 eyeX, MapilFloat32 eyeY, MapilFloat32 eyeZ,
-							MapilFloat32 lookX, MapilFloat32 lookY, MapilFloat32 lookZ,
-							MapilFloat32 upX, MapilFloat32 upY, MapilFloat32 upZ )
+	MapilVoid SetCameraViewTrans(	MapilUInt32 index,
+									MapilFloat32 eyeX, MapilFloat32 eyeY, MapilFloat32 eyeZ,
+									MapilFloat32 lookX, MapilFloat32 lookY, MapilFloat32 lookZ,
+									MapilFloat32 upX, MapilFloat32 upY, MapilFloat32 upZ )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalCameraList.size() > index,
@@ -734,4 +1153,238 @@ namespace MAPIL
 																	lookX, lookY, lookZ,
 																	upX, upY, upZ);
 	}
+
+	// Enable camera.
+	MapilVoid EnableCamera()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		p->m_Camera->Enable();
+	}
+
+	// Set projection translation. ( Camera )
+	MapilVoid SetCameraProjTrans( MapilFloat32 fovy, MapilFloat32 aspect, MapilFloat32 nearClip, MapilFloat32 farClip )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		p->m_Camera->SetProjectionTransMat( fovy, aspect, nearClip, farClip );
+	}
+
+	// Set view translation. ( Camera )
+	MapilVoid SetCameraViewTrans(	MapilFloat32 eyeX, MapilFloat32 eyeY, MapilFloat32 eyeZ,
+									MapilFloat32 lookX, MapilFloat32 lookY, MapilFloat32 lookZ,
+									MapilFloat32 upX, MapilFloat32 upY, MapilFloat32 upZ )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		p->m_Camera->SetViewTransMat(	eyeX, eyeY, eyeZ,
+										lookX, lookY, lookZ,
+										upX, upY, upZ );
+	}
+
+	// Process message.
+	MapilInt32 ProcessMessage()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		return p->m_MainWnd->ProcessMessage();
+	}
+
+	// Draw point sprite.
+	MapilVoid DrawPointSprite( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalPointSpriteList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalPointSpriteList[ index ].m_Resource->Draw();
+	}
+
+	// Capture screen shot.
+	MapilVoid CaptureScreen( const MapilChar* pFileName )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		p->m_GraphicsCtrl->CaptureScreen( tstr );
+	}
+
+	// Update point sprite.
+	MapilVoid UpdatePointSprite( MapilUInt32 id, MapilUInt32 index, const Vector3 < MapilFloat32 >& vPos, MapilFloat32 size, MapilInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalPointSpriteList.size() > id,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalPointSpriteList[ id ].m_Resource->Update( index, vPos, size, color );
+	}
+
+	// Create model.
+	MapilUInt32 CreateModel( const MapilChar* pFileName )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		std::basic_string < MapilTChar > str = TSTR( "Local Model " );
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalModelList );
+		str += index;
+		ModelTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
+		if( index == p->m_LocalModelList.size() ){
+			p->m_LocalModelList.push_back( tag );
+		}
+		else{
+			p->m_LocalModelList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Draw model.
+	MapilVoid DrawModel( MapilUInt32 id, const Matrix4x4 < MapilFloat32 >& mat )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalModelList.size() > id, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalModelList[ id ].m_Resource->Draw( mat );
+	}
+
+	// Draw texture with batch drawing. ( with global sprite )
+	MapilVoid PostTextureBatchWork(	MapilUInt32 id,
+									MapilFloat32 posX, MapilFloat32 posY,
+									MapilFloat32 scaleX, MapilFloat32 scaleY,
+									MapilFloat32 angle, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > id, CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		TextureBatchWork work;
+		work.m_ID = id;
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+		Matrix4x4 < MapilFloat32 > rotMat;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		CreateTranslationMat(	&offsetMat,
+								- p->m_LocalTextureList[ id ].m_Resource->GetSize().m_X * 1.0f / 2,
+								- p->m_LocalTextureList[ id ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+		CreateRotationZMat( &rotMat, angle );
+		CreateScalingMat( &scaleMat, scaleX, scaleY );
+		CreateTranslationMat( &transMat, posX, posY );
+		work.m_TransMat = offsetMat * scaleMat * rotMat * transMat;	// Centering -> Scaling -> Rotation -> Translation.
+		work.m_Color = color;
+		p->m_TextureBatch.push_back( work );
+	}
+
+	// Perform all batch works. (with global sprite)
+	MapilVoid DoAllBatchWorks()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		BeginRendering();
+		for( TextureBatch::iterator it = p->m_TextureBatch.begin(); it != p->m_TextureBatch.end(); ++it ){
+			p->m_Sprite->DrawTexture( p->m_LocalTextureList[ it->m_ID ].m_Resource, it->m_TransMat, it->m_Color );
+		}
+		for( StringBatch::iterator it = p->m_StringBatch.begin(); it != p->m_StringBatch.end(); ++it ){
+			p->m_Sprite->DrawString( p->m_GraphicsFont, it->m_Str.c_str(), it->m_TransMat );
+		}
+		EndRendering();
+	}
+
+	// Draw string with batch drawing. ( with global sprite )
+	MapilVoid PostStringBatchWork(	MapilFloat32 posX, MapilFloat32 posY,
+									MapilFloat32 scaleX, MapilFloat32 scaleY,
+									MapilFloat32 angle, MapilUInt32 color,
+									const MapilChar* pStr, ... )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+
+		// Set up strings.
+		const int MAXIMUM_STRING_LENGTH = 1024;
+		// Analyze the variable length argument.
+		::va_list list;
+		va_start( list, pStr );
+		MapilChar str[ MAXIMUM_STRING_LENGTH ];
+		::vsprintf_s( str, MAXIMUM_STRING_LENGTH, pStr, list );
+		va_end( list );
+		// Convert char to tchar.
+		MapilTChar tstr[ MAXIMUM_STRING_LENGTH ];
+		ConvertToTChar( str, -1, tstr, MAXIMUM_STRING_LENGTH );
+
+		StringBatchWork work;
+		work.m_Str = tstr;
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > rotMat;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		CreateRotationZMat( &rotMat, angle );
+		CreateScalingMat( &scaleMat, scaleX, scaleY );
+		CreateTranslationMat( &transMat, posX, posY );
+		work.m_TransMat = scaleMat * rotMat * transMat;	// Scaling -> Rotation -> Translation.
+		work.m_Color = color;
+		p->m_StringBatch.push_back( work );
+	}
+
+	// Create local rectangle 3D.
+	MapilUInt32 CreateRectangle3D()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		std::basic_string < MapilTChar > str = TSTR( "Local Rectangle3D " );
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalRectangle3DList );
+		str += index;
+		Rectangle3DTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateRectangle3D( str.c_str() );
+		if( index == p->m_LocalModelList.size() ){
+			p->m_LocalRectangle3DList.push_back( tag );
+		}
+		else{
+			p->m_LocalRectangle3DList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Update rectangle 3D.
+	MapilVoid UpdateRectangle3D( MapilUInt32 id, const Rectangle3DVertexFormat& fmt, MapilInt32 texID )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalRectangle3DList.size() > id,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalRectangle3DList[ id ].m_Resource->Update( fmt, p->m_LocalTextureList[ texID ].m_Resource );
+	}
+
+	// Draw rectangle 3D.
+	MapilVoid DrawRectangle3D( MapilUInt32 id )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalRectangle3DList.size() > id,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalRectangle3DList[ id ].m_Resource->Draw();
+	}
+
+	// Open archive file.
+	MapilUInt32 OpenArchiveFile( const MapilChar* pFileName, MapilInt32 mode )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Archiver* pAr = new Archiver;
+		pAr->Open( pFileName, mode );
+		MapilUInt32 index = p->m_ArchiverList.size();
+		p->m_ArchiverList.push_back( pAr );
+		return index;
+	}
+
+	// Get contents size on archive file.
+	MapilUInt32 GetContentsSizeOnArchiveFile( MapilUInt32 archiveHandle, const MapilChar* pFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		return p->m_ArchiverList[ archiveHandle ]->GetContentsSize( pFilePath );
+	}
+
+	// Load data from archive file.
+	MapilVoid LoadDataFromArchiveFile( MapilUInt32 archiveHandle, const MapilChar* pFilePath, MapilChar* pData )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid index is input." ), -1 );
+		p->m_ArchiverList[ archiveHandle ]->Load( pFilePath, pData );
+	}
+	
 }

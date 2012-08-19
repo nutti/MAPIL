@@ -37,6 +37,14 @@ namespace MAPIL
 		m_pContext = alcCreateContext( m_pDev, NULL );
 		alcMakeContextCurrent( m_pContext );
 	}
+
+	MapilVoid ALSoundDevice::SetVolume( MapilUInt32 volume )
+	{
+		if( volume > 100 ){
+			volume = 100;
+		}
+		::alListenerf( AL_GAIN, volume / 100.0f );
+	}
 }
 
 #endif	// API_OPENAL

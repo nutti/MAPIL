@@ -105,6 +105,14 @@ namespace MAPIL
 	MapilVoid GLSprite::DrawTexture(	SharedPointer < Texture > pTexture,
 										const Matrix4x4 < MapilFloat32 >& mat )
 	{
+		DrawTexture( pTexture, mat, 0xFFFFFFFF );
+	}
+
+		
+	MapilVoid GLSprite::DrawTexture(	SharedPointer < Texture > pTexture,
+										const Matrix4x4 < MapilFloat32 >& mat,
+										MapilUInt32 color )
+	{
 		// If texture hasn't been created, this function returns immediately.
 		if( !pTexture.GetPointer() ){
 			return;

@@ -56,7 +56,7 @@ namespace MAPIL
 		*	@param pFileName	File name to be opened.
 		*	@param mode			Open mode.
 		*/
-		MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode );
+		MapilVoid Open( const MapilChar* pFileName, MapilInt32 mode );
 		/**
 		*	@brief				Load.
 		*	@param pFileName	File name to load.
@@ -96,6 +96,7 @@ namespace MAPIL
 		*	@brief Close the file.
 		*/
 		MapilVoid Close();
+		const MapilChar* GetArchiveFileName() const;
 	};
 }
 

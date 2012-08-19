@@ -27,12 +27,27 @@ namespace MAPIL
 		virtual MapilVoid Stop() = 0;
 		virtual MapilVoid Pause() = 0;
 		virtual MapilVoid Destroy() = 0;
+		/**
+		*	@brief			Set volume.
+		*	@param volume	Volume.
+		*/
+		virtual MapilVoid SetVolume( MapilUInt32 volume ) = 0;
 		virtual MapilVoid SetVolume( MapilFloat32 volume ) = 0;
 		/**
 		*	@brief		Set sound source position.
 		*	@param pos	Position.
 		*/
 		virtual MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos ) = 0;
+		/**
+		*	@brief	Is streaming buffer pausing now?
+		*	@return	True if streaming buffer is pausing.
+		*/
+		virtual MapilBool IsPausing() const = 0;
+		/**
+		*	@brief	Is streaming buffer stoping now?
+		*	@return	True if streaming buffer is pausing.
+		*/
+		virtual MapilBool IsStopping() const = 0;
 	};
 }
 

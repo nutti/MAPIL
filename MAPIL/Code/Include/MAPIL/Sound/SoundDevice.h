@@ -44,6 +44,11 @@ namespace MAPIL
 		~SoundDevice();
 		MapilVoid Create();
 		MapilVoid Destroy();
+		/**
+		*	@brief			Set master volume.
+		*	@param volume	Volume.
+		*/
+		MapilVoid SetVolume( MapilUInt32 volume );
 #if defined ( API_ALSA )
 		ALSASoundDevice* GetDev() const;
 #elif defined ( API_OPENAL )

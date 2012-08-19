@@ -20,6 +20,40 @@ namespace MAPIL
 		VERTEX_MANAGEMENT_BUFFER	= 1,		///< Use the vertex buffer.
 	};
 
+	struct Polygon3DVertexFormat
+	{
+		union
+		{
+			struct
+			{
+				MapilFloat32		m_X;				///< X-coordinate of the vertex.
+				MapilFloat32		m_Y;				///< Y-coordinate of the vertex.
+				MapilFloat32		m_Z;				///< Z-coordinate of the vertex.
+			} m_Pos;
+			MapilFloat32			m_PosElm[ 3 ];		///< Coordinate of the vertex.
+		};
+		union
+		{
+			struct
+			{
+				MapilUChar			m_R;				///< Red of the vertex color.
+				MapilUChar			m_G;				///< Green of the vertex color.
+				MapilUChar			m_B;				///< Blue of the vertex color.
+				MapilUChar			m_A;				///< Alpha of the vertex color.
+			} m_Col;
+			MapilUChar				m_ColElm[ 4 ];		///< Color of the vertex.
+		};
+		union
+		{
+			struct
+			{
+				MapilFloat32		m_U;				///< U-coordinate of the texture for the vertex.
+				MapilFloat32		m_V;				///< V-coordinate of the texture for the vertex.
+			} m_Tex;
+			MapilFloat32		m_TexElm[ 2 ];			///< Coordinate of the texture for the vertex.
+		};
+	};
+
 	class GraphicsDevice;
 	class Graphics : public MapilObject
 	{

@@ -65,6 +65,19 @@ namespace MAPIL
 		*/
 		virtual MapilVoid Split( MapilInt32 column, MapilInt32 row, MapilInt32 width, MapilInt32 height ){};
 		/**
+		*	@brief				Split the texture and copy to new texture object.
+		*	@param pTextuere	Target texture object to be copied.
+		*	@param column		The number of the column to be split.
+		*	@param row			The number of the row to be split.
+		*	@param width		Width of the texture.
+		*	@param height		Height of the texture.
+		*/
+		virtual MapilVoid SplitCopy(	SharedPointer < Texture >* pTexture,
+										MapilInt32 column,
+										MapilInt32 row,
+										MapilInt32 width,
+											MapilInt32 height ){};
+		/**
 		*	@brief			Set the index of the active texture.
 		*	@param index	The index of the texture.
 		*/

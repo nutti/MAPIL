@@ -92,6 +92,13 @@ namespace MAPIL
 	MapilVoid D3DSprite::DrawTexture(	SharedPointer < Texture > pTexture,
 										const Matrix4x4 < MapilFloat32 >& mat )
 	{
+		DrawTexture( pTexture, mat, 0xFFFFFFFF );
+	}
+
+	MapilVoid D3DSprite::DrawTexture(	SharedPointer < Texture > pTexture,
+										const Matrix4x4 < MapilFloat32 >& mat,
+										MapilUInt32 color )
+	{
 		Assert(	m_IsUsed,
 				TSTR( "Mapil" ),
 				TSTR( "D3DSprite" ),
@@ -122,7 +129,7 @@ namespace MAPIL
 										&rc,
 										NULL,
 										NULL,
-										D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) ){
+										color ) ) ){
 			throw MapilException(	TSTR( "Mapil" ),
 									TSTR( "D3DSprite" ),
 									TSTR( "DrawTexture" ),

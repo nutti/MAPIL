@@ -30,6 +30,7 @@
 #include "D3DRectangle3D.h"
 #include "D3DNSidedPolygon3D.h"
 #include "D3DCanvas2D.h"
+#include "D3DCanvas3D.h"
 #include "D3DSprite.h"
 
 //-------------------------------------------------------------------
@@ -42,7 +43,8 @@ namespace MAPIL
 	class D3DGraphicsFactory : public GraphicsFactory
 	{
 	private:
-		GraphicsResourceManager < D3DCanvas2D >				m_CanvasRM;			///< Resource manager for the D3DCanvas object.
+		GraphicsResourceManager < D3DCanvas2D >				m_CanvasRM;			///< Resource manager for the D3DCanvas2D object.
+		GraphicsResourceManager < D3DCanvas3D >				m_Canvas3DRM;		///< Resource manager for the D3DCanvas3D object.
 		GraphicsResourceManager < D3DSprite >				m_SpriteRM;			///< Resource manager for the D3DSprite object.
 		GraphicsResourceManager < D3DCamera >				m_CameraRM;			///< Resource manager for the D3DCamera object.
 		GraphicsResourceManager < D3DGraphicsController >	m_GraphicsCtrlRM;	///< Resource manager for the D3DGraphicsController object.
@@ -70,6 +72,12 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		ICanvas2D CreateCanvas2D( const MapilTChar* pKeyStr );
+		/**
+		*	@brief			Create a D3DCanvas3D object and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@return			The interface of the created object.
+		*/
+		ICanvas3D CreateCanvas3D( const MapilTChar* pKeyStr );
 		/**
 		*	@brief			Create a D3DSprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.
@@ -118,6 +126,13 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		ITexture CreateTexture( const MapilTChar* pKeyStr );
+		/**
+		*	@brief			Create a Texture objects and return the interface of the created object.
+		*	@param pKeyStr	String for searching the created object.
+		*	@param pTexture Texture array to be created.
+		*	@param count	Creation count.
+		*/
+		MapilVoid CreateTextures( const MapilTChar* pKeyStr, ITexture* pTexture, MapilInt32 count );
 		/**
 		*	@brief			Create a D3DPointSprite object and return the interface of the created object.
 		*	@param pKeyStr	String for searching the created object.

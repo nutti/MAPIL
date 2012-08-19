@@ -36,6 +36,11 @@ namespace MAPIL
 		SafeDelete( m_pDev );
 	}
 	
+	MapilVoid SoundDevice::SetVolume( MapilUInt32 volume )
+	{
+		m_pDev->SetVolume( volume );
+	}
+
 #if defined ( API_ALSA )
 	ALSASoundDevice* SoundDevice::GetDev() const
 	{

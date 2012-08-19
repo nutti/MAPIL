@@ -176,11 +176,7 @@ namespace MAPIL
 		::D3DLOCKED_RECT srcRect;
 		if( FAILED( m_pD3DTexture->LockRect( 0, &srcRect, NULL, D3DLOCK_DISCARD ) ) ){
 			if( FAILED( m_pD3DTexture->LockRect( 0, &srcRect, NULL, 0 ) ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "D3DTexture" ),
-										TSTR( "Split" ),
-										TSTR( "Failed to lock rectangle of the source texture." ),
-										-1 );
+				throw MapilException( CURRENT_POSITION, TSTR( "Failed to lock rectangle of the source texture." ), -1 );
 			}
 		}
 
@@ -206,11 +202,7 @@ namespace MAPIL
 																			D3DPOOL_MANAGED,
 																			&m_ppD3DTexture[ i ],
 																			NULL ) ) ){
-					throw MapilException(	TSTR( "Mapil" ),
-											TSTR( "D3DTexture" ),
-											TSTR( "Split" ),
-											TSTR( "Failed to create texture resources." ),
-											-2 );
+					throw MapilException( CURRENT_POSITION, TSTR( "Failed to create texture resources." ), -2 );
 				}
 			}
 
@@ -244,6 +236,110 @@ namespace MAPIL
 		// Release the original texture.
 		m_pD3DTexture->UnlockRect( 0 );
 		SafeRelease( m_pD3DTexture );
+	}
+
+	MapilVoid D3DTexture::SplitCopy(	SharedPointer < Texture >* pTexture,
+										MapilInt32 column,
+										MapilInt32 row,
+										MapilInt32 width,
+										MapilInt32 height )
+	{
+		MapilInt32 splitTotal = column * row;
+
+		// No operation occurs, when the size of texture doesn't match with the sum of size
+		// to be split.
+		if( m_TexSize.m_X != row * width ){
+			return;
+		}
+		if( m_TexSize.m_Y != column * height ){
+			return;
+		}
+
+		// Set up the list.
+		MapilInt32 splitIndex = 0;
+		splitTotal = row * column;
+		Vector2 < MapilInt32 >* pSizeList = new Vector2 < MapilInt32 > [ splitTotal ];
+		Vector2 < MapilInt32 >* pBeginPosList = new Vector2 < MapilInt32 > [ splitTotal ];
+		MapilInt32 xSize = m_TexSize.m_X / row;
+		MapilInt32 ySize = m_TexSize.m_Y / column;
+		MapilInt32 xPos = 0;
+		MapilInt32 yPos = 0;
+		for( MapilInt32 i = 0; i < column; ++i ){
+			for( MapilInt32 j = 0; j < row; ++j ){
+				pBeginPosList[ i * row + j ].m_X = xPos;
+				pBeginPosList[ i * row + j ].m_Y = yPos;
+				pSizeList[ i * row + j ].m_X = xSize;
+				pSizeList[ i * row + j ].m_Y = ySize;
+				xPos += xSize;
+			}
+			xPos = 0;
+			yPos += ySize;
+		}
+
+		// Lock the source texture.
+		::D3DLOCKED_RECT srcRect;
+		if( FAILED( m_pD3DTexture->LockRect( 0, &srcRect, NULL, D3DLOCK_DISCARD ) ) ){
+			if( FAILED( m_pD3DTexture->LockRect( 0, &srcRect, NULL, 0 ) ) ){
+				throw MapilException( CURRENT_POSITION, TSTR( "Failed to lock rectangle of the source texture." ), -1 );
+			}
+		}
+
+		// Get information of the original texture.
+		D3DSURFACE_DESC desc;
+		m_pD3DTexture->GetLevelDesc( 0, &desc );
+
+		// Construct the images.
+		for( MapilInt32 i = 0; i < splitTotal; ++i ){
+			SharedPointer < D3DTexture > pD3DTex;
+			pD3DTex.DownCast( pTexture[ i ] );
+			if( FAILED( m_pDev->GetDev().GetPointer()->CreateTexture(	pSizeList[ i ].m_X,
+																		pSizeList[ i ].m_Y,
+																		1,
+																		D3DUSAGE_DYNAMIC,
+																		D3DFMT_A8R8G8B8,
+																		D3DPOOL_MANAGED,
+																		&pD3DTex->m_pD3DTexture,
+																		NULL ) ) ){
+				if( FAILED( m_pDev->GetDev().GetPointer()->CreateTexture(	pSizeList[ i ].m_X,
+																			pSizeList[ i ].m_Y,
+																			1,
+																			0,
+																			D3DFMT_A8R8G8B8,
+																			D3DPOOL_MANAGED,
+																			&pD3DTex->m_pD3DTexture,
+																			NULL ) ) ){
+					throw MapilException( CURRENT_POSITION, TSTR( "Failed to create texture resources." ), -2 );
+				}
+			}
+
+			::D3DLOCKED_RECT dstRect;
+			if( FAILED( pD3DTex->m_pD3DTexture->LockRect( 0, &dstRect, NULL, D3DLOCK_DISCARD ) ) ){
+				if( FAILED( pD3DTex->m_pD3DTexture->LockRect( 0, &dstRect, NULL, 0 ) ) ){
+					throw MapilException( CURRENT_POSITION, TSTR( "Failed to lock rectangle of the destination texture." ), -3 );
+				}
+			}
+			
+			// Copy the source texture to the destination texture.
+			DWORD* pDstPtr = static_cast < DWORD* > ( dstRect.pBits );
+			DWORD* pSrcPtr = static_cast < DWORD* > ( srcRect.pBits );
+			pSrcPtr += pBeginPosList[ i ].m_Y * srcRect.Pitch / sizeof( DWORD );
+			for( MapilInt32 j = 0; j < pSizeList[ i ].m_Y; ++j ){
+				for( MapilInt32 k = 0; k < pSizeList[ i ].m_X; ++k ){
+					pDstPtr[ k ] = pSrcPtr[ k + pBeginPosList[ i ].m_X ];
+				}
+				// Pitch = width * DWORD (Color component.)
+				pDstPtr += dstRect.Pitch / sizeof( DWORD );
+				pSrcPtr += srcRect.Pitch / sizeof( DWORD );
+			}
+			pD3DTex->m_pD3DTexture->UnlockRect( 0 );
+			pD3DTex->m_TexSize = pSizeList[ i ];
+			pD3DTex->m_IsUsed = MapilTrue;
+		}
+
+		m_pD3DTexture->UnlockRect( 0 );
+
+		SafeDeleteArray( pSizeList );
+		SafeDeleteArray( pBeginPosList );
 	}
 
 	MapilInt32 D3DTexture::Get()

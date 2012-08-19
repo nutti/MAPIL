@@ -52,15 +52,7 @@ namespace MAPIL
 		SharedPointer < Texture >			m_pTex;					///< Texture.
 		VertexFormat*						m_pNonBufVertex;		///< Vertex buffer with no buffer.
 		VertexManagementMethod				m_VertexManageMethod;	///< Management method of the vertices.
-		/**
-		*	@brief			Common procedure to update the vertex.
-		*	@param index	Index of the vertex to be updated.
-		*	@param vPos		Position of the vertex.
-		*	@param size		Point size.
-		*	@param color	Color of the vertex.
-		*/
-		MapilVoid UpdateCommon(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
-								MapilFloat32 size, DWORD color );
+		
 	public:
 		/**
 		*	@brief		Constructor.
@@ -104,6 +96,15 @@ namespace MAPIL
 		*/
 		MapilVoid Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
 							MapilFloat32 size, const ColorARGB < MapilUChar >& color );
+		/**
+		*	@brief			Update the vertex.
+		*	@param index	Index of the vertex to be updated.
+		*	@param vPos		Position of the vertex.
+		*	@param size		Point size.
+		*	@param color	Color of the vertex.
+		*/
+		MapilVoid Update(	MapilInt32 index, const Vector3 < MapilFloat32 >& vPos,
+							MapilFloat32 size, MapilUInt32 color );
 		/**
 		*	@brief	Draw all the registered vertices.
 		*/

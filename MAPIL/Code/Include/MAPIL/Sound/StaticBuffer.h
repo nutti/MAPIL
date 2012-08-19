@@ -26,12 +26,22 @@ namespace MAPIL
 		virtual MapilVoid Stop() = 0;
 		virtual MapilVoid Pause() = 0;
 		virtual MapilVoid Destroy() = 0;
-		virtual MapilVoid SetVolume() = 0;
+		virtual MapilVoid SetVolume( MapilUInt32 volume ) = 0;
 		/**
 		*	@brief		Set sound source position.
 		*	@param pos	Position.
 		*/
 		virtual MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos ) = 0;
+		/**
+		*	@brief	Is static buffer pausing now?
+		*	@return	True if static buffer is pausing.
+		*/
+		virtual MapilBool IsPausing() const = 0;
+		/**
+		*	@brief	Is static buffer stoping now?
+		*	@return	True if static buffer is pausing.
+		*/
+		virtual MapilBool IsStopping() const = 0;
 	};
 }
 
