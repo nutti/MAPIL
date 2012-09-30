@@ -89,7 +89,9 @@ namespace MAPIL
 
 		//World coordinate transformation
 		D3DXMATRIXA16 matWorld;
-		D3DXMatrixTranslation( &matWorld, posX, posY, 0.0f );
+		D3DXMatrixTranslation(	&matWorld,
+								static_cast < MapilFloat32 > ( posX ),
+								static_cast < MapilFloat32 > ( posY ), 0.0f );
 		m_pDev->GetDev().GetPointer()->SetTransform( D3DTS_WORLD, &matWorld );
 		//if( FAILED( m_pD3DFont->DrawText(	m_
 	}

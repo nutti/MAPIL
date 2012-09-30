@@ -334,7 +334,7 @@ namespace MAPIL
 		return GetKeyboardKeyNum( pDev->GetInputAPI(), key );
 	}
 
-	MapilBool IsKeyPushed( MapilInt32 key )
+	MapilBool HasKeyPushedStatus( MapilUChar key )
 	{
 		return ( key & 0x80 ) ? MapilTrue : MapilFalse;
 	}

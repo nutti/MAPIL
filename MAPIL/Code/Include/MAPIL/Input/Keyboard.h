@@ -30,7 +30,7 @@ namespace MAPIL
 
 	MapilInt32 GetKeyboardKeyNum( SharedPointer < InputDevice > pDev, KeyboardKey key );
 
-	MapilBool IsKeyPushed( MapilInt32 key );
+	MapilBool HasKeyPushedStatus( MapilUChar key );
 }
 
 #endif

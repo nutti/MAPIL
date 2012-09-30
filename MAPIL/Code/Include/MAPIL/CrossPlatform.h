@@ -18,8 +18,7 @@
 namespace MAPIL
 {
 
-// Version of Direct 3D.
-#define VERSION_DIRECT3D	0x0903		// 9.0c
+
 
 // Operating system.
 #if defined ( WIN32 )
@@ -29,7 +28,7 @@ namespace MAPIL
 #endif
 
 // API.
-#if defined ( WIN32 )
+#if defined ( OS_WIN_32BIT )
 #define API_WIN32API					// Win32API.
 #define API_DIRECT3D					// Direct 3D.
 #define API_DIRECT2D					// Direct 2D. (Not supported.)
@@ -39,6 +38,11 @@ namespace MAPIL
 #define API_GTK							// GTK.
 #define API_POSIX						// POSIX.
 #define API_ALSA						// ALSA.
+#endif
+
+// Version of Direct 3D.
+#if defined ( API_DIRECT3D )
+#define VERSION_DIRECT3D	0x0903		// 9.0c
 #endif
 
 #define API_OPENGL						// OpenGL.
@@ -57,6 +61,19 @@ namespace MAPIL
 #define LIB_GLEW						// Glew.
 #define LIB_LIBPNG						// Libpng.
 #define LIB_ZLIB						// Zlib.
+
+// Debug mode.
+#if defined ( OS_WIN_32BIT )
+#if defined ( _DEBUG )
+#define MAKE_MODE_DEBUG
+#else
+#define MAKE_MODE_RELEASE
+#endif
+#else
+#define MAKE_MODE_DEBUG
+//#define MAKE_MODE_RELEASE
+#endif
+
 }
 
 #endif	// INCLUDED_MAPIL_CROSSPLATFORM_H

@@ -25,9 +25,9 @@
 #if defined ( API_DIRECT3D )
 #include "Graphics/D3DGraphicsFactory.h"
 #pragma comment ( lib, "d3d9.lib" )
-#if defined ( DEBUG ) || defined ( _DEBUG )
+#if defined ( MAKE_MODE_DEBUG )
 #pragma comment ( lib, "d3dx9d.lib" )
-#else
+#elif defined ( MAKE_MODE_RELEASE )
 #pragma comment ( lib, "d3dx9.lib" )
 #endif
 #pragma comment ( lib, "Imm32.lib" )
@@ -52,6 +52,7 @@
 // Sound.
 #if defined ( API_OPENAL )
 #include "Sound/ALSoundFactory.h"
+#pragma comment ( lib, "OpenAL32.lib" )
 #endif
 
 // Math.
@@ -59,11 +60,17 @@
 #include "Math/CollisionDetection.h"
 
 // Util.
-#include "Util\String.h"
+#include "Util/String.h"
+#include "Util/FPSManager.h"
+#include "Util/Allocator.hpp"
 
 // C-interfaces
-#include "Util\CInterface.h"
+#include "Util/CInterface.h"
 
+#if defined ( MAKE_MODE_DEBUG )
+#pragma comment( lib, "MAPILd.lib" )
+#elif defined ( MAKE_MODE_RELEASE )
 #pragma comment( lib, "MAPIL.lib" )
+#endif
 
 #endif

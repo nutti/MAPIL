@@ -14,6 +14,10 @@
 #include "../../Include/MAPIL/Util/String.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
 
+#if defined ( OS_WIN_32BIT )
+#pragma warning ( disable : 4996 )
+#endif
+
 namespace MAPIL
 {
 
@@ -45,11 +49,11 @@ namespace MAPIL
 		m_Str += TSTR( "\n\nComment : " );
 
 		va_start( list, pStr );
-	//	strLen = _vsctprintf( pStr, list ) + 1;
+		strLen = _vsctprintf( pStr, list ) + 1;
 		if( strLen > 1024 ){
 			exit( 1 );
 		}
-	//	_vstprintf( strTmp, pStr, list );
+		_vstprintf( strTmp, pStr, list );
 
 		m_Str += strTmp;
 	}

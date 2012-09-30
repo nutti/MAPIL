@@ -14,12 +14,21 @@
 
 #include "../CrossPlatform.h"
 
+#if defined ( OS_WIN_32BIT )
+#include <Windows.h>
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_NON_CONFORMING_SWPRINTFS
+#endif
+
 #include <string>
 #include <stdlib.h>
 
 #include "../Type.h"
 #include "../Util/Memory.hpp"
+#include "../Util/String.h"
 #include "../TChar.h"
+
+
 
 //-------------------------------------------------------------------
 // Function definition.
@@ -91,21 +100,22 @@ namespace MAPIL
 	{
 #ifdef MAKE_MODE_DEBUG
 		if( !( param ) ){
-			MapilTChar str[ 1024 ];
-			ZeroObject( str, sizeof( str ) );
-			ConvertToTChar( pPosition, strlen( pPosition ), str, 1024 );
-
-			m_Str += TSTR( "\n-------------- MAPIL Assertion Report -----------------\n" );
-			m_Str += TSTR( "Location : " );
-			m_Str += str;
-			m_Str += TSTR( "\nProblem : " );
-			m_Str += pProblemDesc;
-			m_Str += TSTR( "\nReturn Code : " );
-			_stprintf( str, TSTR( "%d" ), codeNum );
-			m_Str += str;
-			m_Str += TSTR( "\n-------------- MAPIL Assertion Report End--------------\n\n" );
+			std::basic_string < MapilTChar > str;
+			str += TSTR( "\n-------------- MAPIL Assertion Report -----------------\n" );
+			str += TSTR( "Location : " );
+			TCHAR tstr[ 1024 ];
+			ConvertToTChar( pPosition, -1, tstr, 1024 );
+			str += tstr;
+			str += TSTR( "\nProblem : " );
+			str += pProblemDesc;
+			str += TSTR( "\nReturn Code : " );
+			str += exitNum;
+			MapilTChar buf[ 20 ];
+			_stprintf( buf, TSTR( "%d" ), exitNum );
+			str += buf;
+			str += TSTR( "\n-------------- MAPIL Assertion Report End--------------\n\n" );
 #if defined ( OS_WIN_32BIT )
-			OutputDebugString( strDebug.c_str() );
+			OutputDebugString( str.c_str() );
 #endif
 			exit( exitNum );
 		}

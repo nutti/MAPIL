@@ -363,6 +363,10 @@ namespace MAPIL
 		CameraTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateCamera( str.c_str() );
+		tag.m_Resource->Create(	0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, 0.0f );
 		if( index == p->m_LocalCameraList.size() ){
 			p->m_LocalCameraList.push_back( tag );
 		}
@@ -895,14 +899,8 @@ namespace MAPIL
 									color );
 	}
 
-	// Draw texture ( with global sprite. )
-	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle )
-	{
-		DrawTexture( index, x, y, angle, 0xFFFFFFFF );
-	}
-
 	// Draw texture ( with global sprite ).
-	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle, MapilUInt32 color )
+	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilBool centerize, MapilUInt32 color )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
@@ -910,15 +908,40 @@ namespace MAPIL
 
 		// Create transformation matrix.
 		Matrix4x4 < MapilFloat32 > mat;
-		Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+		if( centerize ){
+			CreateTranslationMat(	&mat,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2 + x,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 + y );
+		}
+		else{
+			CreateTranslationMat( &mat, x, y );
+		}
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
+	}
+
+	// Draw texture ( with global sprite ).
+	MapilVoid DrawTexture( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle, MapilBool centerize, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > mat;
 		Matrix4x4 < MapilFloat32 > rotMat;
 		Matrix4x4 < MapilFloat32 > transMat;
-		CreateTranslationMat(	&offsetMat,
-								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
-								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
 		CreateRotationZMat( &rotMat, angle );
 		CreateTranslationMat( &transMat, x, y );
-		mat = offsetMat * rotMat * transMat;	// Centering -> Rotation -> Translation.
+		if( centerize ){
+			Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+			CreateTranslationMat(	&offsetMat,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+			mat = offsetMat * rotMat * transMat;	// Centering -> Rotation -> Translation.
+		}
+		else{
+			mat = rotMat * transMat;	// Rotation -> Translation.
+		}
 		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
 	}
 
@@ -926,16 +949,36 @@ namespace MAPIL
 	MapilVoid DrawTexture(	MapilUInt32 index,
 							MapilFloat32 posX, MapilFloat32 posY,
 							MapilFloat32 scaleX, MapilFloat32 scaleY,
-							MapilFloat32 angle )
+							MapilBool centerize, MapilUInt32 color )
 	{
-		DrawTexture( index, posX, posY, scaleX, scaleY, angle, 0xFFFFFFFF );
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > mat;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		CreateScalingMat( &scaleMat, scaleX, scaleY );
+		CreateTranslationMat( &transMat, posX, posY );
+		if( centerize ){
+			Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+			CreateTranslationMat(	&offsetMat,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+			mat = offsetMat * scaleMat * transMat;	// Centering -> Scaling -> Translation.
+		}
+		else{
+			mat = scaleMat * transMat;	// Scaling -> Translation.
+		}
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
 	}
 
 	// Draw texture ( with global sprite ).
 	MapilVoid DrawTexture(	MapilUInt32 index,
 							MapilFloat32 posX, MapilFloat32 posY,
 							MapilFloat32 scaleX, MapilFloat32 scaleY,
-							MapilFloat32 angle, MapilUInt32 color )
+							MapilFloat32 angle, MapilBool centerize, MapilUInt32 color )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
@@ -943,40 +986,23 @@ namespace MAPIL
 
 		// Create transformation matrix.
 		Matrix4x4 < MapilFloat32 > mat;
-		Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
 		Matrix4x4 < MapilFloat32 > rotMat;
 		Matrix4x4 < MapilFloat32 > scaleMat;
 		Matrix4x4 < MapilFloat32 > transMat;
-		CreateTranslationMat(	&offsetMat,
-								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
-								- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
 		CreateRotationZMat( &rotMat, angle );
 		CreateScalingMat( &scaleMat, scaleX, scaleY );
 		CreateTranslationMat( &transMat, posX, posY );
-		mat = offsetMat * scaleMat * rotMat * transMat;	// Centering -> Scaling -> Rotation -> Translation.
+		if( centerize ){
+			Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+			CreateTranslationMat(	&offsetMat,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+			mat = offsetMat * scaleMat * rotMat * transMat;	// Centering -> Scaling -> Rotation -> Translation.
+		}
+		else{
+			mat = scaleMat * rotMat * transMat;	// Scaling -> Rotation -> Translation.
+		}
 		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
-	}
-
-	// Draw texture without centering. ( with global sprite ).
-	MapilVoid DrawTextureNonCentering(	MapilUInt32 index,
-										MapilFloat32 posX, MapilFloat32 posY,
-										MapilFloat32 scaleX, MapilFloat32 scaleY,
-										MapilFloat32 angle )
-	{
-		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert(	p->m_LocalTextureList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
-
-		// Create transformation matrix.
-		Matrix4x4 < MapilFloat32 > mat;
-		Matrix4x4 < MapilFloat32 > rotMat;
-		Matrix4x4 < MapilFloat32 > scaleMat;
-		Matrix4x4 < MapilFloat32 > transMat;
-		CreateRotationZMat( &rotMat, angle );
-		CreateScalingMat( &scaleMat, scaleX, scaleY );
-		CreateTranslationMat( &transMat, posX, posY );
-		mat = scaleMat * rotMat * transMat;	// Scaling -> Rotation -> Translation.
-		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat );
 	}
 
 	// Draw polygon 3D. (without resource holding.)
@@ -1387,4 +1413,19 @@ namespace MAPIL
 		p->m_ArchiverList[ archiveHandle ]->Load( pFilePath, pData );
 	}
 	
+	// Change window mode.
+	MapilVoid ChangeWindowMode( MapilInt32 mode )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		p->m_MainWnd->SetWndMode( mode );
+	}
+
+	// Is keyboard key pushed?
+	MapilBool IsKeyboardKeyPushed( MapilUInt32 key )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pInputFactory != NULL, CURRENT_POSITION, TSTR( "Input factory is not created yet." ), -1 );
+		return p->m_Keyboard->IsPushed( key );
+	}
 }

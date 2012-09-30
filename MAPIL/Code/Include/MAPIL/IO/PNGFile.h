@@ -11,8 +11,8 @@
 
 #include "ImageFile.h"
 
-#ifdef LIB_LIBPNG
-#ifdef LIB_ZLIB
+#if defined ( LIB_LIBPNG )
+#if defined ( LIB_ZLIB )
 #include <png.h>
 #endif
 #endif
@@ -32,8 +32,8 @@ namespace MAPIL
 		MapilUChar*				m_pData;
 		MapilUInt32				m_DataSize;
 		MapilInt32				m_Channel;
-#ifdef LIB_LIBPNG
-#ifdef LIB_ZLIB
+#if defined ( LIB_LIBPNG )
+#if defined ( LIB_ZLIB )
 		::png_structp			m_SP;
 		::png_infop				m_IP;
 		FILE*					m_pFile;

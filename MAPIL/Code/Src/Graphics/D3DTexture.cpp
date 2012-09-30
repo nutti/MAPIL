@@ -142,10 +142,10 @@ namespace MAPIL
 
 		// No operation occurs, when the size of texture doesn't match with the sum of size
 		// to be split.
-		if( m_TexSize.m_X != row * width ){
+		if( m_TexSize.m_X < row * width ){
 			return;
 		}
-		if( m_TexSize.m_Y != column * height ){
+		if( m_TexSize.m_Y < column * height ){
 			return;
 		}
 
@@ -154,8 +154,10 @@ namespace MAPIL
 		m_SplitTotal = row * column;
 		m_pSizeList = new Vector2 < MapilInt32 > [ m_SplitTotal ];
 		m_pBeginPosList = new Vector2 < MapilInt32 > [ m_SplitTotal ];
-		MapilInt32 xSize = m_TexSize.m_X / row;
-		MapilInt32 ySize = m_TexSize.m_Y / column;
+		//MapilInt32 xSize = m_TexSize.m_X / row;
+		//MapilInt32 ySize = m_TexSize.m_Y / column;
+		MapilInt32 xSize = width;
+		MapilInt32 ySize = height;
 		MapilInt32 xPos = 0;
 		MapilInt32 yPos = 0;
 		for( MapilInt32 i = 0; i < column; ++i ){
@@ -248,10 +250,10 @@ namespace MAPIL
 
 		// No operation occurs, when the size of texture doesn't match with the sum of size
 		// to be split.
-		if( m_TexSize.m_X != row * width ){
+		if( m_TexSize.m_X < row * width ){
 			return;
 		}
-		if( m_TexSize.m_Y != column * height ){
+		if( m_TexSize.m_Y < column * height ){
 			return;
 		}
 
@@ -260,8 +262,10 @@ namespace MAPIL
 		splitTotal = row * column;
 		Vector2 < MapilInt32 >* pSizeList = new Vector2 < MapilInt32 > [ splitTotal ];
 		Vector2 < MapilInt32 >* pBeginPosList = new Vector2 < MapilInt32 > [ splitTotal ];
-		MapilInt32 xSize = m_TexSize.m_X / row;
-		MapilInt32 ySize = m_TexSize.m_Y / column;
+		//MapilInt32 xSize = m_TexSize.m_X / row;
+		//MapilInt32 ySize = m_TexSize.m_Y / column;
+		MapilInt32 xSize = width;
+		MapilInt32 ySize = height;
 		MapilInt32 xPos = 0;
 		MapilInt32 yPos = 0;
 		for( MapilInt32 i = 0; i < column; ++i ){

@@ -160,7 +160,7 @@ namespace MAPIL
 			m_Volume = 100;
 		}
 		m_Volume = volume;
-		::alSourcef( m_Src, AL_GAIN, m_Volume );
+		::alSourcef( m_Src, AL_GAIN, m_Volume / 100.0f );
 	}
 
 	MapilVoid ALStaticBuffer::SetPosition( const Vector3 < MapilFloat32 >& pos )

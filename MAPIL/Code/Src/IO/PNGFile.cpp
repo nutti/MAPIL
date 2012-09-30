@@ -14,8 +14,14 @@
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
 #include "../../Include/MAPIL/Util/Memory.hpp"
 
+
+#if defined ( MAKE_MODE_DEBUG )
 #pragma comment ( lib, "libpngd.lib" )
 #pragma comment ( lib, "zlibd.lib" )
+#elif defined ( MAKE_MODE_RELEASE )
+#pragma comment ( lib, "libpng.lib" )
+#pragma comment ( lib, "zlib.lib" )
+#endif
 
 #if defined ( OS_WIN_32BIT )
 #pragma warning ( disable : 4996 )

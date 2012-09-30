@@ -50,10 +50,10 @@ namespace MAPIL
 				TSTR( "The camera was already created." ),
 				-1 );
 
+		m_IsUsed = MapilTrue;
+
 		SetViewTransMat( vEye, vLook, vUp );
 		SetProjectionTransMat( fovy, aspect, nearClip, farClip );
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Create. ( 2 )
@@ -78,10 +78,10 @@ namespace MAPIL
 				TSTR( "The camera was already created." ),
 				-1 );
 
+		m_IsUsed = MapilTrue;
+
 		SetViewTransMat( eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ );
 		SetProjectionTransMat( fovy, aspect, nearClip, farClip );
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Create. ( 3 )
@@ -102,10 +102,10 @@ namespace MAPIL
 				TSTR( "The camera was already created." ),
 				-1 );
 
+		m_IsUsed = MapilTrue;
+
 		SetViewTransMat( vEye, vLook, vUp );
 		SetProjectionTransMat( left, right, bottom, top, nearClip, farClip );
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Create. ( 4 )
@@ -132,10 +132,10 @@ namespace MAPIL
 				TSTR( "The camera was already created." ),
 				-1 );
 
+		m_IsUsed = MapilTrue;
+
 		SetViewTransMat( eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ );
 		SetProjectionTransMat( left, right, bottom, top, nearClip, farClip );
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Set view transformation matrix (1)

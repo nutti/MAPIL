@@ -10,7 +10,7 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_ALSA
+#if defined ( API_ALSA )
 
 #include "../../Include/MAPIL/Sound/ALSAStaticBuffer.h"
 #include "../../Include/MAPIL/Sound/SoundDevice.h"
