@@ -6,22 +6,26 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_OPENGL
+#if defined ( API_OPENGL )
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 #include <Windows.h>
 #endif
-#ifdef OS_WIN_32BIT
+#if defined ( OS_WIN_32BIT )
 #include <gl/GL.h>
 #endif
-#ifdef OS_LINUX_32BIT
+#if defined ( OS_LINUX_32BIT )
 #include <GL/gl.h>
 #endif
 
 #endif
 
 #if defined ( API_DIRECT3D )
+#if ( DIRECT3D_VERSION == 0x0903 )
 #include <d3dx9.h>
+#elif ( DIRECT3D_VERSION == 0x1000 )
+#include <d3dx10.h>
+#endif
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
@@ -35,12 +39,21 @@
 
 namespace MAPIL
 {
-	GraphicsDevice::GraphicsDevice( MapilInt32 api ) :	m_GraphicsAPI( api )
+	GraphicsDevice::GraphicsDevice( MapilInt32 api, MapilInt32 version ) :	m_GraphicsAPI( api ),
+																			m_GraphicsAPIVersion( version )
 #if defined ( API_DIRECT3D )
 														,
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 														m_pWnd(),
 														m_pD3D( NULL ),
 														m_pD3DDev( NULL )
+#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+														m_pWnd(),
+														m_pD3D10Dev( NULL ),
+														m_pSwapChain( NULL ),
+														m_pRenderTargetView( NULL )
+#endif
+
 #endif
 #if defined ( API_OPENGL )
 #if defined ( API_WIN32API )
@@ -51,9 +64,12 @@ namespace MAPIL
 	{
 #if defined ( API_DIRECT3D )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 			ZeroObject( &m_D3DPPWnd, sizeof( m_D3DPPWnd ) );
 			ZeroObject( &m_D3DPPFull, sizeof( m_D3DPPFull ) );
 			ZeroObject( &m_D3DPPNow, sizeof( m_D3DPPNow ) );
+#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+#endif
 		}
 #endif
 #if defined ( API_OPENGL )
@@ -69,9 +85,13 @@ namespace MAPIL
 	{
 #if defined ( API_DIRECT3D )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 			ZeroObject( &m_D3DPPWnd, sizeof( m_D3DPPWnd ) );
 			ZeroObject( &m_D3DPPFull, sizeof( m_D3DPPFull ) );
 			ZeroObject( &m_D3DPPNow, sizeof( m_D3DPPNow ) );
+#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+
+#endif
 		}
 #endif
 #if defined ( API_OPENGL )
@@ -84,12 +104,14 @@ namespace MAPIL
 #endif	// API_WIN32API
 #endif	// API_OPENGL
 		m_GraphicsAPI = GRAPHICS_API_UNKNOWN;
+		m_GraphicsAPIVersion= D3D_VER_UNKNOWN;
 	}
 
 
 	MapilVoid GraphicsDevice::Create( SharedPointer < GraphicsContext > pWnd )
 	{
 #if defined ( API_DIRECT3D )
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
 			m_pWnd.DownCast( pWnd );
 			SharedPointer < WinAPIWindow > parent;
@@ -98,6 +120,16 @@ namespace MAPIL
 			SetWindowLong( hWnd, GWL_STYLE, GetWindowLong( hWnd, GWL_STYLE ) | WS_CLIPCHILDREN );
 			InitD3D();
 		}
+#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
+			m_pWnd.DownCast( pWnd );
+			SharedPointer < WinAPIWindow > parent;
+			parent.DownCast( m_pWnd->GetParentWnd() );
+			HWND hWnd = parent->GetHWnd();
+			SetWindowLong( hWnd, GWL_STYLE, GetWindowLong( hWnd, GWL_STYLE ) | WS_CLIPCHILDREN );
+			InitD3D();
+		}
+#endif
 #endif
 #if defined ( API_OPENGL )
 		if( m_GraphicsAPI == GRAPHICS_API_OPENGL ){
@@ -112,26 +144,16 @@ namespace MAPIL
 		return m_GraphicsAPI;
 	}
 
+	MapilInt32 GraphicsDevice::GetGraphicsAPIVersion() const
+	{
+		return m_GraphicsAPIVersion;
+	}
+
 	SharedPointer < GraphicsContext > GraphicsDevice::GetContext()
 	{
 		return m_pWnd;
 	}
-
-	::D3DPRESENT_PARAMETERS GraphicsDevice::GetD3DPP()
-	{
-		return m_D3DPPNow;
-	}
-
-	MapilVoid GraphicsDevice::ChangeWndMode( MapilInt32 mode )
-	{
-		// Window mode
-		if( mode == 0 ){
-			m_D3DPPNow = m_D3DPPWnd;
-		}
-		else if( mode == 1 ){
-			m_D3DPPNow = m_D3DPPFull;
-		}
-	}
+	
 
 #if defined ( API_OPENGL )
 	MapilVoid GraphicsDevice::InitOpenGL()
@@ -157,6 +179,7 @@ namespace MAPIL
 
 
 #if defined ( API_DIRECT3D )
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 	COMPointer < ::IDirect3D9 > GraphicsDevice::GetD3D()
 	{
 		return m_pD3D;
@@ -165,6 +188,22 @@ namespace MAPIL
 	COMPointer < ::IDirect3DDevice9 > GraphicsDevice::GetDev()
 	{
 		return m_pD3DDev;
+	}
+
+	::D3DPRESENT_PARAMETERS GraphicsDevice::GetD3DPP()
+	{
+		return m_D3DPPNow;
+	}
+
+	MapilVoid GraphicsDevice::ChangeWndMode( MapilInt32 mode )
+	{
+		// Window mode
+		if( mode == 0 ){
+			m_D3DPPNow = m_D3DPPWnd;
+		}
+		else if( mode == 1 ){
+			m_D3DPPNow = m_D3DPPFull;
+		}
 	}
 
 	//Initialize Direct 3D
@@ -576,13 +615,89 @@ namespace MAPIL
 		m_pD3DDev.GetPointer()->SetRenderState( D3DRS_ZENABLE, D3DZB_FALSE );
 	}
 
+#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+
+	//Initialize Direct 3D
+	MapilVoid GraphicsDevice::InitD3D()
+	{
+		::DXGI_SWAP_CHAIN_DESC desc;
+		desc.BufferDesc.Width = m_pWnd->GetWidth();		// 幅
+		desc.BufferDesc.Height = m_pWnd->GetHeight();	// 高さ
+		desc.BufferDesc.RefreshRate.Numerator = 60;
+		desc.BufferDesc.RefreshRate.Denominator = 1;
+		desc.BufferDesc.Format = ::DXGI_FORMAT_R16G16B16A16_FLOAT;
+		desc.BufferDesc.ScanlineOrdering = ::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		desc.BufferDesc.Scaling = ::DXGI_MODE_SCALING_CENTERED;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		desc.BufferCount = 1;
+		desc.OutputWindow = m_pWnd->GetHWnd();
+		desc.Windowed = MapilTrue;						// ウィンドウモード
+		desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		desc.Flags = ::DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+		if( FAILED( ::D3D10CreateDeviceAndSwapChain(	0,
+														::D3D10_DRIVER_TYPE_HARDWARE,
+														0,
+														0,
+														D3D10_SDK_VERSION,
+														&desc,
+														m_pSwapChain.GetPointerOfPointerWithChange(),
+														m_pD3D10Dev.GetPointerOfPointerWithChange() ) ) ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create device and swap chain." ), -1 );
+		}
+
+		::ID3D10Texture2D* pBackBuffer;
+		m_pSwapChain.GetPointer()->GetBuffer( 0, __uuidof( ::ID3D10Texture2D ), reinterpret_cast < MapilVoid** > ( &pBackBuffer ) );
+		
+		::ID3D10RenderTargetView* pTargetView;
+		
+		if( FAILED( m_pD3D10Dev.GetPointer()->CreateRenderTargetView( pBackBuffer, 0, &pTargetView ) ) ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create render target view." ), -2 );
+		}
+
+		m_pD3D10Dev.GetPointer()->OMSetRenderTargets( 1, &pTargetView, 0 );
+		MAPIL::COMPointer < ID3D10RenderTargetView > newTargetView ( pTargetView );
+		m_pRenderTargetView = newTargetView;
+
+		pBackBuffer->Release();
+
+		::D3D10_VIEWPORT vp;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		vp.Width = m_pWnd->GetWidth();
+		vp.Height = m_pWnd->GetHeight();
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+
+		m_pD3D10Dev.GetPointer()->RSSetViewports( 1, &vp );
+	}
+
+	COMPointer < ::ID3D10Device > GraphicsDevice::GetDev()
+	{
+		return m_pD3D10Dev;
+	}
+
+	COMPointer < ::IDXGISwapChain > GraphicsDevice::GetSwapChain()
+	{
+		return m_pSwapChain;
+	}
+
+	COMPointer < ::ID3D10RenderTargetView > GraphicsDevice::GetRenderTargetView()
+	{
+		return m_pRenderTargetView;
+	}
+
 #endif
 
-	IGraphicsDevice CreateGraphicsDevice( MapilInt32 api )
+	IGraphicsDevice CreateGraphicsDevice( MapilInt32 api, MapilInt32 version )
 	{
-		SharedPointer < GraphicsDevice > pGD( new GraphicsDevice( api ) );
+		SharedPointer < GraphicsDevice > pGD( new GraphicsDevice( api, version ) );
 
 		return pGD;
 	}
 
 }
+
+#endif	// API_DIRECT3D

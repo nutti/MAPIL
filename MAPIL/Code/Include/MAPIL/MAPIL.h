@@ -27,17 +27,28 @@
 #pragma comment ( lib, "d3d9.lib" )
 #if defined ( MAKE_MODE_DEBUG )
 #pragma comment ( lib, "d3dx9d.lib" )
+#pragma comment ( lib, "dxerr.lib" )
 #elif defined ( MAKE_MODE_RELEASE )
 #pragma comment ( lib, "d3dx9.lib" )
 #endif
 #pragma comment ( lib, "Imm32.lib" )
+#pragma comment ( lib, "dxguid.lib" )
+
+#if ( DIRECT3D_VERSION == 0x1000 )
+#pragma comment ( lib, "d3d10.lib" )
+#if defined ( MAKE_MODE_DEBUG )
+#pragma comment ( lib, "d3dx10d.lib" )
+#elif defined ( MAKE_MODE_RELEASE )
+#pragma comment ( lib, "d3dx10.lib" )
+#endif
+#endif
+
 #endif
 
 #include "Graphics/Canvas2DBatch.h"
 #include "Graphics/SpriteBatch.h"
 
-#pragma comment ( lib, "dxerr.lib" )
-#pragma comment ( lib, "dxguid.lib" )
+
 
 
 // Input.

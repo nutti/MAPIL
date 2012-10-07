@@ -22,6 +22,7 @@ namespace MAPIL
 																	m_pWnd(),
 																	m_IsInputActive( MapilFalse )
 	{
+		MAPIL::ZeroObject( m_KeyStatus, sizeof( m_KeyStatus ) );
 	}
 
 	DIKeyboard::~DIKeyboard()
@@ -32,6 +33,7 @@ namespace MAPIL
 		SafeRelease( m_pKeyboardDev );
 		m_IsUsed = MapilFalse;
 		m_IsInputActive = MapilFalse;
+		MAPIL::ZeroObject( m_KeyStatus, sizeof( m_KeyStatus ) );
 	}
 
 	MapilVoid DIKeyboard::Create( SharedPointer < Window > pWnd )
@@ -79,18 +81,13 @@ namespace MAPIL
 		m_IsUsed = MapilTrue;
 	}
 
-	MapilVoid DIKeyboard::GetKeyMap( MapilUChar* pOut )
+	MapilVoid DIKeyboard::Update()
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "DIKeyboard" ),
-				TSTR( "GetKeyMap" ),
-				TSTR( "Keyboad is not created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "Keyboad is not created yet." ), -1 );
 
 		HRESULT hr;
 		if( m_pKeyboardDev ){
-			hr = m_pKeyboardDev->GetDeviceState( sizeof( MapilUChar ) * 256, pOut );
+			hr = m_pKeyboardDev->GetDeviceState( sizeof( MapilUChar ) * 256, m_KeyStatus );
 			if( !m_pWnd->IsActive() && m_IsInputActive ){
 				m_IsInputActive = MapilFalse;
 			}
@@ -100,22 +97,19 @@ namespace MAPIL
 			}
 			else if( m_pWnd->IsActive() && ( hr == DIERR_INPUTLOST ) ){
 				m_pKeyboardDev->Acquire();
-				throw MapilException(	TSTR( "MAPIL" ),
-										TSTR( "DIKeyboard" ),
-										TSTR( "GetKeyMap" ),
-										TSTR( "Failed to create keyboard state." ),
-										-1 );
+				throw MapilException( CURRENT_POSITION, TSTR( "Failed to create keyboard state." ), -1 );
 			}
 		}
 	}
 
+	MapilVoid DIKeyboard::GetKeyMap( MapilUChar* pOut )
+	{
+		::memcpy( pOut, m_KeyStatus, sizeof( m_KeyStatus ) );
+	}
+
 	MapilBool DIKeyboard::IsPushed( MapilInt32 key )
 	{
-		MapilUChar keyMap[ 256 ];
-
-		GetKeyMap( keyMap );
-
-		return keyMap[ key ] & 0x80 ? MapilTrue : MapilFalse;
+		return m_KeyStatus[ key ] & 0x80 ? MapilTrue : MapilFalse;
 	}
 }
 

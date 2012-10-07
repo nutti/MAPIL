@@ -18,7 +18,7 @@ namespace MAPIL
 	{
 	}
 
-	MapilInt32 GetKeyboardKeyNum( MapilInt32 api, KeyboardKey key )
+	MapilInt32 GetKeyboardKeyNum( MapilInt32 api, MapilInt32 key )
 	{
 		if( api == INPUT_API_WIN32API ){
 			MapilUChar table[ 256 ] = {	0x00, 0x00, 0x00, 0x03,				// Ctrl-Break.
@@ -329,7 +329,7 @@ namespace MAPIL
 		}
 	}
 
-	MapilInt32 GetKeyboardKeyNum( SharedPointer < InputDevice > pDev, KeyboardKey key )
+	MapilInt32 GetKeyboardKeyNum( SharedPointer < InputDevice > pDev, MapilInt32 key )
 	{
 		return GetKeyboardKeyNum( pDev->GetInputAPI(), key );
 	}

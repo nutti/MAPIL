@@ -11,6 +11,7 @@
 #include "../../Include/MAPIL/CrossPlatform.h"
 
 #if defined ( API_DIRECT3D )
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 
 #include "../../Include/MAPIL/Graphics/D3DNSidedPolygon3D.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
@@ -174,4 +175,5 @@ namespace MAPIL
 	}
 }
 
+#endif	// DIRECT3D_VERSION
 #endif	// API_DIRECT3D

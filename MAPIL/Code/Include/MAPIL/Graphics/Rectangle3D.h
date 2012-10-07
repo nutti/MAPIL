@@ -83,6 +83,10 @@ namespace MAPIL
 		virtual MapilVoid Create(	const Rectangle3DVertexFormat& fmt,
 									SharedPointer < Texture > pTex,
 									VertexManagementMethod manageMethod = VERTEX_MANAGEMENT_BUFFER ) = 0;
+		virtual MapilVoid Create(	const Rectangle3DVertexFormat& fmt,
+									SharedPointer < Texture > pTex,
+									const MapilTChar* pShaderFileName, const MapilChar* pTechName,
+									VertexManagementMethod manageMethod = VERTEX_MANAGEMENT_BUFFER );
 		/**
 		*	@brief				Instantiate the Rectangle3D object.
 		*	@param fmt			The vertex format of the Rectangle3D object.

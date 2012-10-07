@@ -9,6 +9,8 @@
 
 #include "../CrossPlatform.h"
 
+#if defined ( USE_C_INTERFACE )
+
 #include "../Type.h"
 #include "../Math/Matrix.hpp"
 #include "../Graphics/Rectangle3D.h"
@@ -22,7 +24,7 @@ namespace MAPIL
 	// Set GUI API.
 	MapilVoid SetGUIAPI( MapilInt32 api );
 	// Set Graphics API.
-	MapilVoid SetGraphicsAPI( MapilInt32 api );
+	MapilVoid SetGraphicsAPI( MapilInt32 api, MapilInt32 version = D3D_VER_9_0_C );
 	// Set Input API.
 	MapilVoid SetInputAPI( MapilInt32 api );
 	// Set Sound API.
@@ -198,6 +200,10 @@ namespace MAPIL
 	MapilVoid DrawModel( MapilUInt32 id, const Matrix4x4 < MapilFloat32 >& mat );
 	// Create local rectangle 3D.
 	MapilUInt32 CreateRectangle3D();
+	// Create local rectangle 3D.
+	MapilUInt32 CreateRectangle3D(	const Rectangle3DVertexFormat& fmt,
+									MapilUInt32 texID,
+									const MapilTChar* pShaderFileName, const MapilChar* pTechName );
 	// Update rectangle 3D.
 	MapilVoid UpdateRectangle3D( MapilUInt32 id, const Rectangle3DVertexFormat& fmt, MapilUInt32 texID );
 	// Draw rectangle 3D.
@@ -223,6 +229,14 @@ namespace MAPIL
 	
 	// Is keyboard key pushed?
 	MapilBool IsKeyboardKeyPushed( MapilUInt32 key );
+
+	// Get keyboard key code.
+	MapilInt32 GetKeyboardKeyCode( MapilInt32 key );
+
+	// Update keyboard.
+	MapilVoid UpdateKeyboard();
 }
+
+#endif	// USE_C_INTERFACE
 
 #endif

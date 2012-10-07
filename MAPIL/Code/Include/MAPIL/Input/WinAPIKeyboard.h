@@ -22,6 +22,7 @@ namespace MAPIL
 		WinAPIKeyboard( SharedPointer < InputDevice > pDev );
 		~WinAPIKeyboard();
 		MapilVoid Create( SharedPointer < Window > pWnd );
+		MapilVoid Update();
 		MapilVoid GetKeyMap( MapilUChar* pOut );
 		MapilBool IsPushed( MapilInt32 key );
 	};

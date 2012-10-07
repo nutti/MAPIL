@@ -26,4 +26,11 @@ namespace MAPIL
 	Rectangle3D::~Rectangle3D()
 	{
 	}
+
+	MapilVoid Rectangle3D::Create(	const Rectangle3DVertexFormat& fmt,
+									SharedPointer < Texture > pTex,
+									const MapilTChar* pShaderFileName, const MapilChar* pTechName,
+									VertexManagementMethod manageMethod )
+	{
+	}
 }

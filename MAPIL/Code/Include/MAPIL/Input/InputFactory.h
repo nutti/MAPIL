@@ -41,6 +41,8 @@ namespace MAPIL
 		*/
 		MapilVoid Reflesh( MapilInt32 count );
 	};
+
+	InputFactory* CreateInputFactory( SharedPointer < InputDevice > pDev );
 }
 
 #endif

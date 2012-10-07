@@ -53,6 +53,11 @@ namespace MAPIL
 	}
 #endif
 
+	MapilInt32 SoundDevice::GetSoundAPI() const
+	{
+		return m_API;
+	}
+
 	ISoundDevice CreateSoundDevice( MapilInt32 api )
 	{
 		SharedPointer < SoundDevice > pSD( new SoundDevice( api ) );

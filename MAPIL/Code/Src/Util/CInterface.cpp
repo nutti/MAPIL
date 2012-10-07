@@ -6,19 +6,39 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
+#if defined ( USE_C_INTERFACE )
+
 #include "../../Include/MAPIL/Util/CInterface.h"
 
 #include "../../Include/MAPIL/GUI/GUIFactory.h"
+
 #include "../../Include/MAPIL/Graphics/GraphicsFactory.h"
-#include "../../Include/MAPIL/Input/WinAPIInputFactory.h"
-#include "../../Include/MAPIL/Sound/ALSoundFactory.h"
+#include "../../Include/MAPIL/Graphics/GraphicsController.h"
+#include "../../Include/MAPIL/Graphics/Camera.h"
+#include "../../Include/MAPIL/Graphics/DirectionalLight.h"
+#include "../../Include/MAPIL/Graphics/PointLight.h"
+#include "../../Include/MAPIL/Graphics/Model.h"
+#include "../../Include/MAPIL/Graphics/GraphicsFont.h"
+#include "../../Include/MAPIL/Graphics/Texture.h"
+#include "../../Include/MAPIL/Graphics/PointSprite.h"
+#include "../../Include/MAPIL/Graphics/Rectangle3D.h"
+#include "../../Include/MAPIL/Graphics/NSidedPolygon3D.h"
+#include "../../Include/MAPIL/Graphics/Canvas2D.h"
+#include "../../Include/MAPIL/Graphics/Canvas3D.h"
+#include "../../Include/MAPIL/Graphics/Sprite.h"
+
+#include "../../Include/MAPIL/Input/InputFactory.h"
+#include "../../Include/MAPIL/Input/Keyboard.h"
+#include "../../Include/MAPIL/Input/Mouse.h"
+
+#include "../../Include/MAPIL/Sound/SoundFactory.h"
+#include "../../Include/MAPIL/Sound/StaticBuffer.h"
+#include "../../Include/MAPIL/Sound/StreamingBuffer.h"
+
 #include "../../Include/MAPIL/Util/Singleton.hpp"
 #include "../../Include/MAPIL/Util/String.h"
 #include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
-
-#include "../../Include/MAPIL/Graphics/D3DGraphicsFactory.h"
-
 #include "../../Include/MAPIL/IO/Archiver.h"
 
 #include <vector>
@@ -84,6 +104,7 @@ namespace MAPIL
 		GUIFactory*			m_pGUIFactory;
 
 		MapilInt32			m_GraphicsAPI;
+		MapilInt32			m_GraphicsAPIVersion;
 		IGraphicsDevice		m_GraphicsDev;
 		GraphicsFactory*	m_pGraphicsFactory;
 
@@ -129,6 +150,7 @@ namespace MAPIL
 										m_pGUIFactory( NULL ),
 
 										m_GraphicsAPI( GRAPHICS_API_NONE ),
+										m_GraphicsAPIVersion( D3D_VER_UNKNOWN ),
 										m_GraphicsDev(),
 										m_pGraphicsFactory( NULL ),
 
@@ -178,21 +200,44 @@ namespace MAPIL
 
 	static MapilVoid SetupFactories()
 	{
-		// Setup API.
-#if defined ( API_WIN32API )
-		SetGUIAPI( GUI_API_WIN32API );
-#endif
-#if defined ( API_DIRECT3D )
-		SetGraphicsAPI( GRAPHICS_API_DIRECT3D );
-#endif
-#if defined ( API_WIN32API )
-		SetInputAPI( INPUT_API_WIN32API );
-#endif
-#if defined ( API_OPENAL )
-		SetSoundAPI( SOUND_API_OPENAL );
-#endif
-
 		ResourceHolder* p = ResourceHolder::GetInst();
+
+		// Setup API.
+		if( p->m_GUIAPI == GUI_API_NONE ){
+#if defined ( API_WIN32API )
+			SetGUIAPI( GUI_API_WIN32API );
+#elif defined ( API_GTK )
+			SetGUIAPI( GUI_API_GTK );
+#endif
+		}
+
+		if( p->m_GraphicsAPI == GRAPHICS_API_NONE ){
+#if defined ( API_DIRECT3D )
+			if( p->m_GraphicsAPIVersion == D3D_VER_UNKNOWN ){
+				SetGraphicsAPI( GRAPHICS_API_DIRECT3D, D3D_VER_9_0_C );
+			}
+			else{
+				SetGraphicsAPI( GRAPHICS_API_DIRECT3D );
+			}
+#elif defined ( API_OPENGL )
+			SetGraphicsAPI( GRAPHICS_API_OPENGL );
+#endif
+		}
+
+		if( p->m_InputAPI == INPUT_API_NONE ){
+#if defined ( API_DIRECTINPUT )
+			SetInputAPI( INPUT_API_DIRECTINPUT );
+#elif defined ( API_WIN32API )
+			SetInputAPI( INPUT_API_WIN32API );
+#endif
+		}
+
+		if( p->m_SoundAPI == INPUT_API_NONE ){
+#if defined ( API_OPENAL )
+			SetSoundAPI( SOUND_API_OPENAL );
+#endif
+		}
+
 		// Create GUI factory.
 		if( p->m_GUIAPI != GUI_API_NONE ){
 			p->m_GUIDev = CreateGUIDevice( p->m_GUIAPI );
@@ -200,18 +245,18 @@ namespace MAPIL
 		}
 		// Create Graphics factory.
 		if( p->m_GraphicsAPI != GRAPHICS_API_NONE ){
-			p->m_GraphicsDev = CreateGraphicsDevice( p->m_GraphicsAPI );
+			p->m_GraphicsDev = CreateGraphicsDevice( p->m_GraphicsAPI, p->m_GraphicsAPIVersion );
 			p->m_pGraphicsFactory = CreateGraphicsFactory( p->m_GraphicsDev );
 		}
 		// Create Input factory.
 		if( p->m_InputAPI != INPUT_API_NONE ){
 			p->m_InputDev = CreateInputDevice( p->m_InputAPI );
-			p->m_pInputFactory = new WinAPIInputFactory( p->m_InputDev );
+			p->m_pInputFactory = CreateInputFactory( p->m_InputDev );
 		}
 		// Create Sound factory.
 		if( p->m_SoundAPI != SOUND_API_NONE ){
 			p->m_SoundDev = CreateSoundDevice( p->m_SoundAPI );
-			p->m_pSoundFactory = new ALSoundFactory( p->m_SoundDev );
+			p->m_pSoundFactory = CreateSoundFactory( p->m_SoundDev );
 		}
 	}
 
@@ -226,26 +271,30 @@ namespace MAPIL
 		// Craete graphics controller.
 		p->m_GraphicsCtrl = p->m_pGraphicsFactory->CreateGraphicsController( TSTR( "Global Graphics Ctrl" ) );
 		p->m_GraphicsCtrl->Create( p->m_GC );
-		// Create canvas 2D object.
-		p->m_Canvas2D = p->m_pGraphicsFactory->CreateCanvas2D( TSTR( "Global Canvas 2D" ) );
-		p->m_Canvas2D->Create();
-		// Create canvas 3D object.
-		p->m_Canvas3D = p->m_pGraphicsFactory->CreateCanvas3D( TSTR( "Global Canvas 3D" ) );
-		p->m_Canvas3D->Create();
-		// Create camera object.
-		p->m_Camera = p->m_pGraphicsFactory->CreateCamera( TSTR( "Global Camera" ) );
-		p->m_Camera->Create(	0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f, 0.0f );
-		// Create sprite object.
-		p->m_Sprite = p->m_pGraphicsFactory->CreateSprite( TSTR( "Global Sprite" ) );
-		p->m_Sprite->Create();
-		// Create graphics font object.
-		p->m_GraphicsFont = p->m_pGraphicsFactory->CreateGraphicsFont( TSTR( "Global Graphics Font" ) );
-		FontFormat fmt;
-		ZeroObject( &fmt, sizeof( fmt ) );
-		p->m_GraphicsFont->Create( fmt );
+		if( p->m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
+			if( p->m_GraphicsAPIVersion == D3D_VER_9_0_C ){
+				// Create canvas 2D object.
+				p->m_Canvas2D = p->m_pGraphicsFactory->CreateCanvas2D( TSTR( "Global Canvas 2D" ) );
+				p->m_Canvas2D->Create();
+				// Create canvas 3D object.
+				p->m_Canvas3D = p->m_pGraphicsFactory->CreateCanvas3D( TSTR( "Global Canvas 3D" ) );
+				p->m_Canvas3D->Create();
+				// Create camera object.
+				p->m_Camera = p->m_pGraphicsFactory->CreateCamera( TSTR( "Global Camera" ) );
+				p->m_Camera->Create(	0.0f, 0.0f, 0.0f,
+										0.0f, 0.0f, 0.0f,
+										0.0f, 0.0f, 0.0f,
+										0.0f, 0.0f, 0.0f, 0.0f );
+				// Create sprite object.
+				p->m_Sprite = p->m_pGraphicsFactory->CreateSprite( TSTR( "Global Sprite" ) );
+				p->m_Sprite->Create();
+				// Create graphics font object.
+				p->m_GraphicsFont = p->m_pGraphicsFactory->CreateGraphicsFont( TSTR( "Global Graphics Font" ) );
+				FontFormat fmt;
+				ZeroObject( &fmt, sizeof( fmt ) );
+				p->m_GraphicsFont->Create( fmt );
+			}
+		}
 
 		return 0;
 	}
@@ -313,10 +362,11 @@ namespace MAPIL
 	}
 
 	// Set Graphics API.
-	MapilVoid SetGraphicsAPI( MapilInt32 api )
+	MapilVoid SetGraphicsAPI( MapilInt32 api, MapilInt32 version )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		p->m_GraphicsAPI = api;
+		p->m_GraphicsAPIVersion = version;
 	}
 
 	// Set Input API.
@@ -1368,6 +1418,30 @@ namespace MAPIL
 		return index;
 	}
 
+	// Create local rectangle 3D.
+	MapilUInt32 CreateRectangle3D(	const Rectangle3DVertexFormat& fmt,
+									MapilUInt32 texID,
+									const MapilTChar* pShaderFileName, const MapilChar* pTechName )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		std::basic_string < MapilTChar > str = TSTR( "Local Rectangle3D " );
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalRectangle3DList );
+		str += index;
+		Rectangle3DTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateRectangle3D( str.c_str() );
+		tag.m_Resource->Create( fmt, SharedPointer < Texture > (), pShaderFileName, pTechName );
+		if( index == p->m_LocalModelList.size() ){
+			p->m_LocalRectangle3DList.push_back( tag );
+		}
+		else{
+			p->m_LocalRectangle3DList[ index ] = tag;
+		}
+
+		return index;
+	}
+
 	// Update rectangle 3D.
 	MapilVoid UpdateRectangle3D( MapilUInt32 id, const Rectangle3DVertexFormat& fmt, MapilInt32 texID )
 	{
@@ -1428,4 +1502,21 @@ namespace MAPIL
 		Assert( p->m_pInputFactory != NULL, CURRENT_POSITION, TSTR( "Input factory is not created yet." ), -1 );
 		return p->m_Keyboard->IsPushed( key );
 	}
+
+	// Get keyboard key code.
+	MapilInt32 GetKeyboardKeyCode( MapilInt32 key )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		return GetKeyboardKeyNum( p->m_InputAPI, key );
+	}
+
+	// Update keyboard.
+	MapilVoid UpdateKeyboard()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pInputFactory != NULL, CURRENT_POSITION, TSTR( "Input factory is not created yet." ), -1 );
+		p->m_Keyboard->Update();
+	}
 }
+
+#endif	// USE_C_INTERFACE

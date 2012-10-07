@@ -22,13 +22,14 @@ namespace MAPIL
 		Keyboard( SharedPointer < InputDevice > pDev );
 		virtual ~Keyboard();
 		virtual MapilVoid Create( SharedPointer < Window > pWnd ) = 0;
+		virtual MapilVoid Update() = 0;
 		virtual MapilVoid GetKeyMap( MapilUChar* pOut ) = 0;
 		virtual MapilBool IsPushed( MapilInt32 key ) = 0;
 	};
 
-	MapilInt32 GetKeyboardKeyNum( InputAPI api, KeyboardKey key );
+	MapilInt32 GetKeyboardKeyNum( MapilInt32 api, MapilInt32 key );
 
-	MapilInt32 GetKeyboardKeyNum( SharedPointer < InputDevice > pDev, KeyboardKey key );
+	MapilInt32 GetKeyboardKeyNum( SharedPointer < InputDevice > pDev, MapilInt32 key );
 
 	MapilBool HasKeyPushedStatus( MapilUChar key );
 }

@@ -8,6 +8,8 @@
 
 #include "../../Include/MAPIL/Input/InputFactory.h"
 #include "../../Include/MAPIL/Input/InputDevice.h"
+#include "../../Include/MAPIL/Input/DIInputFactory.h"
+#include "../../Include/MAPIL/Input/WinAPIInputFactory.h"
 
 namespace MAPIL
 {
@@ -25,5 +27,23 @@ namespace MAPIL
 		for( MapilInt32 i = 0; i < count; ++i ){
 			Reflesh();
 		}
+	}
+
+	InputFactory* CreateInputFactory( SharedPointer < InputDevice > pDev )
+	{
+		MapilInt32 api = pDev->GetInputAPI();
+
+		if( api == INPUT_API_DIRECTINPUT ){
+			//return SharedPointer < GraphicsFactory > ( new D3DGraphicsFactory( pDev ) );
+			return new DIInputFactory( pDev );
+		}
+		else if( api == INPUT_API_WIN32API ){
+			return new WinAPIInputFactory( pDev );
+		}
+		else{
+			return NULL;
+		}
+
+		return NULL;
 	}
 }

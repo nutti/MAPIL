@@ -24,10 +24,12 @@ namespace MAPIL
 		MapilBool						m_IsUsed;
 		SharedPointer < WinAPIWindow >	m_pWnd;
 		MapilBool						m_IsInputActive;
+		MapilUChar						m_KeyStatus[ 256 ];
 	public:
 		DIKeyboard( SharedPointer < InputDevice > pDev );
 		~DIKeyboard();
 		MapilVoid Create( SharedPointer < Window > pWnd );
+		MapilVoid Update();
 		MapilVoid GetKeyMap( MapilUChar* pOut );
 		MapilBool IsPushed( MapilInt32 key );
 	};

@@ -42,10 +42,14 @@ namespace MAPIL
 
 // Version of Direct 3D.
 #if defined ( API_DIRECT3D )
-#define VERSION_DIRECT3D	0x0903		// 9.0c
+#define D3D_VER_UNKNOWN			0xFFFFFFFF	// Unknown
+#define D3D_VER_9_0_C			0x0903		// 9.0c
+#define D3D_VER_10_0			0x1000		// 10.0
+//#define DIRECT3D_VERSION		D3D_VER_10_0
+#define DIRECT3D_VERSION		D3D_VER_9_0_C
 #endif
 
-#define API_OPENGL						// OpenGL.
+//#define API_OPENGL						// OpenGL.
 #define API_OPENAL						// OpenAL.
 
 // Character code.
@@ -73,6 +77,9 @@ namespace MAPIL
 #define MAKE_MODE_DEBUG
 //#define MAKE_MODE_RELEASE
 #endif
+
+// Use C interface.
+#define USE_C_INTERFACE
 
 }
 

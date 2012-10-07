@@ -11,6 +11,7 @@
 #include "../../Include/MAPIL/CrossPlatform.h"
 
 #if defined ( API_DIRECT3D )
+#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 
 #include "../../Include/MAPIL/Graphics/D3DCamera.h"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
@@ -234,4 +235,5 @@ namespace MAPIL
 	}
 }
 
+#endif	// DIRECT3D_VERSION
 #endif

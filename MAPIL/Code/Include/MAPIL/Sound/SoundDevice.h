@@ -54,6 +54,7 @@ namespace MAPIL
 #elif defined ( API_OPENAL )
 		ALSoundDevice* GetDev() const;
 #endif
+		MapilInt32 GetSoundAPI() const;
 	};
 
 	typedef SharedPointer < SoundDevice >		ISoundDevice;

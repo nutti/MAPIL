@@ -41,6 +41,8 @@ namespace MAPIL
 		*/
 		MapilVoid Reflesh( MapilInt32 count );
 	};
+
+	SoundFactory* CreateSoundFactory( SharedPointer < SoundDevice > pDev );
 }
 
 #endif

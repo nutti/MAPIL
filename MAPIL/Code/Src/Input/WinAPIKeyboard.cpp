@@ -26,6 +26,10 @@ namespace MAPIL
 	{
 	}
 
+	MapilVoid WinAPIKeyboard::Update()
+	{
+	}
+
 	MapilVoid WinAPIKeyboard::GetKeyMap( MapilUChar* pOut )
 	{
 		::GetKeyboardState( pOut );

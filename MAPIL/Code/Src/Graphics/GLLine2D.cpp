@@ -6,6 +6,8 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
+#if defined ( API_OPENGL )
+
 #include "../../Include/MAPIL/Graphics/GLLine2D.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 
@@ -30,3 +32,5 @@ namespace MAPIL
 		glEnd();
 	}
 }
+
+#endif	// API_OPENGL
