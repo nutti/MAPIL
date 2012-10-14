@@ -14,6 +14,7 @@
 
 // GUI.
 #include "GUI/GUIFactory.h"
+#include "GUI/KeyboardSignal.h"
 
 // Graphics.
 #if defined ( API_OPENGL )
@@ -74,6 +75,7 @@
 #include "Util/String.h"
 #include "Util/FPSManager.h"
 #include "Util/Allocator.hpp"
+#include "Util/HeapAllocator.hpp"
 
 // C-interfaces
 #include "Util/CInterface.h"
