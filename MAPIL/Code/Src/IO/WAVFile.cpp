@@ -466,12 +466,20 @@ namespace MAPIL
 		LoadDataFromMemory( p, &pHeader->m_DataSize, sizeof( pHeader->m_DataSize ) );
 	}
 
-	MapilInt32 GetWAVFileInfo( const MapilChar* pData )
+	MapilInt32 GetWAVFileInfo( const MapilChar* pData, MapilInt32 size )
 	{
-		// バイナリデータには\0が存在するため、strstrは使用できない。
-		const MapilChar* pInfo = strstr( pData, "LIST" );
+		const MapilChar* p = pData + size;
 
-		return pInfo - pData;
+		while( p >= pData ){
+			if( *p == 'T' ){
+				if( !::strncmp( p - 3, "LIST", 4 ) ){
+					return p - pData - 3;
+				}
+			}
+			--p;
+		}
+
+		return -1;
 	}
 
 }

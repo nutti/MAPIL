@@ -106,12 +106,17 @@ namespace MAPIL
 
 		WAVFileHeader wfh;
 		GetWAVFileHeader( m_pWavData, &wfh );
+		int infoPos = GetWAVFileInfo( m_pWavData, size );		// LISTî•ñ‚ÌêŠ
+		// LISTî•ñ‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡
+		if( infoPos <= -1 ){
+			infoPos = size;
+		}
 
 		SafeDeleteArray( m_pWavData );
 
 		MapilInt32 readSize = 0;
-		m_pWavData = new MapilChar [ size - 44 ];
-		pArchiver->Load( name, m_pWavData, 44, size - 44, &readSize );
+		m_pWavData = new MapilChar [ infoPos - 44 ];
+		pArchiver->Load( name, m_pWavData, 44, infoPos - 44, &readSize );
 
 		// Format.
 		ALenum fmt;
@@ -122,7 +127,7 @@ namespace MAPIL
 			fmt = ( wfh.m_BitPerSample == 8 ) ? AL_FORMAT_STEREO8 : AL_FORMAT_STEREO16;
 		}
 
-		alBufferData( m_Buf, fmt, m_pWavData, size - 44, wfh.m_SampleRate );
+		alBufferData( m_Buf, fmt, m_pWavData, infoPos - 44, wfh.m_SampleRate );
 		alSourcei( m_Src, AL_BUFFER, m_Buf );
 
 	}

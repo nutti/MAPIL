@@ -77,6 +77,11 @@
 #include "Util/Allocator.hpp"
 #include "Util/HeapAllocator.hpp"
 
+// Algorithm.
+#include "Algorithm/LZ.h"
+#include "Algorithm/Caesar.h"
+#include "Algorithm/XOR.h"
+
 // C-interfaces
 #include "Util/CInterface.h"
 
