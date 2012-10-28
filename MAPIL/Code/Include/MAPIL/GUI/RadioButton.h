@@ -1,11 +1,11 @@
 /**
-*	@file	GraphicsContext.h
+*	@file	RadioButton.h
 *	@brief	
-*	@date	2011.8.27 (Sat) 19:32
+*	@date	2012.10.28 (Sun) 13:28
 */
 
-#ifndef INCLUDED_MAPIL_GRAPHICSCONTEXT_H
-#define INCLUDED_MAPIL_GRAPHICSCONTEXT_H
+#ifndef INCLUDED_MAPIL_RADIOBUTTON_H
+#define INCLUDED_MAPIL_RADIOBUTTON_H
 
 #include "../CrossPlatform.h"
 
@@ -15,11 +15,11 @@ namespace MAPIL
 {
 	class ExposeSignal;
 	class Window;
-	class GraphicsContext : public Control
+	class RadioButton : public Control
 	{
 	public:
-		GraphicsContext();
-		virtual ~GraphicsContext();
+		RadioButton();
+		virtual ~RadioButton();
 		virtual MapilVoid Create(	MapilTChar* pWndName,
 									MapilInt32 width,
 									MapilInt32 heght ) = 0;
@@ -32,7 +32,8 @@ namespace MAPIL
 									MapilInt32 y,
 									MapilInt32 width,
 									MapilInt32 height,
-									SharedPointer < Window > pParent ) = 0;
+									SharedPointer < Window > pParent,
+									MapilInt32 id ) = 0;
 		virtual MapilVoid Resize( MapilInt32 width, MapilInt32 height ) = 0;
 		virtual MapilVoid Add() = 0;
 		virtual MapilInt32 ProcessMessage() = 0;
@@ -40,6 +41,7 @@ namespace MAPIL
 		virtual MapilVoid Show() = 0;
 		virtual MapilVoid Connect( ExposeSignal* pSig ) = 0;
 		virtual MapilVoid Connect( KeyboardSignal* pSig ) = 0;
+		virtual MapilBool Checked() = 0;
 		virtual MapilVoid Swap() = 0;
 		virtual SharedPointer < Window > GetParentWnd() const = 0;
 	};

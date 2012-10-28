@@ -9,7 +9,7 @@
 
 #include "../CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "Window.h"
 #include "WinAPIMsgProc.h"
@@ -26,6 +26,7 @@ namespace MAPIL
 		virtual MapilVoid Create(	MapilTChar* pWndName,
 									MapilInt32 width,
 									MapilInt32 height );
+		MapilVoid Destroy();
 		virtual MapilVoid Resize( MapilInt32 width, MapilInt32 height );
 		virtual MapilVoid Add();
 		virtual MapilInt32 ProcessMessage();
@@ -33,6 +34,7 @@ namespace MAPIL
 		virtual MapilVoid Show();
 		virtual MapilVoid Connect( ExposeSignal* pSig );
 		virtual MapilVoid Connect( KeyboardSignal* pSig );
+		virtual MapilVoid Connect( ButtonPushedSignal* pSig );
 		virtual MapilVoid SetWndMode( MapilInt32 mode );
 		MapilVoid ChangePosToClient(	const Vector2 < MapilInt32 >& in,
 										Vector2 < MapilInt32 >* pOut );

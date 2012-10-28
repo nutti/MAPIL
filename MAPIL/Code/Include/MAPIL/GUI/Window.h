@@ -19,6 +19,7 @@ namespace MAPIL
 {
 	class ExposeSignal;
 	class KeyboardSignal;
+	class ButtonPushedSignal;
 	class Window : public Widget
 	{
 	protected:
@@ -31,6 +32,7 @@ namespace MAPIL
 		virtual MapilVoid Create(	MapilTChar* pWndName,
 									MapilInt32 width,
 									MapilInt32 height ) = 0;
+		virtual MapilVoid Destroy() = 0;
 		virtual MapilVoid Resize( MapilInt32 width, MapilInt32 height ) = 0;
 		virtual MapilVoid Add() = 0;
 		virtual MapilInt32 ProcessMessage() = 0;
@@ -38,6 +40,7 @@ namespace MAPIL
 		virtual MapilVoid Show() = 0;
 		virtual MapilVoid Connect( ExposeSignal* pSig ) = 0;
 		virtual MapilVoid Connect( KeyboardSignal* pSig ) = 0;
+		virtual MapilVoid Connect( ButtonPushedSignal* pSig ) = 0;
 		virtual MapilVoid SetWndMode( MapilInt32 mode ) = 0;
 		virtual MapilVoid ChangePosToClient(	const Vector2 < MapilInt32 >& in,
 												Vector2 < MapilInt32 >* pOut ) = 0;

@@ -6,18 +6,20 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "../../Include/MAPIL/GUI/WinAPIMsgProc.h"
 #include "../../Include/MAPIL/GUI/ExposeSignal.h"
 #include "../../Include/MAPIL/GUI/KeyboardSignal.h"
+#include "../../Include/MAPIL/GUI/ButtonPushedSignal.h"
 
 namespace MAPIL
 {
 	WinAPIMsgProc::WinAPIMsgProc() :	MapilObject(),
 										m_HWnd( NULL ),
 										m_pExposeSig( NULL ),
-										m_pKeyboardSig( NULL )
+										m_pKeyboardSig( NULL ),
+										m_pButtonPushedSig( NULL )
 	{
 	}
 

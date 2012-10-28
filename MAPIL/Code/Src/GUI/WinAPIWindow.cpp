@@ -6,7 +6,7 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "../../Include/MAPIL/GUI/WinAPISignalServer.h"
 #include "../../Include/MAPIL/GUI/WinAPIWindow.h"
@@ -55,11 +55,7 @@ namespace MAPIL
 
 		// Create window class
 		if( !RegisterClass( &wc ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "WinAPIWindow" ),
-									TSTR( "Create" ),
-									TSTR( "Registration of window class failed.\n" ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Registration of window class failed.\n" ), -1 );
 		}
 
 		// Change from window size to client size
@@ -82,16 +78,17 @@ namespace MAPIL
 										NULL,										// Position where menu set
 										m_HInst,									// Instance handle
 										this ) ) == NULL ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "WinAPIWindow" ),
-									TSTR( "Create" ),
-									TSTR( "Creation of window failed.\n" ),
-									-2 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Creation of window failed.\n" ), -2 );
 		}
 
 		// Display window
 		ShowWindow( m_HWnd, SW_SHOWNORMAL );
 		UpdateWindow( m_HWnd );
+	}
+
+	MapilVoid WinAPIWindow::Destroy()
+	{
+		SendMessage( m_HWnd, WM_CLOSE, 0, 0 );
 	}
 
 	MapilVoid WinAPIWindow::Resize( MapilInt32 width, MapilInt32 height )
@@ -141,6 +138,11 @@ namespace MAPIL
 		m_pKeyboardSig = pSig;
 	}
 
+	MapilVoid WinAPIWindow::Connect( ButtonPushedSignal* pSig )
+	{
+		m_pButtonPushedSig = pSig;
+	}
+
 	MapilVoid WinAPIWindow::SetWndMode( MapilInt32 mode )
 	{
 		// Full screen mode.
@@ -168,11 +170,7 @@ namespace MAPIL
 				ChangeDisplaySettingsEx( NULL, &devMod, NULL, CDS_FULLSCREEN, NULL );
 			}
 			else{
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "WinAPIWindow" ),
-										TSTR( "SetWndMode" ),
-										TSTR( "Failed to change window mode into full screen mode.\n" ),
-										-1 );
+				throw MapilException( CURRENT_POSITION, TSTR( "Failed to change window mode into full screen mode.\n" ), -1 );
 			}
 
 			SetWindowLong( m_HWnd, GWL_STYLE, GetWindowLong( m_HWnd, GWL_STYLE ) & ~( WS_CAPTION | WS_BORDER | WS_THICKFRAME ) );

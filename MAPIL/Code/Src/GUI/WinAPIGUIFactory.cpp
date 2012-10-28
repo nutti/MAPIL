@@ -6,33 +6,25 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "../../Include/MAPIL/GUI/WinAPIGUIFactory.h"
 #include "../../Include/MAPIL/GUI/WinAPIWindow.h"
-//#include "../../Include/MAPIL/GUI/WinAPIGLContext.h"
 
 namespace MAPIL
 {
-	WinAPIGUIFactory::WinAPIGUIFactory( SharedPointer < GUIDevice > pDev ) : GUIFactory( pDev ), m_WndRM(), m_GCRM()
-//#if defined ( API_OPENGL )
-//		, m_GLCRM()
-//#endif
+	WinAPIGUIFactory::WinAPIGUIFactory( SharedPointer < GUIDevice > pDev ) : GUIFactory( pDev ), m_WndRM(), m_GCRM(), m_RBRM()
 	{
 		m_WndRM.Init();
 		m_GCRM.Init();
-//#if defined ( API_OPENGL )
-//		m_GLCRM.Init();
-//#endif
+		m_RBRM.Init();
 	}
 
 	WinAPIGUIFactory::~WinAPIGUIFactory()
 	{
 		m_WndRM.Init();
 		m_GCRM.Init();
-//#if defined ( API_OPENGL )
-//		m_GLCRM.Init();
-//#endif
+		m_RBRM.Init();
 	}
 
 	IWindow WinAPIGUIFactory::CreateWnd( const MapilTChar* pKeyStr )
@@ -45,18 +37,17 @@ namespace MAPIL
 		return m_GCRM.Create( pKeyStr );
 	}
 
+	IRadioButton WinAPIGUIFactory::CreateRadioButton( const MapilTChar* pKeyStr )
+	{
+		return m_RBRM.Create( pKeyStr );
+	}
+
 	MapilVoid WinAPIGUIFactory::Reflesh()
 	{
 		m_WndRM.Reflesh();
 		m_GCRM.Reflesh();
+		m_RBRM.Reflesh();
 	}
-
-//#if defined ( API_OPENGL )
-//	IGLContext WinAPIGUIFactory::CreateGLContext( const MapilTChar* pKeyStr )
-//	{
-//		return m_GLCRM.Create( pKeyStr );
-//	}
-//#endif
 }
 
 #endif

@@ -6,7 +6,7 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "../../Include/MAPIL/GUI/WinAPISignalServer.h"
 #include "../../Include/MAPIL/GUI/WinAPIGraphicsContext.h"
@@ -36,6 +36,16 @@ namespace MAPIL
 	}
 
 	MapilVoid WinAPIGraphicsContext::Create(	MapilTChar* pWndName,
+												MapilInt32 width,
+												MapilInt32 height,
+												SharedPointer < Window > pParent )
+	{
+		Create( pWndName, 0, 0, width, height, pParent );
+	}
+
+	MapilVoid WinAPIGraphicsContext::Create(	MapilTChar* pWndName,
+												MapilInt32 x,
+												MapilInt32 y,
 												MapilInt32 width,
 												MapilInt32 height,
 												SharedPointer < Window > pParent )
@@ -76,8 +86,8 @@ namespace MAPIL
 		if( ( m_HWnd = CreateWindow(	m_ClassName.c_str(),						// Window class name
 										m_WndName.c_str(),							// Window name
 										WS_CHILD,									// Window style
-										0,											// Initial position x of window
-										0,											// Initial position y of window
+										x,											// Initial position x of window
+										y,											// Initial position y of window
 										m_Width,									// Window width
 										m_Height,									// Window height
 										m_WndParent->GetHWnd(),							// Sub window

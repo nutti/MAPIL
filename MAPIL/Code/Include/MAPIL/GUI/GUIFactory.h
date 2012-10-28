@@ -18,11 +18,11 @@ namespace MAPIL
 {
 	class Window;
 	class GraphicsContext;
-	//class GLContext;
+	class RadioButton;
 
 	typedef SharedPointer < Window >			IWindow;
 	typedef SharedPointer < GraphicsContext >	IGraphicsContext;
-	//typedef SharedPointer < GLContext >			IGLContext;
+	typedef SharedPointer < RadioButton >		IRadioButton;
 
 	class GUIFactory : public MapilObject
 	{
@@ -33,6 +33,7 @@ namespace MAPIL
 		virtual ~GUIFactory();
 		virtual IWindow CreateWnd( const MapilTChar* pKeyStr ) = 0;
 		virtual IGraphicsContext CreateGraphicsContext( const MapilTChar* pKeyStr ) = 0;
+		virtual IRadioButton CreateRadioButton( const MapilTChar* pKeyStr ) = 0;
 		/**
 		*	@brief Delete all the objects whose reference count is 0.
 		*/

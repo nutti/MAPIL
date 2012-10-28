@@ -1,22 +1,20 @@
 /**
-*	@file	WinAPIGraphicsContext.h
+*	@file	WinAPIRadioButton.h
 *	@brief	
-*	@date	2011.8.27 (Sat) 19:23
+*	@date	2012.10.28 (Sun) 13:31
 */
 
-#ifndef INCLUDED_MAPIL_WINAPIGRAPHICSCONTEXT_H
-#define INCLUDED_MAPIL_WINAPIGRAPHICSCONTEXT_H
+#ifndef INCLUDED_MAPIL_WINAPIRADIOBUTTON_H
+#define INCLUDED_MAPIL_WINAPIRADIOBUTTON_H
 
 #include "../CrossPlatform.h"
 
 #if defined ( API_WIN32API )
 
 #include <Windows.h>
-#include <gl/GL.h>
-
 #include <string>
 
-#include "GraphicsContext.h"
+#include "RadioButton.h"
 #include "../Type.h"
 #include "../TChar.h"
 #include "WinAPIMsgProc.h"
@@ -26,7 +24,7 @@
 namespace MAPIL
 {
 	class ExposeSignal;
-	class WinAPIGraphicsContext : public GraphicsContext, public WinAPIMsgProc//public WinAPIWidget
+	class WinAPIRadioButton: public RadioButton, public WinAPIMsgProc
 	{
 	private:		
 		WNDPROC								m_HWndParent;
@@ -40,21 +38,22 @@ namespace MAPIL
 
 		SharedPointer < WinAPIWindow >		m_WndParent;		// Parent window.
 	public:
-		WinAPIGraphicsContext();
-		~WinAPIGraphicsContext();
+		WinAPIRadioButton();
+		~WinAPIRadioButton();
 		MapilVoid Create(	MapilTChar* pWndName,
-									MapilInt32 width,
-									MapilInt32 height ){}
+							MapilInt32 width,
+							MapilInt32 height );
 		MapilVoid Create(	MapilTChar* pWndName,
-									MapilInt32 width,
-									MapilInt32 height,
-									SharedPointer < Window > pParent );
+							MapilInt32 width,
+							MapilInt32 height,
+							SharedPointer < Window > pParent );
 		MapilVoid Create(	MapilTChar* pWndName,
 							MapilInt32 x,
 							MapilInt32 y,
 							MapilInt32 width,
 							MapilInt32 height,
-							SharedPointer < Window > pParent );
+							SharedPointer < Window > pParent,
+							MapilInt32 id );
 		MapilVoid Resize( MapilInt32 width, MapilInt32 height );
 		MapilVoid Add();
 		MapilInt32 ProcessMessage();
@@ -62,6 +61,7 @@ namespace MAPIL
 		MapilVoid Show();
 		MapilVoid Connect( ExposeSignal* pSig );
 		MapilVoid Connect( KeyboardSignal* pSig );
+		MapilBool Checked();
 		MapilVoid Swap();
 		MapilInt32 GetWidth() const;
 		MapilInt32 GetHeight() const;

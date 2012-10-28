@@ -9,7 +9,7 @@
 
 #include "../CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include <Windows.h>
 
@@ -20,12 +20,14 @@ namespace MAPIL
 {
 	class ExposeSignal;
 	class KeyboardSignal;
+	class ButtonPushedSignal;
 	class WinAPIMsgProc : public MapilObject
 	{
 	protected:
-		HWND				m_HWnd;
-		ExposeSignal*		m_pExposeSig;
-		KeyboardSignal*		m_pKeyboardSig;
+		HWND					m_HWnd;
+		ExposeSignal*			m_pExposeSig;
+		KeyboardSignal*			m_pKeyboardSig;
+		ButtonPushedSignal*		m_pButtonPushedSig;
 	public:
 		WinAPIMsgProc();
 		virtual ~WinAPIMsgProc();

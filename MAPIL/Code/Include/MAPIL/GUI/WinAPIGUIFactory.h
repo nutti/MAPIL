@@ -9,36 +9,31 @@
 
 #include "../CrossPlatform.h"
 
-#ifdef API_WIN32API
+#if defined ( API_WIN32API )
 
 #include "GUIFactory.h"
 #include "GUIResourceManager.hpp"
 #include "WinAPIWindow.h"
 #include "WinAPIGraphicsContext.h"
+#include "WinAPIRadioButton.h"
 
 namespace MAPIL
 {
-	//class WinAPIWindow;
-	//class WinAPIGLContext;
 	class WinAPIGUIFactory : public GUIFactory
 	{
 		GUIResourceManager < WinAPIWindow >					m_WndRM;
 		GUIResourceManager < WinAPIGraphicsContext >		m_GCRM;
-//#if defined ( API_OPENGL )
-//		GUIResourceManager < WinAPIGLContext >		m_GLCRM;
-//#endif
+		GUIResourceManager < WinAPIRadioButton >			m_RBRM;
 	public:
 		WinAPIGUIFactory( SharedPointer < GUIDevice > pDev );
 		~WinAPIGUIFactory();
 		IWindow CreateWnd( const MapilTChar* pKeyStr );
 		IGraphicsContext CreateGraphicsContext( const MapilTChar* pKeyStr );
+		IRadioButton CreateRadioButton( const MapilTChar* pKeyStr );
 		/**
 		*	@brief Delete all the objects whose reference count is 0.
 		*/
 		MapilVoid Reflesh();
-//#if defined ( API_OPENGL )
-//		IGLContext CreateGLContext( const MapilTChar* pKeyStr );
-//#endif
 	};
 }
 
