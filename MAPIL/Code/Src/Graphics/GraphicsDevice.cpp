@@ -586,13 +586,13 @@ namespace MAPIL
 		if( FAILED( m_pD3D.GetPointer()->CreateDevice(	adapter,
 														devType,
 														m_pWnd->GetHWnd(),
-														D3DCREATE_HARDWARE_VERTEXPROCESSING,
+														D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 														&m_D3DPPNow,
 														m_pD3DDev.GetPointerOfPointerWithChange() ) ) ){
 			if( FAILED( m_pD3D.GetPointer()->CreateDevice(	adapter,
 															devType,
 															m_pWnd->GetHWnd(),
-															D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+															D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 															&m_D3DPPNow,
 															m_pD3DDev.GetPointerOfPointerWithChange() ) ) ){
 				throw MapilException(	TSTR( "Mapil" ),
