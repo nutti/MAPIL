@@ -76,6 +76,8 @@ namespace MAPIL
 	MapilVoid DeleteStaticBuffer( MapilUInt32 index );
 	// Delete streaming buffer.
 	MapilVoid DeleteStreamingBuffer( MapilUInt32 index );
+	// Delete model.
+	MapilVoid DeleteModel( MapilUInt32 index );
 	// Get keyboard state.
 	MapilVoid GetKeyboardState( MapilUChar* pOut );
 	// Begin rendering.
@@ -86,6 +88,10 @@ namespace MAPIL
 	MapilVoid BeginRendering2DGraphics();
 	// End rendering 2D Graphics.
 	MapilVoid EndRendering2DGraphics();
+	// Begin rendering 3D Graphics.
+	MapilVoid BeginRendering3DGraphics();
+	// End rendering 3D Graphics.
+	MapilVoid EndRendering3DGraphics();
 	// Enable blending.
 	MapilVoid EnableBlending();
 	// Disable blending.

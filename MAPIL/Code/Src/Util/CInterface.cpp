@@ -752,6 +752,13 @@ namespace MAPIL
 		DeleteResource( &p->m_LocalStreamingBufferList, index, CURRENT_POSITION );
 	}
 
+	// Delete model.
+	MapilVoid DeleteModel( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		DeleteResource( &p->m_LocalModelList, index, CURRENT_POSITION );
+	}
+
 	// Get keyboard state.
 	MapilVoid GetKeyboardState( MapilUChar* pOut )
 	{
@@ -790,6 +797,22 @@ namespace MAPIL
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
 		p->m_Sprite->End();
+	}
+
+	// Begin rendering 3D Graphics.
+	MapilVoid BeginRendering3DGraphics()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_Canvas3D.GetPointer() != NULL, CURRENT_POSITION, TSTR( "Global canvas3D is not created yet." ), -1 );
+		p->m_Canvas3D->Begin();
+	}
+
+	// End rendering 3D Graphics.
+	MapilVoid EndRendering3DGraphics()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_Canvas3D.GetPointer() != NULL, CURRENT_POSITION, TSTR( "Global canvas3D is not created yet." ), -1 );
+		p->m_Canvas3D->End();
 	}
 
 	// Enable blending.
@@ -1059,7 +1082,8 @@ namespace MAPIL
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert(	p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert(	p->m_Canvas3D.GetPointer() != NULL, CURRENT_POSITION,
+				TSTR( "Global canvas3D is not created yet." ), -1 );
 		p->m_Canvas3D->DrawPolygon( pFmt, polygonTotal );
 	}
 
@@ -1067,8 +1091,10 @@ namespace MAPIL
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal, MapilUInt32 textureID )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert(	p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
-		Assert(	p->m_LocalTextureList[ textureID ].m_IsUsed == MapilTrue, CURRENT_POSITION, TSTR( "Invalid texture id." ), -1 );
+		Assert(	p->m_Canvas3D.GetPointer() != NULL, CURRENT_POSITION,
+				TSTR( "Global canvas3D is not created yet." ), -1 );
+		Assert(	p->m_LocalTextureList.size() > textureID, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -2 );
 		p->m_Canvas3D->DrawPolygon( pFmt, polygonTotal, p->m_LocalTextureList[ textureID ].m_Resource );
 	}
 
@@ -1299,12 +1325,15 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
-		std::basic_string < MapilTChar > str = TSTR( "Local Model " );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
 		MapilUInt32 index = GetEmptyIndex( &p->m_LocalModelList );
 		str += index;
 		ModelTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
+		tag.m_Resource->Create( str.c_str() );
 		if( index == p->m_LocalModelList.size() ){
 			p->m_LocalModelList.push_back( tag );
 		}

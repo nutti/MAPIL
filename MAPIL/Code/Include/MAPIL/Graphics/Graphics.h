@@ -42,6 +42,7 @@ namespace MAPIL
 				MapilUChar			m_A;				///< Alpha of the vertex color.
 			} m_Col;
 			MapilUChar				m_ColElm[ 4 ];		///< Color of the vertex.
+			MapilUInt32				m_Color;
 		};
 		union
 		{
