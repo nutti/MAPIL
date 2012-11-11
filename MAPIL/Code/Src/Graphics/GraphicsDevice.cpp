@@ -8,31 +8,31 @@
 
 #if defined ( API_OPENGL )
 
-#if defined ( API_WIN32API )
-#include <Windows.h>
-#endif
-#if defined ( OS_WIN_32BIT )
-#include <gl/GL.h>
-#endif
-#if defined ( OS_LINUX_32BIT )
-#include <GL/gl.h>
-#endif
+	#if defined ( API_WIN32API )
+		#include <Windows.h>
+	#endif
+	#if defined ( OS_WIN_32BIT )
+		#include <gl/GL.h>
+	#endif
+	#if defined ( OS_LINUX_32BIT )
+		#include <GL/gl.h>
+	#endif
 
 #endif
 
 #if defined ( API_DIRECT3D )
-#if ( DIRECT3D_VERSION == 0x0903 )
-#include <d3dx9.h>
-#elif ( DIRECT3D_VERSION == 0x1000 )
-#include <d3dx10.h>
-#endif
-#include "../../Include/MAPIL/Util/Memory.hpp"
-#include "../../Include/MAPIL/Diag/MapilException.h"
-#include "../../Include/MAPIL/Diag/Assertion.hpp"
+	#if ( DIRECT3D_VERSION == 0x0903 )
+		#include <d3dx9.h>
+	#elif ( DIRECT3D_VERSION == 0x1000 )
+		#include <d3dx10.h>
+	#endif
+	#include "../../Include/MAPIL/Util/Memory.hpp"
+	#include "../../Include/MAPIL/Diag/MapilException.h"
+	#include "../../Include/MAPIL/Diag/Assertion.hpp"
 #endif
 
 #if defined ( API_WIN32API )
-#include "../../Include/MAPIL/GUI/WinAPIGraphicsContext.h"
+	#include "../../Include/MAPIL/GUI/WinAPIGraphicsContext.h"
 #endif
 
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
@@ -43,75 +43,76 @@ namespace MAPIL
 																			m_GraphicsAPIVersion( version )
 #if defined ( API_DIRECT3D )
 														,
-#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
+	#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 														m_pWnd(),
 														m_pD3D( NULL ),
 														m_pD3DDev( NULL )
-#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+	#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
 														m_pWnd(),
 														m_pD3D10Dev( NULL ),
 														m_pSwapChain( NULL ),
 														m_pRenderTargetView( NULL )
-#endif
+	#endif
 
-#endif
+#endif	// API_DIRECT3D
 #if defined ( API_OPENGL )
-#if defined ( API_WIN32API )
+	#if defined ( API_WIN32API )
 		,
 		m_HDC( NULL )
-#endif	// API_WIN32API
+	#endif	// API_WIN32API
 #endif	// API_OPENGL
 	{
 #if defined ( API_DIRECT3D )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
-#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
+	#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 			ZeroObject( &m_D3DPPWnd, sizeof( m_D3DPPWnd ) );
 			ZeroObject( &m_D3DPPFull, sizeof( m_D3DPPFull ) );
 			ZeroObject( &m_D3DPPNow, sizeof( m_D3DPPNow ) );
-#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
-#endif
+	#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+	#endif
 		}
 #endif
 #if defined ( API_OPENGL )
-#if defined ( API_WIN32API )
+	#if defined ( API_WIN32API )
 		if( m_GraphicsAPI == GRAPHICS_API_OPENGL ){
 			ZeroObject( &m_PFD, sizeof( m_PFD ) );
 		}
-#endif	// API_WIN32API
+	#endif	// API_WIN32API
 #endif	// API_OPENGL
 	}
-	
+		
 	GraphicsDevice::~GraphicsDevice()
 	{
 #if defined ( API_DIRECT3D )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
-#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
+	#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 			ZeroObject( &m_D3DPPWnd, sizeof( m_D3DPPWnd ) );
 			ZeroObject( &m_D3DPPFull, sizeof( m_D3DPPFull ) );
 			ZeroObject( &m_D3DPPNow, sizeof( m_D3DPPNow ) );
-#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+	#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
 
-#endif
+	#endif
 		}
 #endif
 #if defined ( API_OPENGL )
-#if defined ( API_WIN32API )
+	#if defined ( API_WIN32API )
 		if( m_GraphicsAPI == GRAPHICS_API_OPENGL ){
 			wglMakeCurrent( m_HDC, 0 );
 			wglDeleteContext( m_HRC );
 			ZeroObject( &m_PFD, sizeof( m_PFD ) );
 		}
-#endif	// API_WIN32API
+	#endif	// API_WIN32API
 #endif	// API_OPENGL
+#if defined ( API_DIRECT3D )
 		m_GraphicsAPI = GRAPHICS_API_UNKNOWN;
 		m_GraphicsAPIVersion= D3D_VER_UNKNOWN;
+#endif	// API_DIRECT3D
 	}
-
 
 	MapilVoid GraphicsDevice::Create( SharedPointer < GraphicsContext > pWnd )
 	{
 #if defined ( API_DIRECT3D )
-#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
+	#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
 			m_pWnd.DownCast( pWnd );
 			SharedPointer < WinAPIWindow > parent;
@@ -120,7 +121,7 @@ namespace MAPIL
 			SetWindowLong( hWnd, GWL_STYLE, GetWindowLong( hWnd, GWL_STYLE ) | WS_CLIPCHILDREN );
 			InitD3D();
 		}
-#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
+	#elif ( DIRECT3D_VERSION == D3D_VER_10_0 )
 		if( m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
 			m_pWnd.DownCast( pWnd );
 			SharedPointer < WinAPIWindow > parent;
@@ -129,7 +130,7 @@ namespace MAPIL
 			SetWindowLong( hWnd, GWL_STYLE, GetWindowLong( hWnd, GWL_STYLE ) | WS_CLIPCHILDREN );
 			InitD3D();
 		}
-#endif
+	#endif
 #endif
 #if defined ( API_OPENGL )
 		if( m_GraphicsAPI == GRAPHICS_API_OPENGL ){
@@ -158,6 +159,7 @@ namespace MAPIL
 #if defined ( API_OPENGL )
 	MapilVoid GraphicsDevice::InitOpenGL()
 	{
+	#if defined ( API_WIN32API )
 		m_PFD.nSize			= sizeof( PIXELFORMATDESCRIPTOR );		// Size of PIXELFORMATDESCRIPTOR structure.
 		m_PFD.nVersion		= 1;									// Version of OpenGL.
 		m_PFD.dwFlags		=	PFD_DRAW_TO_WINDOW |				// Draw directly in window.
@@ -167,16 +169,16 @@ namespace MAPIL
 		m_PFD.dwLayerMask	= PFD_MAIN_PLANE;						// Layer type. Windows must set this value.
 		m_PFD.cColorBits	= 32;									// Display by 32bits RGBA.
 		m_PFD.cDepthBits	= 16;									// Maintain the distance from the aspect by 16bits.
-
 		m_HDC = GetDC( m_pWnd->GetHWnd() );
 		m_PixelFormat = ChoosePixelFormat( m_HDC, &m_PFD );
 		SetPixelFormat( m_HDC, m_PixelFormat, &m_PFD );
 
 		m_HRC = wglCreateContext( m_HDC );
 		wglMakeCurrent( m_HDC, m_HRC );
-	}
-#endif
 
+	#endif	// API_WIN32API
+	}
+#endif	// API_OPENGL
 
 #if defined ( API_DIRECT3D )
 #if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
@@ -698,6 +700,6 @@ namespace MAPIL
 		return pGD;
 	}
 
-}
-
 #endif	// API_DIRECT3D
+
+}

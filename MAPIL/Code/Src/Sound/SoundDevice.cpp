@@ -6,6 +6,7 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
+
 #include "../../Include/MAPIL/Sound/SoundDevice.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
 
@@ -65,3 +66,4 @@ namespace MAPIL
 		return pSD;
 	}
 }
+

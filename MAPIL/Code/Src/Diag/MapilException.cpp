@@ -8,6 +8,7 @@
 
 #include <cstdarg>
 #include <stdlib.h>
+#include <typeinfo>
 
 #include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/TChar.h"
@@ -113,6 +114,7 @@ namespace MAPIL
 		m_ClassName = buf;
 	}
 
+#if defined ( CHAR_CODE_UNICODE )
 	// Constructor. (5)
 	MapilException::MapilException(	const MapilTChar* pPosition,
 									const MapilTChar* pProblemDesc,
@@ -124,6 +126,7 @@ namespace MAPIL
 		m_Str += pProblemDesc;
 		m_Str += TSTR( "\n\n" );
 	}
+#endif
 
 	// Constructor. (6)
 	MapilException::MapilException(	const MapilChar* pPosition,

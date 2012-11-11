@@ -19,7 +19,7 @@
 #if defined ( API_WIN32API )
 #include <Windows.h>
 #endif
-#if defined ( OS_WIN_32BIT )
+#if defined ( OS_WIN_32BIT ) || defined ( OS_MAC_64BIT )
 #include <gl/GL.h>
 #include <gl/GLU.h>
 #elif defined ( OS_LINUX_32BIT )

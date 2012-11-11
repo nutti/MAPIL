@@ -42,10 +42,16 @@
 
 namespace MAPIL
 {
-#if defined ( API_WIN32API )
+#if defined ( API_WIN32API ) || defined ( API_POSIX )
 	class SoundDevice;
 	class Archiver;
-	class ALStreamingBuffer : public StreamingBuffer, public WinAPIThread
+	class ALStreamingBuffer : public StreamingBuffer
+#if defined ( API_WIN32API )
+				, public WinAPIThread
+#elif defined ( API_POSIX )
+				, public POSIXThread
+#endif
+
 	{
 	private:
 		WAVFile*			m_pWavFile;					///< WAVFile class.

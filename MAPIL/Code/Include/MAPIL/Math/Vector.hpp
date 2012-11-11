@@ -9,6 +9,8 @@
 
 #include "../Type.h"
 
+#include <math.h>
+
 namespace MAPIL
 {
 	template < typename Type >

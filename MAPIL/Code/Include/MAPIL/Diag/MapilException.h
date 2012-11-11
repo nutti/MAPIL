@@ -18,10 +18,11 @@ namespace MAPIL
 {
 
 #if defined ( OS_WIN_32BIT ) 
-#define CURRENT_POSITION			__FUNCTION__
-#define CURRENT_POSITION_DETAIL		__FUNCSIG__
-#elif defined( OS_LINUX_32BIT )
-#define CURRENT_POSITION_DETAIL		__PRETTY_FUNCTION__
+	#define CURRENT_POSITION			__FUNCTION__
+	#define CURRENT_POSITION_DETAIL		__FUNCSIG__
+#elif defined( OS_LINUX_32BIT ) || defined ( OS_MAC_64BIT )
+	#define CURRENT_POSITION		__PRETTY_FUNCTION__
+	#define CURRENT_POSITION_DETAIL		__PRETTY_FUNCTION__
 #endif
 
 	class MapilException : public Exception
@@ -53,10 +54,12 @@ namespace MAPIL
 						const MapilTChar* pFuncName,
 						const MapilTChar* pProblemDesc,
 						MapilInt32 codeNum );
+#if defined ( CHAR_CODE_UNICODE )
 		// Constructor. (5)
 		MapilException(	const MapilTChar* pPosition,
 						const MapilTChar* pProblemDesc,
 						MapilInt32 codeNum );
+#endif
 		// Constructor. (6)
 		MapilException(	const MapilChar* pPosition,
 						const MapilTChar* pProblemDesc,

@@ -172,6 +172,8 @@ namespace MAPIL
 			return;
 		}
 
+#if defined ( API_WIN32API )
+
 		::HDC hdc = wglGetCurrentDC();
 
 		// Build string to be displayed.
@@ -208,6 +210,8 @@ namespace MAPIL
 		//glEnable( GL_LIGHTING );
 
 		glDeleteLists( list, len );
+
+#endif	// API_WIN32API
 	}
 
 	MapilVoid GLSprite::DrawString(	SharedPointer < GraphicsFont > pFont,
@@ -217,6 +221,8 @@ namespace MAPIL
 		if( !pStr ){
 			return;
 		}
+
+#if defined ( API_WIN32API )
 
 		glMatrixMode( GL_MODELVIEW );
 		glPushMatrix();
@@ -262,7 +268,17 @@ namespace MAPIL
 		glDeleteLists( list, len );
 
 		glPopMatrix();
+#endif	// API_WIN32API
 	}
+
+	MapilVoid GLSprite::LostResource()
+	{
+	}
+
+	MapilVoid GLSprite::RestoreResource()
+	{
+	}
+
 }
 
 

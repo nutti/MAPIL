@@ -35,8 +35,6 @@ namespace MAPIL
 		ALSASoundDevice*		m_pDev;
 #elif defined ( API_OPENAL )
 		ALSoundDevice*			m_pDev;
-#else
-		MapilVoid*				m_pDev;		// For dummy.
 #endif
 		MapilInt32				m_API;
 	public:
@@ -63,3 +61,4 @@ namespace MAPIL
 }
 
 #endif
+

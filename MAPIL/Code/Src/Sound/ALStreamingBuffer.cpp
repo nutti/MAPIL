@@ -21,6 +21,7 @@
 #include "../../Include/MAPIL/Sound/SoundDevice.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/Util/String.h"
+#include "../../Include/MAPIL/Util/CPU.h"
 
 #include <iostream>
 
@@ -31,7 +32,7 @@
 namespace MAPIL
 {
 
-#if defined ( API_WIN32API )
+#if defined ( API_WIN32API ) || defined ( API_POSIX )
 	ALStreamingBuffer::ALStreamingBuffer( SharedPointer < SoundDevice > pDev ) :	StreamingBuffer( pDev ),
 																					m_pWavFile( NULL ),
 																					m_pArchiver( NULL ),
@@ -124,10 +125,12 @@ namespace MAPIL
 						alSourceQueueBuffers( m_Src, 1, &buf );
 						--empty;
 					}
-					Sleep( 1 );
+					Idle();
+					//Sleep( 1 );
 					// Pause state
 					while( m_IsPausing && m_IsPlaying ){
-						Sleep( 1 );
+						Idle();
+						//Sleep( 1 );
 					}
 					if( !m_IsPlaying ){
 						break;
@@ -135,7 +138,8 @@ namespace MAPIL
 				}
 			}
 			else{
-				Sleep( 1 );
+				Idle();
+				//Sleep( 1 );
 			}
 		}
 		
@@ -202,10 +206,12 @@ namespace MAPIL
 						alSourceQueueBuffers( m_Src, 1, &buf );
 						--empty;
 					}
-					Sleep( 1 );
+					Idle();
+					//Sleep( 1 );
 					// Pause state
 					while( m_IsPausing && m_IsPlaying ){
-						Sleep( 1 );
+						Idle();
+						//Sleep( 1 );
 					}
 					if( !m_IsPlaying ){
 						break;
@@ -213,7 +219,8 @@ namespace MAPIL
 				}
 			}
 			else{
-				Sleep( 1 );
+				Idle();
+				//Sleep( 1 );
 			}
 		}
 
@@ -250,8 +257,11 @@ namespace MAPIL
 		m_DataSize = m_pWavFile->GetInfoPos() - m_pWavFile->GetDataPos();
 
 		m_HasWavFile = MapilTrue;
-
+#if defined ( API_WIN32API )
 		WinAPIThread::Create();
+#elif defined ( API_POSIX )
+		POSIXThread::Create();
+#endif
 	}
 
 	MapilVoid ALStreamingBuffer::Create( const MapilTChar* pArchiveFileName, const MapilTChar* pFileName )
@@ -281,8 +291,11 @@ namespace MAPIL
 
 		m_HasWavFile = MapilFalse;
 		m_HasExtArchive = MapilFalse;
-
+#if defined ( API_WIN32API )
 		WinAPIThread::Create();
+#elif defined ( API_POSIX )
+		POSIXThread::Create();
+#endif
 	}
 
 	MapilVoid ALStreamingBuffer::Create( Archiver* pArchiver, const MapilTChar* pFileName )
@@ -309,8 +322,11 @@ namespace MAPIL
 
 		m_HasWavFile = MapilFalse;
 		m_HasExtArchive = MapilTrue;
-
+#if defined ( API_WIN32API )
 		WinAPIThread::Create();
+#elif defined ( API_POSIX )
+		POSIXThread::Create();
+#endif
 	}
 
 	MapilVoid ALStreamingBuffer::Play()
@@ -341,17 +357,22 @@ namespace MAPIL
 	MapilVoid ALStreamingBuffer::SetVolume( MapilUInt32 volume )
 	{
 		if( volume > 100 ){
-			volume = 100;
+			m_Volume = 100;
 		}
-		SetVolume( volume / 100.0f );
+		else{
+			m_Volume = volume;
+		}
+		SetVolume( m_Volume / 100.0f );
 	}
 
 	MapilVoid ALStreamingBuffer::SetVolume( MapilFloat32 volume )
 	{
 		if( volume > 1.0f ){
-			volume = 1.0f;
+			m_Volume = 1.0f;
 		}
-		m_Volume = volume;
+		else{
+			m_Volume = volume;
+		}
 		::alSourcef( m_Src, AL_GAIN, m_Volume );
 	}
 

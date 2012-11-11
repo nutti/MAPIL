@@ -25,6 +25,9 @@ namespace MAPIL
 	// Convert to multibyte.
 	MapilVoid ConvertToMultiByte( const MapilWChar* pSrc, MapilInt32 srcSize, MapilChar* pDst, MapilInt32 dstSize );
 
+	// Convert to multibyte.
+	MapilVoid ConvertToMultiByte( const MapilChar* pSrc, MapilInt32 srcSize, MapilChar* pDst, MapilInt32 dstSize );
+
 	// Convert to tchar.
 	MapilVoid ConvertToTChar( const MapilChar* pSrc, MapilInt32 srcSize, MapilTChar* pDst, MapilInt32 dstSize );
 

@@ -23,6 +23,9 @@
 #elif defined ( OS_LINUX_32BIT )
 #include <AL/al.h>
 #include <AL/alc.h>
+#elif defined ( OS_MAC_64BIT )
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #endif
 
 #include "../Util/MapilObject.h"

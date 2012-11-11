@@ -18,6 +18,7 @@ AC_CHECK_LIB(pthread, pthread_create )
 #AC_CHECK_HEADERS([AL/al.h AL/alc.h], , AC_MSG_ERROR([Can't find OpenAL headers for sound.]))
 #AC_CHECK_LIB([openal], [alGenSources], , AC_MSG_ERROR([Can't find OpenAL library for sound.]))
 
+
 PKG_CHECK_MODULES( OPENAL, openal, [], AC_MSG_WARN([Warning: could not find OpenAL via pkg-config.] ) )
 AC_ARG_WITH( openal-cflags, [ --with -openal-cflags=PATH Specify OpenAL cflags], OPENAL_CFLAGS="$withval" )
 AC_ARG_WITH( openal-libs, [ --with-openal-libs=PATH Specify OpenAL libs], OPENAL_LIBS="$withval" )

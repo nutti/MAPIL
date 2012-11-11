@@ -100,6 +100,7 @@ namespace MAPIL
 		*	@brief Set sound source position.
 		*	@param pos	Position.
 		*/
+		MapilVoid SetVolume( MapilFloat32 volume );
 		MapilVoid SetPosition( const Vector3 < MapilFloat32 >& pos );
 		/**
 		*	@brief	Is static buffer pausing now?

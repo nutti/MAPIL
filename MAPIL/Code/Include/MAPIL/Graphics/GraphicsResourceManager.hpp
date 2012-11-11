@@ -25,8 +25,6 @@ namespace MAPIL
 	public:
 		GraphicsResourceManager( SharedPointer < GraphicsDevice > pDev );
 		~GraphicsResourceManager();
-		MapilVoid LostAllResources();
-		MapilVoid RestoreAllResources();
 	};
 
 	template < typename Type >
@@ -46,32 +44,6 @@ namespace MAPIL
 		SharedPointer < Type > newResource( new Type( m_pDev ) );
 
 		return newResource;
-	}
-
-	template < typename Type >
-	MapilVoid GraphicsResourceManager < Type > ::LostAllResources()
-	{
-#if defined ( LIB_STL )
-		std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.begin();
-		// Lost all resources.
-		while( it != m_Holder.end() ){
-			( *it ).second->LostResource();
-			++it;
-		}
-#endif
-	}
-
-	template < typename Type >
-	MapilVoid GraphicsResourceManager < Type > ::RestoreAllResources()
-	{
-#if defined ( LIB_STL )
-		std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.begin();
-		// Lost all resources.
-		while( it != m_Holder.end() ){
-			( *it ).second->RestoreResource();
-			++it;
-		}
-#endif
 	}
 }
 

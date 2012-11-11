@@ -22,7 +22,7 @@
 #endif
 #if defined ( OS_WIN_32BIT )
 #include <gl/GL.h>
-#elif defined ( OS_LINUX_32BIT )
+#elif defined ( OS_LINUX_32BIT ) || defined ( OS_MAC_64BIT )
 #include <GL/gl.h>
 #endif
 

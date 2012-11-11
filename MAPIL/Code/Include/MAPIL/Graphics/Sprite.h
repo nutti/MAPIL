@@ -100,6 +100,9 @@ namespace MAPIL
 		virtual MapilVoid DrawString(	SharedPointer < GraphicsFont > pFont,
 										const MapilTChar* pStr,
 										const Matrix4x4 < MapilFloat32 >& mat ) = 0;
+
+		virtual MapilVoid LostResource() = 0;
+		virtual MapilVoid RestoreResource() = 0;
 	};
 }
 

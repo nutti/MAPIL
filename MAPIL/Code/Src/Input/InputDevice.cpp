@@ -35,18 +35,22 @@ namespace MAPIL
 
 	MapilVoid InputDevice::Create()
 	{
-		m_HInst = GetModuleHandle( NULL );
+		if( m_API == INPUT_API_DIRECTINPUT ){
+#if defined ( API_DIRECTINPUT )
+			m_HInst = GetModuleHandle( NULL );
 
-		if( FAILED( ::DirectInput8Create(	m_HInst,
+			if( FAILED( ::DirectInput8Create(	m_HInst,
 											DIRECTINPUT_VERSION,
 											::IID_IDirectInput8,
 											reinterpret_cast < MapilVoid** > ( m_DI.GetPointerOfPointerWithChange() ),
 											NULL ) ) ){
-			throw MapilException(	TSTR( "MAPIL" ),
+				throw MapilException(	TSTR( "MAPIL" ),
 									TSTR( "InputDevice" ),
 									TSTR( "Create" ),
 									TSTR( "Failed to create Direct Input." ),
 									-1 );
+			}
+#endif	// API_DIRECTINPUT
 		}
 	}
 
@@ -54,10 +58,12 @@ namespace MAPIL
 	{
 	}
 
+#if defined ( API_WIN32API )
 	COMPointer < IDirectInput8 > InputDevice::GetDev()
 	{
 		return m_DI;
 	}
+#endif
 
 	MapilInt32 InputDevice::GetInputAPI() const
 	{
