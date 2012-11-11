@@ -25,6 +25,8 @@ namespace MAPIL
 	public:
 		DeviceGraphicsResourceManager( SharedPointer < GraphicsDevice > pDev );
 		~DeviceGraphicsResourceManager();
+		MapilVoid LostAllResources();
+		MapilVoid RestoreAllResources();
 	};
 
 	template < typename Type >

@@ -45,9 +45,10 @@ namespace MAPIL
 // Sound API.
 #if defined ( OS_WIN_32BIT )
 #define API_DIRECTSOUND				// Direct Sound. (Not supported.)
+#define API_OPENAL					// OpenAL.
 #else
-#define API_OPENAL				// OpenAL.
-//#define API_ALSA				// ALSA.
+#define API_OPENAL					// OpenAL.
+//#define API_ALSA					// ALSA.
 #endif
 
 
@@ -61,7 +62,6 @@ namespace MAPIL
 #endif
 
 #define API_OPENGL						// OpenGL.
-//#define API_OPENAL						// OpenAL.
 
 // Character code.
 #if defined ( UNICODE )

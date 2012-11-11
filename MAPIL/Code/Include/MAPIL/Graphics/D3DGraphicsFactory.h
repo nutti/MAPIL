@@ -20,6 +20,7 @@
 
 #include "GraphicsFactory.h"
 #include "GraphicsResourceManager.hpp"
+#include "DeviceGraphicsResourceManager.hpp"
 #include "D3DGraphicsController.h"
 #include "D3DCamera.h"
 #include "D3DDirectionalLight.h"
@@ -44,15 +45,15 @@ namespace MAPIL
 	class D3DGraphicsFactory : public GraphicsFactory
 	{
 	private:
-		GraphicsResourceManager < D3DCanvas2D >				m_CanvasRM;			///< Resource manager for the D3DCanvas2D object.
+		DeviceGraphicsResourceManager < D3DCanvas2D >		m_CanvasRM;			///< Resource manager for the D3DCanvas2D object.
 		GraphicsResourceManager < D3DCanvas3D >				m_Canvas3DRM;		///< Resource manager for the D3DCanvas3D object.
-		GraphicsResourceManager < D3DSprite >				m_SpriteRM;			///< Resource manager for the D3DSprite object.
+		DeviceGraphicsResourceManager < D3DSprite >			m_SpriteRM;			///< Resource manager for the D3DSprite object.
 		GraphicsResourceManager < D3DCamera >				m_CameraRM;			///< Resource manager for the D3DCamera object.
 		GraphicsResourceManager < D3DGraphicsController >	m_GraphicsCtrlRM;	///< Resource manager for the D3DGraphicsController object.
 		GraphicsResourceManager < D3DDirectionalLight >		m_DirLightRM;		///< Resource manager for the D3DDirectionalLight object.
 		GraphicsResourceManager < D3DPointLight >			m_PLightRM;			///< Resource manager for the D3DPointLight object.
 		GraphicsResourceManager < D3DModel >				m_ModelRM;			///< Resource manager for the D3DModel object.
-		GraphicsResourceManager < D3DGraphicsFont >			m_GraphicsFontRM;	///< Resource manager for the D3DGraphicsFont object.
+		DeviceGraphicsResourceManager < D3DGraphicsFont >	m_GraphicsFontRM;	///< Resource manager for the D3DGraphicsFont object.
 		GraphicsResourceManager < D3DTexture >				m_TexRM;			///< Resource manager for the D3DTexture object.
 		GraphicsResourceManager < D3DPointSprite >			m_PSpriteRM;		///< Resource manager for the D3DPointSprite object.
 		GraphicsResourceManager < D3DRectangle3D >			m_Rect3DRM;			///< Resource manager for the D3DRectangle3D object.
