@@ -24,7 +24,11 @@ namespace MAPIL
 	// Set GUI API.
 	MapilVoid SetGUIAPI( MapilInt32 api );
 	// Set Graphics API.
+#if defined ( API_DIRECT3D )
 	MapilVoid SetGraphicsAPI( MapilInt32 api, MapilInt32 version = D3D_VER_9_0_C );
+#elif defined ( API_OPENGL )
+	MapilVoid SetGraphicsAPI( MapilInt32 api, MapilInt32 version );
+#endif
 	// Set Input API.
 	MapilVoid SetInputAPI( MapilInt32 api );
 	// Set Sound API.

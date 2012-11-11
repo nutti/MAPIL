@@ -154,7 +154,7 @@ namespace MAPIL
 	{
 		Open( pFileName, FILE_OPEN_WRITE_MODE );
 
-		std::basic_ofstream < MapilChar > fOut( m_ArchiveName, std::ios::binary | std::ios::out );
+		std::basic_ofstream < MapilChar > fOut( m_ArchiveName.c_str(), std::ios::binary | std::ios::out );
 		MapilInt32 offset = 0;
 
 		for( MapilInt32 i = 0; i < m_FileTotal; ++i ){

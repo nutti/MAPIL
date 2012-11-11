@@ -150,7 +150,11 @@ namespace MAPIL
 										m_pGUIFactory( NULL ),
 
 										m_GraphicsAPI( GRAPHICS_API_NONE ),
+#if defined ( API_DIRECT3D )
 										m_GraphicsAPIVersion( D3D_VER_UNKNOWN ),
+#elif defined ( API_OPENGL )
+										m_GraphicsAPIVersion( 0 ),
+#endif
 										m_GraphicsDev(),
 										m_pGraphicsFactory( NULL ),
 
@@ -220,7 +224,7 @@ namespace MAPIL
 				SetGraphicsAPI( GRAPHICS_API_DIRECT3D );
 			}
 #elif defined ( API_OPENGL )
-			SetGraphicsAPI( GRAPHICS_API_OPENGL );
+			SetGraphicsAPI( GRAPHICS_API_OPENGL, 0 );
 #endif
 		}
 
@@ -272,6 +276,7 @@ namespace MAPIL
 		p->m_GraphicsCtrl = p->m_pGraphicsFactory->CreateGraphicsController( TSTR( "Global Graphics Ctrl" ) );
 		p->m_GraphicsCtrl->Create( p->m_GC );
 		if( p->m_GraphicsAPI == GRAPHICS_API_DIRECT3D ){
+#if defined ( API_DIRECT3D )
 			if( p->m_GraphicsAPIVersion == D3D_VER_9_0_C ){
 				// Create canvas 2D object.
 				p->m_Canvas2D = p->m_pGraphicsFactory->CreateCanvas2D( TSTR( "Global Canvas 2D" ) );
@@ -294,6 +299,7 @@ namespace MAPIL
 				ZeroObject( &fmt, sizeof( fmt ) );
 				p->m_GraphicsFont->Create( fmt );
 			}
+#endif	// API_DIRECT3D
 		}
 
 		return 0;
@@ -925,14 +931,19 @@ namespace MAPIL
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
 
-		const int STRING_COLOR = 0xFFFFFFFF;
-		const int MAXIMUM_STRING_LENGTH = 1024;
+		const MapilInt32 STRING_COLOR = 0xFFFFFFFF;
+		const MapilInt32 MAXIMUM_STRING_LENGTH = 1024;
 
 		// Analyze the variable length argument.
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		::vsprintf_s( str, MAXIMUM_STRING_LENGTH, pStr, list );
+		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		if( strLen > 1024 ){
+			va_end( list );
+			return;
+		}
+		::vsprintf( str, pStr, list );
 		va_end( list );
 
 		// Convert char to tchar.
@@ -958,7 +969,12 @@ namespace MAPIL
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		::vsprintf_s( str, MAXIMUM_STRING_LENGTH, pStr, list );
+		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		if( strLen > 1024 ){
+			va_end( list );
+			return;
+		}
+		vsprintf( str, pStr, list );
 		va_end( list );
 
 		// Convert char to tchar.
@@ -1406,7 +1422,12 @@ namespace MAPIL
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		::vsprintf_s( str, MAXIMUM_STRING_LENGTH, pStr, list );
+		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		if( strLen > 1024 ){
+			va_end( list );
+			return;
+		}
+		vsprintf( str, pStr, list );
 		va_end( list );
 		// Convert char to tchar.
 		MapilTChar tstr[ MAXIMUM_STRING_LENGTH ];

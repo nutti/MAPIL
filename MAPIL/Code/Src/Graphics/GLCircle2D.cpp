@@ -6,6 +6,8 @@
 
 #include "../../Include/MAPIL/CrossPlatform.h"
 
+#include <math.h>
+
 #include "../../Include/MAPIL/Graphics/GLCircle2D.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 
@@ -27,8 +29,8 @@ namespace MAPIL
 			MapilDouble theta1 = angle1 * pi / 180.0;
 			MapilDouble theta2 = angle2 * pi / 180.0;
 
-			MapilFloat32 x1 = static_cast < MapilFloat32 > ( m_Radius * cos( theta1 ) + m_CenterX );
-			MapilFloat32 y1 = static_cast < MapilFloat32 > ( m_Radius * sin( theta1 ) + m_CenterY );
+			MapilFloat32 x1 = static_cast < MapilFloat32 > ( m_Radius * ::cos( theta1 ) + m_CenterX );
+			MapilFloat32 y1 = static_cast < MapilFloat32 > ( m_Radius * ::sin( theta1 ) + m_CenterY );
 			MapilFloat32 x2 = static_cast < MapilFloat32 > ( m_Radius * cos( theta2 ) + m_CenterX );
 			MapilFloat32 y2 = static_cast < MapilFloat32 > ( m_Radius * sin( theta2 ) + m_CenterY );
 

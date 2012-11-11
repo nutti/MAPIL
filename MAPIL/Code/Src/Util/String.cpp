@@ -34,9 +34,11 @@ namespace MAPIL
 #ifdef OS_WIN_32BIT
 		strLen = _vsctprintf( pStr, list ) + 1;				//Length of created string (NULL character isn't included, so +1 is needed)
 		if( strLen > 1024 ){
+			va_end( list );
 			return NULL;
 		}
 		_vstprintf( strBuf, pStr, list );			//Create string
+		va_end( list );
 #endif
 		return strBuf;
 	}
@@ -52,10 +54,12 @@ namespace MAPIL
 #ifdef OS_WIN_32BIT
 		strLen = _vsctprintf( pStrSrc, list ) + 1;
 		if( strLen > strLenDst ){
+			va_end( list );
 			return -1;
 		}
 		pStrBuf = new MapilTChar [ strLen ];
 		_vstprintf( pStrBuf, pStrSrc, list );
+		va_end( list );
 
 		_tcscpy_s( pStrDst, strLenDst, pStrBuf );
 		SafeDeleteArray( pStrBuf );
