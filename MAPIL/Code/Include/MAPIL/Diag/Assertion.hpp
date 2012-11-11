@@ -15,9 +15,9 @@
 #include "../CrossPlatform.h"
 
 #if defined ( OS_WIN_32BIT )
-#include <Windows.h>
-#define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_NON_CONFORMING_SWPRINTFS
+	#include <Windows.h>
+	#define _CRT_SECURE_NO_DEPRECATE
+	#define _CRT_NON_CONFORMING_SWPRINTFS
 #endif
 
 #include <string>
@@ -77,9 +77,9 @@ namespace MAPIL
 			strDebug += pMethodName;
 			strDebug += TSTR( "\n\nError : " );
 			strDebug += pProblemDesc;
-#if defined ( OS_WIN_32BIT )
+	#if defined ( OS_WIN_32BIT )
 			OutputDebugString( strDebug.c_str() );
-#endif
+	#endif
 			exit( exitNum );
 		}
 #endif
@@ -103,7 +103,7 @@ namespace MAPIL
 			std::basic_string < MapilTChar > str;
 			str += TSTR( "\n-------------- MAPIL Assertion Report -----------------\n" );
 			str += TSTR( "Location : " );
-			TCHAR tstr[ 1024 ];
+			MapilTChar tstr[ 1024 ];
 			ConvertToTChar( pPosition, -1, tstr, 1024 );
 			str += tstr;
 			str += TSTR( "\nProblem : " );
@@ -114,9 +114,9 @@ namespace MAPIL
 			_stprintf( buf, TSTR( "%d" ), exitNum );
 			str += buf;
 			str += TSTR( "\n-------------- MAPIL Assertion Report End--------------\n\n" );
-#if defined ( OS_WIN_32BIT )
+	#if defined ( OS_WIN_32BIT )
 			OutputDebugString( str.c_str() );
-#endif
+	#endif
 			exit( exitNum );
 		}
 #endif

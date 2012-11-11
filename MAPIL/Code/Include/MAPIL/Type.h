@@ -33,8 +33,11 @@ namespace MAPIL
 	typedef	unsigned char		MapilUChar;
 	typedef	wchar_t				MapilWChar;
 
+#if defined ( CHAR_CODE_UNICODE )
 	typedef	MapilWChar			MapilTChar;
-
+#elif defined ( CHAR_CODE_MULTIBYTE )
+	typedef MapilChar			MapilTChar;
+#endif
 }
 
 #endif

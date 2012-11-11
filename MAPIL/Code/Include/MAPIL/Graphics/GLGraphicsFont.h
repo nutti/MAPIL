@@ -93,6 +93,7 @@ namespace MAPIL
 		MapilVoid Draw(	MapilInt32 posX, MapilInt32 posY,
 						MapilFloat32 colR, MapilFloat32 colG, MapilFloat32 colB,
 						MapilTChar* pStr, ... );
+		MapilInt32 Get();
 	};
 #endif
 }

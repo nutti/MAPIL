@@ -24,7 +24,7 @@
 #if defined ( OS_WIN_32BIT )
 #include <gl/GL.h>
 #include <gl/GLU.h>
-#elif defined ( OS_LINUX_32BIT )
+#elif defined ( OS_LINUX_32BIT ) || defined ( OS_MAC_64BIT )
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
@@ -114,9 +114,12 @@ namespace MAPIL
 		MapilVoid DrawString(	SharedPointer < GraphicsFont > pFont,
 								const MapilTChar* pStr,
 								const Matrix4x4 < MapilFloat32 >& mat );
+
+		MapilVoid LostResource();
+		MapilVoid RestoreResource();
 	};
 }
 
-#endif	// API_DIRECT3D
+#endif	// API_OPENGL
 
 #endif	// INCLUDED_MAPIL_GLSPRITE_H

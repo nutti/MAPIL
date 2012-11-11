@@ -1,10 +1,11 @@
-AM_CPPFLAGS = @GTK_CFLAGS@
-AM_LOADD = @GTK_LIBS@ -framework OpenAL 
+AM_CPPFLAGS = @GTK_CFLAGS@ `pkg-config --cflags openal`
+AM_LOADD = @GTK_LIBS@ `pkg-config --libs openal`
 nobase_include_HEADERS = \
 	../Include/MAPIL/Type.h \
 	../Include/MAPIL/TChar.h \
 	../Include/MAPIL/CrossPlatform.h \
 	../Include/MAPIL/Util/ResourceManager.hpp \
+	../Include/MAPIL/Util/Device.h \
 	../Include/MAPIL/Util/Color.hpp \
 	../Include/MAPIL/Util/SharedPointer.hpp \
 	../Include/MAPIL/Util/Singleton.hpp \
@@ -15,7 +16,6 @@ nobase_include_HEADERS = \
 	../Include/MAPIL/Util/MapilSharedPointer.hpp \
 	../Include/MAPIL/Util/Allocator.hpp \
 	../Include/MAPIL/Util/String.h \
-	../Include/MAPIL/Util/CPU.h \
 	../Include/MAPIL/Diag/Exception.h \
 	../Include/MAPIL/Diag/Assertion.hpp \
 	../Include/MAPIL/Diag/MapilException.h \
@@ -71,7 +71,6 @@ nobase_include_HEADERS = \
 	../Include/MAPIL/Graphics/Polygon3D.h \
 	../Include/MAPIL/Graphics/Texture.h \
 	../Include/MAPIL/Graphics/GraphicsFont.h \
-	../Include/MAPIL/Graphics/GLSprite.h \
 	../Include/MAPIL/Thread/Thread.h \
 	../Include/MAPIL/Thread/ThreadFactory.h \
 	../Include/MAPIL/Thread/POSIXThread.h \
@@ -103,8 +102,7 @@ nobase_include_HEADERS = \
 	../Include/MAPIL/GUI/GTKSignalServer.h \
 	../Include/MAPIL/GUI/WinAPIWindow.h \
 	../Include/MAPIL/GUI/GTKGLContext.h \
-	../Include/MAPIL/GUI/GTKGraphicsContext.h \
-	../Include/MAPIL/GUI/GTKGLContext.h \
+	../Include/MAPIL/GUI/WinAPIGLContext.h \
 	../Include/MAPIL/GUI/WinAPIGUIFactory.h \
 	../Include/MAPIL/GUI/ButtonPressSignal.h \
 	../Include/MAPIL/GUI/GUIResourceManager.hpp \
@@ -124,13 +122,15 @@ lib_LIBRARIES = libmapil.a
 libmapil_a_SOURCES = \
 	../Src/Util/String.cpp \
 	../Src/Util/MapilObject.cpp \
+	../Src/Util/Device.cpp \
 	../Src/Util/FPSManager.cpp \
-	../Src/Util/CPU.cpp \
 	../Src/Diag/Exception.cpp \
 	../Src/Diag/MapilException.cpp \
 	../Src/IO/TTFFile.cpp \
 	../Src/IO/SoundFile.cpp \
+	../Src/IO/IO.cpp \
 	../Src/IO/FontFile.cpp \
+	../Src/IO/File.cpp \
 	../Src/IO/XFile.cpp \
 	../Src/IO/SocketFactory.cpp \
 	../Src/IO/WAVFile.cpp \
@@ -140,6 +140,7 @@ libmapil_a_SOURCES = \
 	../Src/IO/PNGFile.cpp \
 	../Src/IO/LinuxSocket.h \
 	../Src/IO/ModelFile.cpp \
+	../Src/IO/IO.h \
 	../Src/IO/ISocket.cpp \
 	../Src/IO/LinuxSocket.cpp \
 	../Src/IO/BMPFile.cpp \
@@ -172,7 +173,6 @@ libmapil_a_SOURCES = \
 	../Src/Graphics/GLRectangle3D.cpp \
 	../Src/Graphics/GLDirectionalLight.cpp \
 	../Src/Graphics/Canvas2D.cpp \
-	../Src/Graphics/GLSprite.cpp \
 	../Src/Thread/ThreadFactory.cpp \
 	../Src/Thread/Thread.cpp \
 	../Src/Thread/POSIXThread.cpp \
@@ -206,7 +206,6 @@ libmapil_a_SOURCES = \
 	../Src/GUI/GTKSignalServer.cpp \
 	../Src/GUI/GTKGLContext.cpp \
 	../Src/GUI/Model.cpp \
-	../Src/GUI/GTKGraphicsContext.cpp \
 	../Src/GUI/KeyboardSignal.cpp \
 	../Src/GUI/GLModel.cpp \
 	../Src/Sound/ALSoundDevice.cpp \

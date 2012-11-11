@@ -164,7 +164,20 @@ namespace MAPIL
 		if( volume > 100 ){
 			m_Volume = 100;
 		}
-		m_Volume = volume;
+		else{
+			m_Volume = volume;
+		}
+		::alSourcef( m_Src, AL_GAIN, m_Volume / 100.0f );
+	}
+
+	MapilVoid ALStaticBuffer::SetVolume( MapilFloat32 volume )
+	{
+		if( volume > 1.0f ){
+			m_Volume = 1.0f;
+		}
+		else{
+			m_Volume = volume;
+		}
 		::alSourcef( m_Src, AL_GAIN, m_Volume / 100.0f );
 	}
 

@@ -31,7 +31,9 @@ namespace MAPIL
 		MapilInt32 api = pDev->GetGUIAPI();
 		
 		if( api == GUI_API_WIN32API ){
+#if defined ( API_WIN32API )
 			return new WinAPIGUIFactory( pDev );
+#endif
 		}
 		else{
 			return NULL;

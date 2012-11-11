@@ -12,7 +12,7 @@
 #include <string>
 #include <iostream>
 
-#ifdef LIB_STL
+#if defined ( LIB_STL )
 #include <map>
 #endif
 
@@ -26,10 +26,10 @@ namespace MAPIL
 	class ResourceManager : public MapilObject
 	{
 	protected:
-#ifdef LIB_STL
+#if defined ( LIB_STL )
 		std::map < std::basic_string < MapilTChar >, SharedPointer < Type > >		m_Holder;
 #endif
-	protected:
+
 		virtual SharedPointer < Type > CreateInst() = 0;
 	public:
 		// Constructor.
@@ -109,11 +109,11 @@ namespace MAPIL
 	MapilVoid ResourceManager < Type > ::Reflesh()
 	{
 #if defined ( LIB_STL )
-		std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.begin();
+		typename std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.begin();
 		// Delete all objects no other refers.
 		while( it != m_Holder.end() ){
 			// Before deleting, next iterator must be stored.
-			std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator itPrev = it;
+			typename std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator itPrev = it;
 			++itPrev;
 			// If the resource is only referenced by ResourceManager objects, current
 			// reference count is 1.

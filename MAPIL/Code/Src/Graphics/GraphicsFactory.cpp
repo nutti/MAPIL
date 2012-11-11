@@ -52,21 +52,24 @@ namespace MAPIL
 		MapilInt32 version = pDev->GetGraphicsAPIVersion();
 
 		if( api == GRAPHICS_API_DIRECT3D ){
-			//return SharedPointer < GraphicsFactory > ( new D3DGraphicsFactory( pDev ) );
+#if defined ( API_DIRECT3D )
 			if( version == D3D_VER_9_0_C ){
-#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
+	#if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 				return new D3DGraphicsFactory( pDev );
-#else
+	#else
 				return NULL;
-#endif
+	#endif
 			}
 			else if( version == D3D_VER_10_0 ){
-#if ( DIRECT3D_VERSION == D3D_VER_10_0 )
+	#if ( DIRECT3D_VERSION == D3D_VER_10_0 )
 				return new D3D10GraphicsFactory( pDev );
-#else
+	#else
 				return NULL;
-#endif
+	#endif
 			}
+#else
+			return NULL;
+#endif
 		}
 		else if( api == GRAPHICS_API_OPENGL ){
 #if defined ( API_OPENGL )

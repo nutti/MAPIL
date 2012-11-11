@@ -75,9 +75,17 @@ namespace MAPIL
 	// Convert to multibyte.
 	MapilVoid ConvertToMultiByte( const MapilWChar* pSrc, MapilInt32 srcSize, MapilChar* pDst, MapilInt32 dstSize )
 	{
-#ifdef OS_WIN_32BIT
+#if defined ( OS_WIN_32BIT )
 		WideCharToMultiByte( CP_ACP, 0, pSrc, srcSize, pDst, dstSize, NULL, NULL );
 #endif
+	}
+
+	// Convert to multibyte.
+	MapilVoid ConvertToMultiByte( const MapilChar* pSrc, MapilInt32 srcSize, MapilChar* pDst, MapilInt32 dstSize )
+	{
+		if( ::strlen( pSrc ) < srcSize ){
+			::strcpy( pDst, pSrc );
+		}
 	}
 
 	// Convert to tchar.
@@ -86,7 +94,9 @@ namespace MAPIL
 #if defined ( CHAR_CODE_UNICODE )
 		::MultiByteToWideChar( CP_ACP, 0, pSrc, srcSize, pDst, dstSize );
 #elif defined( CHAR_CODE_MULTIBYTE )
-		::strcpy_s( pDst, srcSize, pSrc );
+		if( ::strlen( pSrc ) < srcSize ){
+			::strcpy( pDst, pSrc );
+		}
 #endif
 	}
 
@@ -96,7 +106,9 @@ namespace MAPIL
 #if defined ( CHAR_CODE_UNICODE )
 		::wcscpy_s( pDst, srcSize, pSrc );
 #elif defined ( CHAR_CODE_MULTIBYTE )
+#if defined ( OS_WIN_32BIT )
 		::WideCharToMultiByte( CP_ACP, 0, pSrc, srcSize, pDst, dstSize, NULL, NULL );
+#endif
 #endif
 	}
 }

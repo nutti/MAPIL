@@ -34,11 +34,15 @@ namespace MAPIL
 		MapilInt32 api = pDev->GetInputAPI();
 
 		if( api == INPUT_API_DIRECTINPUT ){
+#if defined ( API_DIRECTINPUT )
 			//return SharedPointer < GraphicsFactory > ( new D3DGraphicsFactory( pDev ) );
 			return new DIInputFactory( pDev );
+#endif
 		}
 		else if( api == INPUT_API_WIN32API ){
+#if defined ( API_WIN32API )
 			return new WinAPIInputFactory( pDev );
+#endif
 		}
 		else{
 			return NULL;

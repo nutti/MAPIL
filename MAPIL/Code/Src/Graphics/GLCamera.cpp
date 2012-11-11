@@ -19,7 +19,7 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 #endif
-#if defined ( OS_LINUX_32BIT )
+#if defined ( OS_LINUX_32BIT ) || defined ( OS_MAC_64BIT )
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif

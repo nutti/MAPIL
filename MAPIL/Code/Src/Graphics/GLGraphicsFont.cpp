@@ -158,6 +158,11 @@ namespace MAPIL
 									MapilTChar* pStr, ... )
 	{
 	}
+
+	MapilInt32 GLGraphicsFont::Get()
+	{
+	    return 0;
+	}
 #endif
 }
 

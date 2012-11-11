@@ -42,7 +42,9 @@ namespace MAPIL
 		~InputDevice();
 		MapilVoid Create();
 		MapilVoid Destroy();
+#if defined ( API_WIN32API )
 		COMPointer < IDirectInput8 > GetDev();
+#endif
 		MapilInt32 GetInputAPI() const;
 	};
 

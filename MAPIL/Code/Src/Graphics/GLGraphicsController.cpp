@@ -60,7 +60,9 @@ namespace MAPIL
 	MapilVoid GLGraphicsController::EndRendering()
 	{
 		m_pGC->Swap();
+#if defined ( API_WIN32API )
 		SwapBuffers( m_pDev->m_HDC );
+#endif
 		glFlush();
 	}
 	
@@ -268,7 +270,11 @@ namespace MAPIL
 		const MapilInt32 pixelDataSize = 24;
 
 
+#if defined ( API_WIN32API )
 		SharedPointer < WinAPIGraphicsContext > pContext;
+#elif defined ( API_GTK )
+		SharedPointer < GTKGraphicsContext > pContext;
+#endif
 		pContext.DownCast( m_pDev->GetContext() );
 
 		MapilInt32 width = pContext->GetWidth();
@@ -289,6 +295,7 @@ namespace MAPIL
 
 		ConvertToMultiByte( pFileName, len, fileName, len );
 		bmp.Open( fileName, FILE_OPEN_WRITE_MODE );
+#if defined ( API_WIN32API )
 		if( pContext->IsWndMode() ){
 			bmp.SetHeight( pContext->GetHeight() );
 			bmp.SetWidth( pContext->GetWidth() );
@@ -302,6 +309,7 @@ namespace MAPIL
 		}
 		else{
 		}
+#endif
 
 		bmp.Save( fileName, pixelDataSize );
 		bmp.Close();
