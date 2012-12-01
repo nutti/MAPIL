@@ -214,6 +214,24 @@ namespace MAPIL
 #endif	// API_WIN32API
 	}
 
+	MapilVoid GLSprite::DrawTexture(	SharedPointer < Texture > pTexture,
+										MapilFloat32 x, MapilFloat32 y,
+										MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
+	MapilVoid GLSprite::DrawScaledTexture(	SharedPointer < Texture > pTexture,
+											MapilFloat32 x, MapilFloat32 y, MapilFloat32 sx, MapilFloat32 sy,
+											MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
+	MapilVoid GLSprite::DrawRotateTexture(	SharedPointer < Texture > pTexture,
+											MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
+											MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
 	MapilVoid GLSprite::DrawString(	SharedPointer < GraphicsFont > pFont,
 									const MapilTChar* pStr,
 									const Matrix4x4 < MapilFloat32 >& mat )

@@ -60,6 +60,12 @@ namespace MAPIL
 									MapilInt32 height );
 	// Create point sprite.
 	MapilInt32 CreatePointSprite( MapilInt32 num, MapilInt32 texture );
+	// Create directional light.
+	MapilInt32 CreateDirectionalLight();
+	// Create point light.
+	MapilInt32 CreatePointLight();
+	// Create spot light.
+	MapilInt32 CreateSpotLight();
 	// Create static buffer.
 	MapilInt32 CreateStaticBuffer( const MapilChar* pFileName );
 	// Create static buffer from archive file.
@@ -76,6 +82,12 @@ namespace MAPIL
 	MapilVoid DeleteTexture( MapilUInt32 index );
 	// Delete point sprite.
 	MapilVoid DeletePointSprite( MapilUInt32 index );
+	// Delete directional light.
+	MapilVoid DeleteDirectionalLight( MapilUInt32 index );
+	// Delete point light.
+	MapilVoid DeletePointLight( MapilUInt32 index );
+	// Delete spot light.
+	MapilVoid DeleteSpotLight( MapilUInt32 index );
 	// Delete static buffer.
 	MapilVoid DeleteStaticBuffer( MapilUInt32 index );
 	// Delete streaming buffer.
@@ -147,6 +159,23 @@ namespace MAPIL
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal );
 	// Draw polygon 3D. (without resource holding.)
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal, MapilUInt32 textureID );
+
+	// Set diffuse color for directional light.
+	MapilVoid SetDirLightDifColor( MapilUInt32 index, MapilUInt32 color );
+	// Set ambient color for directional light.
+	MapilVoid SetDirLightAmbColor( MapilUInt32 index, MapilUInt32 color );
+	// Set specular color for directional light.
+	MapilVoid SetDirLightSpcColor( MapilUInt32 index, MapilUInt32 color );
+	// Set attenuation for directional light.
+	MapilVoid SetDirLightAttenuation( MapilUInt32 index, MapilFloat32 atten0, MapilFloat32 atten1, MapilFloat32 atten2 );
+	// Set direction for directional light.
+	MapilVoid SetDirLightDirection( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 z );
+	// Enable directional light.
+	MapilVoid EnableDirLight( MapilUInt32 index );
+
+	//------------------------------------------
+	// Sound.
+	//------------------------------------------
 
 	// Set master volume.
 	MapilVoid SetMasterVolume( MapilUInt32 volume );

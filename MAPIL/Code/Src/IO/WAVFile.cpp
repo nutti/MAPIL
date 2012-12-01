@@ -188,6 +188,17 @@ namespace MAPIL
 	// Load infomation data.
 	MapilVoid WAVFile::LoadInfo()
 	{
+		// "LIST" chunk will be not found, if seek is over listFoundOffset.
+		int listFoundOffset;
+		// For small files.
+		if( m_FileSize <= 1000000 ){
+			listFoundOffset = m_FileSize - ( m_FileSize / 10 );
+		}
+		// For big files.
+		else{
+			listFoundOffset = m_FileSize - 100000;
+		}
+
 		Assert(	m_OpenMode == FILE_OPEN_READ_MODE,
 					TSTR( "Mapil" ),
 					TSTR( "WAVFile" ),
@@ -216,13 +227,13 @@ namespace MAPIL
 				}
 			}
 			--infoPos;
-			if( infoPos <= 0 ){
+			if( infoPos <= listFoundOffset ){
 				break;
 			}
 		}
 
 		// Get information data.
-		if( infoPos > 0 ){
+		if( infoPos > listFoundOffset ){
 			m_InfoSize = m_FileSize - infoPos - 1;
 		}
 		else{
@@ -468,6 +479,17 @@ namespace MAPIL
 
 	MapilInt32 GetWAVFileInfo( const MapilChar* pData, MapilInt32 size )
 	{
+		// "LIST" chunk will be not found, if seek is over listFoundOffset.
+		int listFoundOffset;
+		// For small files.
+		if( size <= 1000000 ){
+			listFoundOffset = size - ( size / 10 );
+		}
+		// For big files.
+		else{
+			listFoundOffset = size - 100000;
+		}
+
 		const MapilChar* p = pData + size;
 
 		while( p >= pData ){
@@ -477,6 +499,9 @@ namespace MAPIL
 				}
 			}
 			--p;
+			if( p - pData <= listFoundOffset ){
+				break;
+			}
 		}
 
 		return -1;

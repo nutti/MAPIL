@@ -17,6 +17,9 @@
 #if defined ( API_DIRECT3D )
 
 #include <d3dx9.h>
+#include <vector>
+#include <map>
+#include <list>
 
 #include "Sprite.h"
 
@@ -26,7 +29,44 @@
 
 namespace MAPIL
 {
+
+	class SpriteCore
+	{
+	private:
+		struct VertexFormat
+		{
+			::D3DXVECTOR3			m_Pos;
+			::DWORD					m_Color;
+			::D3DXVECTOR2			m_TexCoord;
+		};
+		struct ImageUnit
+		{
+			::D3DXMATRIXA16				m_WorldMat;
+		};
+		struct ImageChunk
+		{
+			std::list < ImageUnit >		m_ImageUnits;
+			MapilUInt32					m_Width;
+			MapilUInt32					m_Height;
+		};
+		std::map < ::LPDIRECT3DTEXTURE9, ImageChunk >			m_ImgList;
+		SharedPointer < GraphicsDevice >						m_Dev;
+		std::vector < SpriteCore::VertexFormat >				m_Vertices;
+		::LPDIRECT3DVERTEXDECLARATION9							m_pVertexDecl;
+		MapilUInt32												m_WndWidth;
+		MapilUInt32												m_WndHeight;
+	public:
+		SpriteCore( SharedPointer < GraphicsDevice > dev );
+		~SpriteCore();
+		MapilVoid Begin();
+		MapilVoid End();
+		MapilVoid Commit( SharedPointer < Texture > texture, const ::D3DXMATRIXA16& worldMat );
+		MapilVoid Flush();
+	};
+
+
 	class GraphicsDevice;
+	class SpriteCore;
 	class D3DSprite : public Sprite
 	{
 	private:
@@ -79,6 +119,15 @@ namespace MAPIL
 		MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
 								const Matrix4x4 < MapilFloat32 >& mat,
 								MapilUInt32 color );
+		MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
+								MapilFloat32 x, MapilFloat32 y,
+								MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+		MapilVoid DrawScaledTexture(	SharedPointer < Texture > pTexture,
+										MapilFloat32 x, MapilFloat32 y, MapilFloat32 sx, MapilFloat32 sy,
+										MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+		MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
+										MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
+										MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
 		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.

@@ -16,6 +16,7 @@
 #include "../../Include/MAPIL/Graphics/D3DDirectionalLight.h"
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
+#include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 
 //-------------------------------------------------------------------
@@ -45,12 +46,9 @@ namespace MAPIL
 											const Vector3 < MapilFloat32 >& vDir,
 											MapilFloat32 attenuation0, MapilFloat32 attenuation1, MapilFloat32 attenuation2 )
 	{
-		Assert(	!m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "Create" ),
-				TSTR( "The directional light was already created." ),
-				-1 );
+		Assert(	!m_IsUsed, CURRENT_POSITION, TSTR( "The directional light was already created." ), -1 );
+
+		m_IsUsed = MapilTrue;
 
 		//Type of light
 		m_D3DLight.Type = ::D3DLIGHT_DIRECTIONAL;
@@ -58,19 +56,12 @@ namespace MAPIL
 		SetAmbientColor( colorAmbient );
 		SetSpecularColor( colorSpecular );
 		SetDirection( vDir );
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Enagle light
 	MapilVoid D3DDirectionalLight::Enable()
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "Enable" ),
-				TSTR( "Enable" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		//Case that light has already being drawn
 		if( m_IsActive ){

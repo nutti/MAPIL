@@ -126,11 +126,9 @@ namespace MAPIL
 						--empty;
 					}
 					Idle();
-					//Sleep( 1 );
 					// Pause state
 					while( m_IsPausing && m_IsPlaying ){
 						Idle();
-						//Sleep( 1 );
 					}
 					if( !m_IsPlaying ){
 						break;
@@ -139,7 +137,6 @@ namespace MAPIL
 			}
 			else{
 				Idle();
-				//Sleep( 1 );
 			}
 		}
 		
@@ -207,11 +204,9 @@ namespace MAPIL
 						--empty;
 					}
 					Idle();
-					//Sleep( 1 );
 					// Pause state
 					while( m_IsPausing && m_IsPlaying ){
 						Idle();
-						//Sleep( 1 );
 					}
 					if( !m_IsPlaying ){
 						break;
@@ -220,7 +215,6 @@ namespace MAPIL
 			}
 			else{
 				Idle();
-				//Sleep( 1 );
 			}
 		}
 
@@ -338,6 +332,7 @@ namespace MAPIL
 	MapilVoid ALStreamingBuffer::Stop()
 	{
 		alSourceStop( m_Src );
+		alSourceUnqueueBuffers( m_Src, 2, m_Bufs );
 		m_IsPlaying = MapilFalse;
 		m_IsPausing = MapilFalse;
 	}

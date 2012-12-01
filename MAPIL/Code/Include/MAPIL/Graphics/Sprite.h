@@ -80,6 +80,15 @@ namespace MAPIL
 		virtual MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
 										const Matrix4x4 < MapilFloat32 >& mat,
 										MapilUInt32 color ) = 0;
+		virtual MapilVoid DrawTexture(	SharedPointer < Texture > pTexture,
+										MapilFloat32 x, MapilFloat32 y,
+										MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
+		virtual MapilVoid DrawScaledTexture(	SharedPointer < Texture > pTexture,
+												MapilFloat32 x, MapilFloat32 y, MapilFloat32 sx, MapilFloat32 sy,
+												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
+		virtual MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
+												MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
+												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
 		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.

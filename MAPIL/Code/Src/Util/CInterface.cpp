@@ -79,6 +79,8 @@ namespace MAPIL
 	typedef ResourceTag < IGraphicsFont >		GraphicsFontTag;
 	typedef ResourceTag < IPointSprite >		PointSpriteTag;
 	typedef ResourceTag < ITexture >			TextureTag;
+	typedef ResourceTag < IDirectionalLight >	DirectionalLightTag;
+	typedef ResourceTag < IPointLight >			PointLightTag;
 	typedef ResourceTag < IStaticBuffer >		StaticBufferTag;
 	typedef ResourceTag < IStreamingBuffer >	StreamingBufferTag;
 
@@ -88,6 +90,8 @@ namespace MAPIL
 	typedef std::vector < GraphicsFontTag >		GraphicsFontList;
 	typedef std::vector < PointSpriteTag >		PointSpriteList;
 	typedef std::vector < TextureTag >			TextureList;
+	typedef std::vector < DirectionalLightTag >	DirectionalLightList;
+	typedef std::vector < PointLightTag >		PointLightList;
 	typedef std::vector < StaticBufferTag >		StaticBufferList;
 	typedef std::vector < StreamingBufferTag >	StreamingBufferList;
 
@@ -134,6 +138,8 @@ namespace MAPIL
 		GraphicsFontList		m_LocalGraphicsFontList;
 		PointSpriteList			m_LocalPointSpriteList;
 		TextureList				m_LocalTextureList;
+		DirectionalLightList	m_LocalDirectionalLightList;
+		PointLightList			m_LocalPointLightList;
 		StaticBufferList		m_LocalStaticBufferList;
 		StreamingBufferList		m_LocalStreamingBufferList;
 
@@ -172,6 +178,8 @@ namespace MAPIL
 										m_LocalGraphicsFontList(),
 										m_LocalPointSpriteList(),
 										m_LocalTextureList(),
+										m_LocalDirectionalLightList(),
+										m_LocalPointLightList(),
 										m_LocalStaticBufferList(),
 										m_LocalStreamingBufferList(),
 
@@ -608,6 +616,64 @@ namespace MAPIL
 		return index;
 	}
 
+	// Create directional light.
+	MapilInt32 CreateDirectionalLight()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		std::basic_string < MapilTChar > str = TSTR( "Local Directional Light " );
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalCameraList );
+		str += index;
+		DirectionalLightTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateDirectionalLight( str.c_str() );
+		tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
+								0.0f, 1.0f, 0.0f );
+		if( index == p->m_LocalDirectionalLightList.size() ){
+			p->m_LocalDirectionalLightList.push_back( tag );
+		}
+		else{
+			p->m_LocalDirectionalLightList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create point light.
+	MapilInt32 CreatePointLight()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		std::basic_string < MapilTChar > str = TSTR( "Local Point Light " );
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalCameraList );
+		str += index;
+		PointLightTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreatePointLight( str.c_str() );
+		tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+								MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
+								0.0f, 1.0f, 0.0f );
+		if( index == p->m_LocalPointLightList.size() ){
+			p->m_LocalPointLightList.push_back( tag );
+		}
+		else{
+			p->m_LocalPointLightList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create spot light.
+	MapilInt32 CreateSpotLight()
+	{
+		return -1;
+	}
+
 	// Create static buffer.
 	MapilInt32 CreateStaticBuffer( const MapilChar* pFileName )
 	{
@@ -742,6 +808,25 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		DeleteResource( &p->m_LocalPointSpriteList, index, CURRENT_POSITION );
+	}
+
+	// Delete directional light.
+	MapilVoid DeleteDirectionalLight( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		DeleteResource( &p->m_LocalDirectionalLightList, index, CURRENT_POSITION );
+	}
+
+	// Delete point light.
+	MapilVoid DeletePointLight( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		DeleteResource( &p->m_LocalPointLightList, index, CURRENT_POSITION );
+	}
+
+	// Delete spot light.
+	MapilVoid DeleteSpotLight( MapilUInt32 index )
+	{
 	}
 
 	// Delete static buffer.
@@ -938,7 +1023,7 @@ namespace MAPIL
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		MapilInt32 strLen = _vscprintf( pStr, list ) + 1;
 		if( strLen > 1024 ){
 			va_end( list );
 			return;
@@ -969,7 +1054,7 @@ namespace MAPIL
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		MapilInt32 strLen = _vscprintf( pStr, list ) + 1;
 		if( strLen > 1024 ){
 			va_end( list );
 			return;
@@ -996,16 +1081,17 @@ namespace MAPIL
 				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 
 		// Create transformation matrix.
-		Matrix4x4 < MapilFloat32 > mat;
-		if( centerize ){
-			CreateTranslationMat(	&mat,
-									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2 + x,
-									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 + y );
-		}
-		else{
-			CreateTranslationMat( &mat, x, y );
-		}
-		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
+		//Matrix4x4 < MapilFloat32 > mat;
+		//if( centerize ){
+		//	CreateTranslationMat(	&mat,
+		//							- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2 + x,
+		//							- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 + y );
+		//}
+		//else{
+		//	CreateTranslationMat( &mat, x, y );
+		//}
+		//p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, x, y, centerize, color );
 	}
 
 	// Draw texture ( with global sprite ).
@@ -1114,6 +1200,70 @@ namespace MAPIL
 		p->m_Canvas3D->DrawPolygon( pFmt, polygonTotal, p->m_LocalTextureList[ textureID ].m_Resource );
 	}
 
+	// Set diffuse color for directional light.
+	MapilVoid SetDirLightDifColor( MapilUInt32 index, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->SetDiffuseColor( MAPIL::ColorARGB < MapilUChar > (	( color >> 24 ) & 0xFF,
+																												( color >> 16 ) & 0xFF,
+																												( color >> 8 ) & 0xFF,
+																												color & 0xFF ) );
+	}
+
+	// Set ambient color for directional light.
+	MapilVoid SetDirLightAmbColor( MapilUInt32 index, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->SetAmbientColor( MAPIL::ColorARGB < MapilUChar > (	( color >> 24 ) & 0xFF,
+																												( color >> 16 ) & 0xFF,
+																												( color >> 8 ) & 0xFF,
+																												color & 0xFF ) );
+	}
+
+	// Set specular color for directional light.
+	MapilVoid SetDirLightSpcColor( MapilUInt32 index, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->SetSpecularColor( MAPIL::ColorARGB < MapilUChar > (	( color >> 24 ) & 0xFF,
+																												( color >> 16 ) & 0xFF,
+																												( color >> 8 ) & 0xFF,
+																												color & 0xFF ) );
+	}
+
+	// Set attenuation for directional light.
+	MapilVoid SetDirLightAttenuation( MapilUInt32 index, MapilFloat32 atten0, MapilFloat32 atten1, MapilFloat32 atten2 )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->SetAttenuation( atten0, atten1, atten2 );
+	}
+
+	// Set direction for directional light.
+	MapilVoid SetDirLightDirection( MapilUInt32 index, MapilFloat32 x, MapilFloat32 y, MapilFloat32 z )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->SetDirection( MAPIL::Vector3 < MapilFloat32 > ( x, y, z ) );
+	}
+
+	// Enable directional light.
+	MapilVoid EnableDirLight( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalDirectionalLightList.size() > index, CURRENT_POSITION,
+				TSTR( "Invalid index is inputted." ), -1 );
+		p->m_LocalDirectionalLightList[ index ].m_Resource->Enable();
+	}
+
+
 	// Set master volume.
 	MapilVoid SetMasterVolume( MapilUInt32 volume )
 	{
@@ -1150,8 +1300,11 @@ namespace MAPIL
 	MapilVoid PlayStreamingBuffer( MapilUInt32 index )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert(	p->m_LocalStreamingBufferList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+		if( p->m_LocalStreamingBufferList.size() <= index ){
+			return;
+		}
+		//Assert(	p->m_LocalStreamingBufferList.size() > index,
+		//		CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 		p->m_LocalStreamingBufferList[ index ].m_Resource->Play();
 	}
 
@@ -1422,7 +1575,7 @@ namespace MAPIL
 		::va_list list;
 		va_start( list, pStr );
 		MapilChar str[ MAXIMUM_STRING_LENGTH ];
-		MapilInt32 strLen = _vsctprintf( pStr, list ) + 1;
+		MapilInt32 strLen = _vscprintf( pStr, list ) + 1;
 		if( strLen > 1024 ){
 			va_end( list );
 			return;
