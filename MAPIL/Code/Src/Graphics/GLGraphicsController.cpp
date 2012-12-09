@@ -323,6 +323,11 @@ namespace MAPIL
 	MapilVoid GLGraphicsController::SetGraphicsFactory( GraphicsFactory* pFactory )
 	{
 	}
+
+	MapilInt32 GLGraphicsController::GetAlphaBlendMode() const
+	{
+		return 0;
+	}
 }
 
 #endif	// API_OPENGL

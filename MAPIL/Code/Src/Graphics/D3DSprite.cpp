@@ -31,175 +31,119 @@ namespace MAPIL
 
 	
 
-	SpriteCore::SpriteCore( SharedPointer < GraphicsDevice > dev ) : m_ImgList(), m_Dev( dev ), m_Vertices()
+	SpriteCore::SpriteCore( SharedPointer < GraphicsDevice > dev ) : m_DrawList(), m_Dev( dev )
 	{
-		m_ImgList.clear();
-		m_Vertices.clear();
-		m_Vertices.reserve( 2000 );
+		m_DrawList.clear();
 
-		D3DVERTEXELEMENT9 elements[] = {
-			{ 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION, 0 },	//Position
-			{ 0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0 },	//Color
-			{ 0, 16, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 }, //Texture coordinate
+		// Create common vertex buffer.
+		MapilFloat32 vertex[] = {	0.0f, 0.0f, 0.0f, 0.0f, 0.0f,	// v0
+									1.0f, 0.0f, 0.0f, 1.0f, 0.0f,	// v1
+									0.0f, 1.0f, 0.0f, 0.0f, 1.0f,	// v2
+									1.0f, 1.0f, 0.0f, 1.0f, 1.0f };	// v3
+		if( FAILED( m_Dev->GetDev().GetPointer()->CreateVertexBuffer(	sizeof( vertex ),
+																		0, 0, ::D3DPOOL_MANAGED,
+																		&m_pVertexBuf, 0 ) ) ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create vertex buffer." ), -1 );
+		}
+		MapilFloat32* p = 0;
+		m_pVertexBuf->Lock( 0, 0, reinterpret_cast < MapilVoid** > ( &p ), 0 );
+		::memcpy( p, vertex, sizeof( vertex ) );
+		m_pVertexBuf->Unlock();
+
+		// Create shader.
+		::ID3DXBuffer* pError = NULL;
+		if( FAILED( ::D3DXCreateEffectFromFile( m_Dev->GetDev().GetPointer(), TSTR( "sprite.fx" ), 0, 0, 0, 0, &m_pEffect, &pError ) ) ){
+			OutputDebugStringA( ( const MapilChar* ) ( pError->GetBufferPointer() ) );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create shader." ), -1 );
+		}
+
+		// Create vertex declaration.
+		::D3DVERTEXELEMENT9 elements[] = {
+			{ 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },	// Position.
+			{ 0, sizeof( MapilFloat32 ) * 3, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },	// Texture coordinate.
 			D3DDECL_END()
 		};
-
-		// Create vertex declaration
 		if( FAILED( m_Dev->GetDev().GetPointer()->CreateVertexDeclaration( elements, &m_pVertexDecl ) ) ){
 			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create vertex declaration." ), -1 );
 		}
+
+		m_WndWidth = 640.0f;
+		m_WndHeight = 480.0f;
 	}
 
 	SpriteCore::~SpriteCore()
 	{
-		m_ImgList.clear();
-		m_Vertices.clear();
+		m_DrawList.clear();
+		SafeRelease( m_pVertexBuf );
+		SafeRelease( m_pEffect );
+		SafeRelease( m_pVertexDecl );
 	}
 
 	MapilVoid SpriteCore::Begin()
 	{
-		m_ImgList.clear();
 	}
 
 	MapilVoid SpriteCore::End()
 	{
 		Flush();
+		m_DrawList.clear();
 	}
 
-	MapilVoid SpriteCore::Commit( SharedPointer < Texture > texture, const ::D3DXMATRIXA16& worldMat )
+	MapilVoid SpriteCore::Commit( SharedPointer < Texture > texture, const ::D3DXMATRIX& worldMat )
 	{
-		ImageUnit unit = { worldMat };
-		unit.m_WorldMat._42 = -unit.m_WorldMat._42;
+		SpriteData sprite = { worldMat, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 		::LPDIRECT3DTEXTURE9 tex = reinterpret_cast < ::LPDIRECT3DTEXTURE9 > ( texture->Get() );
-		m_ImgList[ tex ].m_Width = texture->GetSize().m_X;
-		m_ImgList[ tex ].m_Height = texture->GetSize().m_Y;
-		m_ImgList[ tex ].m_ImageUnits.push_back( unit );
+		m_DrawList[ tex ].push_back( sprite );
 	}
 
 	MapilVoid SpriteCore::Flush()
 	{
-		// Save current environment.
-		::D3DXMATRIXA16 origViewMat;
-		::D3DXMATRIXA16 origProjMat;
-		::DWORD origLighting;
-		m_Dev->GetDev().GetPointer()->GetTransform( ::D3DTS_VIEW, &origViewMat );
-		m_Dev->GetDev().GetPointer()->GetTransform( ::D3DTS_PROJECTION, &origProjMat );
-		m_Dev->GetDev().GetPointer()->GetRenderState( ::D3DRS_LIGHTING, &origLighting );
-
-		// Clear z-buffer.
-		m_Dev->GetDev().GetPointer()->Clear( 0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB( 40, 40, 80 ), 1.0f, 0 );
-
-		// Adopt transformation matrix for 2D rendering.
-		m_WndWidth = 640;
-		m_WndHeight = 480;
-		::D3DXMATRIXA16 newViewMat;
-		::D3DXMATRIXA16 newProjMat;
-		::D3DXMatrixIdentity( &newViewMat );
-		::D3DXMatrixIdentity( &newProjMat );
-		newProjMat._11 = 2.0f / m_WndWidth;
-		newProjMat._22 = 2.0f / m_WndHeight;
-		m_Dev->GetDev().GetPointer()->SetTransform( ::D3DTS_VIEW, &newViewMat );
-		m_Dev->GetDev().GetPointer()->SetTransform( ::D3DTS_PROJECTION, &newProjMat );
-
+		// Set vertex buffer and vertex declaration.
+		m_Dev->GetDev().GetPointer()->SetStreamSource( 0, m_pVertexBuf, 0, sizeof( MapilFloat32 ) * 5 );
 		m_Dev->GetDev().GetPointer()->SetVertexDeclaration( m_pVertexDecl );
 
-		// Draw all registered textures.
-		typedef std::map < ::LPDIRECT3DTEXTURE9, ImageChunk > ::iterator TextureIter;
-		typedef std::list < ImageUnit > ::iterator UnitIter;
-		
-		MapilFloat32 offsetX = m_WndWidth / 2.0f;
-		MapilFloat32 offsetY = m_WndHeight / 2.0f;
-		for( TextureIter it = m_ImgList.begin(); it != m_ImgList.end(); ++it ){
-			m_Dev->GetDev().GetPointer()->SetTexture( 0, it->first );
-			MapilBool firstTime = MapilTrue;
-			for( UnitIter uit = it->second.m_ImageUnits.begin(); uit != it->second.m_ImageUnits.end(); ++uit ){
-				
-				if( firstTime ){
-					SpriteCore::VertexFormat fmt[ 5 ];
-					fmt[ 0 ].m_Pos.x = -offsetX;
-					fmt[ 0 ].m_Pos.y = offsetY;
-					fmt[ 0 ].m_Pos.z = 0.1f;
-					fmt[ 0 ].m_Color = 0xFFFFFFFF;
-					fmt[ 0 ].m_TexCoord.x = 0.0f;
-					fmt[ 0 ].m_TexCoord.y = 0.0f;
-					fmt[ 1 ].m_Pos.x = -offsetX;
-					fmt[ 1 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 1 ].m_Pos.z = 0.1f;
-					fmt[ 1 ].m_Color = 0xFFFFFFFF;
-					fmt[ 1 ].m_TexCoord.x = 0.0f;
-					fmt[ 1 ].m_TexCoord.y = 1.0f;
-					fmt[ 2 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 2 ].m_Pos.y = offsetY;
-					fmt[ 2 ].m_Pos.z = 0.1f;
-					fmt[ 2 ].m_Color = 0xFFFFFFFF;
-					fmt[ 2 ].m_TexCoord.x = 1.0f;
-					fmt[ 2 ].m_TexCoord.y = 0.0f;
-					fmt[ 3 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 3 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 3 ].m_Pos.z = 0.1f;
-					fmt[ 3 ].m_Color = 0xFFFFFFFF;
-					fmt[ 3 ].m_TexCoord.x = 1.0f;
-					fmt[ 3 ].m_TexCoord.y = 1.0f;
-					fmt[ 4 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 4 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 4 ].m_Pos.z = 0.1f;
-					for( int i = 0; i < 5; ++i ){
-						::D3DXVec3TransformCoord( &fmt[ i ].m_Pos, &fmt[ i ].m_Pos, &uit->m_WorldMat );
-						m_Vertices.push_back( fmt[ i ] );
-					}
-					firstTime = MapilFalse;
-				}
-				else{
-					SpriteCore::VertexFormat fmt[ 6 ];
-					fmt[ 0 ].m_Pos.x = -offsetX;
-					fmt[ 0 ].m_Pos.y = offsetY;
-					fmt[ 0 ].m_Pos.z = 0.1f;
-					fmt[ 1 ].m_Pos.x = -offsetX;
-					fmt[ 1 ].m_Pos.y = offsetY;
-					fmt[ 1 ].m_Pos.z = 0.1f;
-					fmt[ 1 ].m_Color = 0xFFFFFFFF;
-					fmt[ 1 ].m_TexCoord.x = 0.0f;
-					fmt[ 1 ].m_TexCoord.y = 0.0f;
-					fmt[ 2 ].m_Pos.x = -offsetX;
-					fmt[ 2 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 2 ].m_Pos.z = 0.1f;
-					fmt[ 2 ].m_Color = 0xFFFFFFFF;
-					fmt[ 2 ].m_TexCoord.x = 0.0f;
-					fmt[ 2 ].m_TexCoord.y = 1.0f;
-					fmt[ 3 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 3 ].m_Pos.y = offsetY;
-					fmt[ 3 ].m_Pos.z = 0.1f;
-					fmt[ 3 ].m_Color = 0xFFFFFFFF;
-					fmt[ 3 ].m_TexCoord.x = 1.0f;
-					fmt[ 3 ].m_TexCoord.y = 0.0f;
-					fmt[ 4 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 4 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 4 ].m_Pos.z = 0.1f;
-					fmt[ 4 ].m_Color = 0xFFFFFFFF;
-					fmt[ 4 ].m_TexCoord.x = 1.0f;
-					fmt[ 4 ].m_TexCoord.y = 1.0f;
-					fmt[ 5 ].m_Pos.x = -offsetX + it->second.m_Width;
-					fmt[ 5 ].m_Pos.y = offsetY - it->second.m_Height;
-					fmt[ 5 ].m_Pos.z = 0.1f;
-					for( int i = 0; i < 6; ++i ){
-						::D3DXVec3TransformCoord( &fmt[ i ].m_Pos, &fmt[ i ].m_Pos, &uit->m_WorldMat );
-						m_Vertices.push_back( fmt[ i ] );
-					}
-				}
+		// Create projection matrix.
+		::D3DXMATRIX projMat;
+		::D3DXMatrixIdentity( &projMat );
+		// Left-top coord is (0,0).
+		projMat._41 = -1.0f;
+		projMat._42 = 1.0f;
+		// Pseudo-screen transformation.
+		projMat._11 = 2.0f / m_WndWidth;
+		projMat._22 = -2.0f / m_WndHeight;
+
+		// Configure shader.
+		::UINT passTotal = 0;
+		m_pEffect->SetTechnique( "Tech" );
+		m_pEffect->Begin( &passTotal, 0 );
+		m_pEffect->BeginPass( 0 );
+
+		// Draw all registered sprite.
+		DrawSpriteList::iterator itTex = m_DrawList.begin();
+		for( ; itTex != m_DrawList.end(); ++itTex ){
+			m_pEffect->SetTexture( "tex", itTex->first );
+			m_pEffect->SetMatrix( "proj", &projMat );
+			typedef std::vector < SpriteData >	SpriteList;
+			SpriteList::iterator it = itTex->second.begin();
+			for( ; it != itTex->second.end(); ++it ){
+				// Setup shader parameter.
+				::D3DXMATRIX world;
+				::D3DXMatrixScaling( &world, 128.0f, 128.0f, 1.0f );
+				world = world * it->m_TransMat;
+				m_pEffect->SetMatrix( "world", &world );
+				m_pEffect->SetFloat( "uv_left", it->m_UVLeft );
+				m_pEffect->SetFloat( "uv_top", it->m_UVTop );
+				m_pEffect->SetFloat( "uv_width", it->m_UVHeight );
+				m_pEffect->SetFloat( "uv_height", it->m_UVHeight );
+				m_pEffect->SetFloat( "alpha", it->m_Alpha );
+				// Change notification of shader parameter.
+				m_pEffect->CommitChanges();
+				m_Dev->GetDev().GetPointer()->DrawPrimitive( ::D3DPT_TRIANGLESTRIP, 0, 2 );
 			}
-			m_Dev->GetDev().GetPointer()->DrawPrimitiveUP(	::D3DPT_TRIANGLESTRIP,
-															m_Vertices.size() - 3,
-															&m_Vertices[ 0 ],
-															sizeof( SpriteCore::VertexFormat ) );
-			m_Vertices.clear();
 		}
-
-		// Restore previous environment.
-		m_Dev->GetDev().GetPointer()->SetTransform( ::D3DTS_VIEW, &origViewMat );
-		m_Dev->GetDev().GetPointer()->SetTransform( ::D3DTS_PROJECTION, &origProjMat );
-		m_Dev->GetDev().GetPointer()->GetRenderState( ::D3DRS_LIGHTING, &origLighting );
-
-		m_ImgList.clear();
+		
+		m_pEffect->EndPass();
+		m_pEffect->End();
 	}
 
 
@@ -215,55 +159,38 @@ namespace MAPIL
 		m_IsUsed = MapilFalse;
 	}
 
-	MapilVoid D3DSprite::Create()
+	MapilVoid D3DSprite::Create( SharedPointer < GraphicsController > pCtrl )
 	{
-		Assert(	!m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "Create" ),
-				TSTR( "The sprite was already created." ),
-				-1 );
+		Assert(	!m_IsUsed, CURRENT_POSITION, TSTR( "The sprite was already created." ), -1 );
 
 		//Create sprite
 		if( FAILED( D3DXCreateSprite( m_pDev->GetDev().GetPointer(), &m_pD3DSprite ) ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "Sprite" ),
-									TSTR( "Create" ),
-									TSTR( "Failed to create sprite." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to create sprite." ), -1 );
 		}
+
+		m_pGraphicsCtrl = pCtrl;
 
 		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid D3DSprite::Begin()
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "Begin" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
-		//Begin drawing sprite
-	//	if( isAlphaBlendEnable ){
-			m_pD3DSprite->Begin( D3DXSPRITE_ALPHABLEND );
-	//	}
-	//	else{
-	//		m_pD3DSprite->Begin( 0 );
-	//	}
+		m_PrevAlphaBlendMode = m_pGraphicsCtrl->GetAlphaBlendMode();
+
+		m_pD3DSprite->Begin( D3DXSPRITE_ALPHABLEND );
+
+		m_pGraphicsCtrl->SetAlphaBlendMode( ALPHA_BLEND_MODE_SEMI_TRANSPARENT );
 	}
 
 	MapilVoid D3DSprite::End()
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "End" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
 		m_pD3DSprite->End();
+
+		m_pGraphicsCtrl->SetAlphaBlendMode( m_PrevAlphaBlendMode );
 	}
 
 	// Draw texture.
@@ -277,12 +204,7 @@ namespace MAPIL
 										const Matrix4x4 < MapilFloat32 >& mat,
 										MapilUInt32 color )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "DrawTexture" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
 		D3DXMATRIXA16 matWorld;
 		for( MapilInt32 i = 0; i < 4; ++i ){
@@ -308,11 +230,7 @@ namespace MAPIL
 										NULL,
 										NULL,
 										color ) ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "D3DSprite" ),
-									TSTR( "DrawTexture" ),
-									TSTR( "Failed to draw." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to draw." ), -1 );
 		}
 	}
 
@@ -321,12 +239,7 @@ namespace MAPIL
 										ImageTransformationMethod method,
 										const Vector2 < MapilFloat32 >& v )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "DrawTexture" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
 		D3DXMATRIXA16 matWorld;
 
@@ -375,11 +288,7 @@ namespace MAPIL
 										NULL,
 										NULL,
 										D3DCOLOR_ARGB( 255, 255, 255, 255 ) ) ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "D3DSprite" ),
-									TSTR( "DrawTexture" ),
-									TSTR( "Failed to draw." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to draw." ), -1 );
 		}
 	}
 
@@ -465,18 +374,24 @@ namespace MAPIL
 	{
 	}
 
+	MapilVoid D3DSprite::SetAlphaBlendMode( MapilInt32 mode )
+	{
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
+
+		if( mode != m_pGraphicsCtrl->GetAlphaBlendMode() ){
+			m_pD3DSprite->End();
+			m_pD3DSprite->Begin( D3DXSPRITE_ALPHABLEND );
+			m_pGraphicsCtrl->SetAlphaBlendMode( mode );
+		}
+	}
+
 	MapilVoid D3DSprite::DrawString(	SharedPointer < GraphicsFont > pFont,
 										const MapilTChar* pStr,
 										ImageTransformationMethod method,
 										const Vector2 < MapilFloat32 >& v,
 										MapilUInt32 color )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "DrawString" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
 		//World coordinate transformation
 		D3DXMATRIXA16 matWorld;
@@ -489,11 +404,7 @@ namespace MAPIL
 																					NULL,										//Region of drawing
 																					DT_LEFT | DT_NOCLIP,						//Style
 																					color ) ) ){		//Character color
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "D3DSprite" ),
-									TSTR( "DrawString" ),
-									TSTR( "Failed to draw." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to draw." ), -1 );
 		}
 	}
 
@@ -501,12 +412,7 @@ namespace MAPIL
 										const MapilTChar* pStr,
 										const Matrix4x4 < MapilFloat32 >& mat )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DSprite" ),
-				TSTR( "DrawString" ),
-				TSTR( "The sprite isn't created yet." ),
-				-1 );
+		Assert( m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
 
 		//World coordinate transformation
 		D3DXMATRIXA16 matWorld;
@@ -523,11 +429,7 @@ namespace MAPIL
 																					NULL,										//Region of drawing
 																					DT_LEFT | DT_NOCLIP,						//Style
 																					D3DCOLOR_XRGB( 255, 255, 255 ) ) ) ){		//Character color
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "D3DSprite" ),
-									TSTR( "DrawString" ),
-									TSTR( "Failed to draw." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to draw." ), -1 );
 		}
 	}
 

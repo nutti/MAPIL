@@ -530,6 +530,11 @@ namespace MAPIL
 	{
 		m_pGraphicsFactory = pFactory;
 	}
+
+	MapilInt32 D3DGraphicsController::GetAlphaBlendMode() const
+	{
+		return m_AlphaBlendMode;
+	}
 }
 
 #endif	// DIRECT3D_VERSION

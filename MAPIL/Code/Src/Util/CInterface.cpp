@@ -300,7 +300,7 @@ namespace MAPIL
 										0.0f, 0.0f, 0.0f, 0.0f );
 				// Create sprite object.
 				p->m_Sprite = p->m_pGraphicsFactory->CreateSprite( TSTR( "Global Sprite" ) );
-				p->m_Sprite->Create();
+				p->m_Sprite->Create( p->m_GraphicsCtrl );
 				// Create graphics font object.
 				p->m_GraphicsFont = p->m_pGraphicsFactory->CreateGraphicsFont( TSTR( "Global Graphics Font" ) );
 				FontFormat fmt;
@@ -1002,6 +1002,14 @@ namespace MAPIL
 		p->m_GraphicsCtrl->SetAlphaBlendMode( mode );
 	}
 
+	// Set sprite alpha blend mode.
+	MapilVoid Set2DAlphaBlendingMode( MapilInt32 mode )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		p->m_Sprite->SetAlphaBlendMode( mode );
+	}
+
 	// Set view port.
 	MapilVoid SetViewPort( MapilInt32 x, MapilInt32 y, MapilInt32 width, MapilInt32 height )
 	{
@@ -1078,7 +1086,7 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index );
 
 		// Create transformation matrix.
 		//Matrix4x4 < MapilFloat32 > mat;
@@ -1099,7 +1107,7 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index );
 
 		// Create transformation matrix.
 		Matrix4x4 < MapilFloat32 > mat;
@@ -1128,7 +1136,7 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index );
 
 		// Create transformation matrix.
 		Matrix4x4 < MapilFloat32 > mat;
@@ -1157,7 +1165,7 @@ namespace MAPIL
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalTextureList.size() > index,
-				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index + 50 );
 
 		// Create transformation matrix.
 		Matrix4x4 < MapilFloat32 > mat;
@@ -1503,6 +1511,31 @@ namespace MAPIL
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
 		tag.m_Resource->Create( str.c_str() );
+		if( index == p->m_LocalModelList.size() ){
+			p->m_LocalModelList.push_back( tag );
+		}
+		else{
+			p->m_LocalModelList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create model (From archiver).
+	MapilUInt32 CreateModel( MapilUInt32 archiveHandle, const MapilChar* pXFilePath, const MapilChar* pTexFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid archive index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pXFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		ConvertToTChar( pTexFilePath, -1, tstr, 1024 );
+		MapilInt32 index = GetEmptyIndex( &p->m_LocalModelList );
+		ModelTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
+		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str(), tstr );
 		if( index == p->m_LocalModelList.size() ){
 			p->m_LocalModelList.push_back( tag );
 		}

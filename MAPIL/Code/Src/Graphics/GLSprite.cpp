@@ -34,7 +34,7 @@ namespace MAPIL
 	{
 	}
 
-	MapilVoid GLSprite::Create()
+	MapilVoid GLSprite::Create( SharedPointer < GraphicsController > pCtrl )
 	{
 	}
 
@@ -229,6 +229,10 @@ namespace MAPIL
 	MapilVoid GLSprite::DrawRotateTexture(	SharedPointer < Texture > pTexture,
 											MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
 											MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
+	MapilVoid GLSprite::SetAlphaBlendMode( MapilInt32 mode )
 	{
 	}
 

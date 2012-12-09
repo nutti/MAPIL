@@ -158,6 +158,8 @@ namespace MAPIL
 		*	@param pFactory		Graphics factory.
 		*/
 		virtual MapilVoid SetGraphicsFactory( GraphicsFactory* pFactory ) = 0;
+
+		virtual MapilInt32 GetAlphaBlendMode() const = 0;
 	};
 }
 

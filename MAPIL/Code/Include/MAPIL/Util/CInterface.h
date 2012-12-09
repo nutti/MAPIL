@@ -132,6 +132,8 @@ namespace MAPIL
 	MapilVoid SetCullingMode( MapilInt32 mode );
 	// Set alphablend mode.
 	MapilVoid SetAlphaBlendingMode( MapilInt32 mode );
+	// Set sprite alpha blend mode.
+	MapilVoid Set2DAlphaBlendingMode( MapilInt32 mode );
 	// Set view port.
 	MapilVoid SetViewPort( MapilInt32 x, MapilInt32 y, MapilInt32 width, MapilInt32 height );
 
@@ -235,6 +237,8 @@ namespace MAPIL
 
 	// Create local model.
 	MapilUInt32 CreateModel( const MapilChar* pFileName );
+	// Create local model (From archiver).
+	MapilUInt32 CreateModel( MapilUInt32 archiveHandle, const MapilChar* pXFilePath, const MapilChar* pTexFilePath );
 	// Draw model.
 	MapilVoid DrawModel( MapilUInt32 id, const Matrix4x4 < MapilFloat32 >& mat );
 	// Create local rectangle 3D.

@@ -60,7 +60,7 @@ namespace MAPIL
 		/**
 		*	@brief		Instantiate the GLSprite object.
 		*/
-		MapilVoid Create();
+		MapilVoid Create( SharedPointer < GraphicsController > pCtrl );
 		/**
 		*	@brief Begin to draw.
 		*/
@@ -103,6 +103,7 @@ namespace MAPIL
 		MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
 										MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
 										MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+		MapilVoid SetAlphaBlendMode( MapilInt32 mode );
 		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.

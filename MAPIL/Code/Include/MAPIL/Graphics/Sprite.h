@@ -24,6 +24,8 @@
 #include "../Type.h"
 #include "ConstNums.h"
 
+#include "GraphicsController.h"
+
 //-------------------------------------------------------------------
 // Definitions.
 //-------------------------------------------------------------------
@@ -46,7 +48,7 @@ namespace MAPIL
 		/**
 		*	@brief Instantiate the Sprite object.
 		*/
-		virtual MapilVoid Create() = 0;
+		virtual MapilVoid Create( SharedPointer < GraphicsController > pCtrl ) = 0;
 		/**
 		*	@brief Begin to draw.
 		*/
@@ -89,6 +91,7 @@ namespace MAPIL
 		virtual MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
 												MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
 												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
+		virtual MapilVoid SetAlphaBlendMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.

@@ -33,45 +33,48 @@ namespace MAPIL
 	class SpriteCore
 	{
 	private:
-		struct VertexFormat
+		struct SpriteData
 		{
-			::D3DXVECTOR3			m_Pos;
-			::DWORD					m_Color;
-			::D3DXVECTOR2			m_TexCoord;
+			::D3DXMATRIX	m_TransMat;
+			FLOAT			m_UVLeft;
+			FLOAT			m_UVTop;
+			FLOAT			m_UVWidth;
+			FLOAT			m_UVHeight;
+			FLOAT			m_Alpha;
 		};
-		struct ImageUnit
+		struct SpriteBatch
 		{
-			::D3DXMATRIXA16				m_WorldMat;
+			std::vector < SpriteData >		m_SpriteData;
+			MapilInt32						m_SpriteTotal;
 		};
-		struct ImageChunk
-		{
-			std::list < ImageUnit >		m_ImageUnits;
-			MapilUInt32					m_Width;
-			MapilUInt32					m_Height;
-		};
-		std::map < ::LPDIRECT3DTEXTURE9, ImageChunk >			m_ImgList;
-		SharedPointer < GraphicsDevice >						m_Dev;
-		std::vector < SpriteCore::VertexFormat >				m_Vertices;
-		::LPDIRECT3DVERTEXDECLARATION9							m_pVertexDecl;
-		MapilUInt32												m_WndWidth;
-		MapilUInt32												m_WndHeight;
+		typedef std::map < ::LPDIRECT3DTEXTURE9, std::vector < SpriteData > >	DrawSpriteList;
+
+		SharedPointer < GraphicsDevice >		m_Dev;
+		DrawSpriteList							m_DrawList;
+		::LPDIRECT3DVERTEXDECLARATION9			m_pVertexDecl;
+		::IDirect3DVertexBuffer9*				m_pVertexBuf;
+		::ID3DXEffect*							m_pEffect;
+		MapilUInt32								m_WndWidth;
+		MapilUInt32								m_WndHeight;
 	public:
 		SpriteCore( SharedPointer < GraphicsDevice > dev );
 		~SpriteCore();
 		MapilVoid Begin();
 		MapilVoid End();
-		MapilVoid Commit( SharedPointer < Texture > texture, const ::D3DXMATRIXA16& worldMat );
+		MapilVoid Commit( SharedPointer < Texture > texture, const ::D3DXMATRIX& worldMat );
 		MapilVoid Flush();
 	};
 
 
 	class GraphicsDevice;
-	class SpriteCore;
+	//class SpriteCore;
 	class D3DSprite : public Sprite
 	{
 	private:
-		::LPD3DXSPRITE			m_pD3DSprite;		///< Handler.
-		MapilBool				m_IsUsed;			///< The flag shows that the object is already used.
+		::LPD3DXSPRITE							m_pD3DSprite;		///< Handler.
+		MapilBool								m_IsUsed;			///< The flag shows that the object is already used.
+		SharedPointer < GraphicsController >	m_pGraphicsCtrl;
+		MapilInt32								m_PrevAlphaBlendMode;
 	public:
 		/**
 		*	@brief		Constructor.
@@ -85,7 +88,7 @@ namespace MAPIL
 		/**
 		*	@brief		Instantiate the D3DSprite object.
 		*/
-		MapilVoid Create();
+		MapilVoid Create( SharedPointer < GraphicsController > pCtrl );
 		/**
 		*	@brief Begin to draw.
 		*/
@@ -128,6 +131,7 @@ namespace MAPIL
 		MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
 										MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
 										MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+		MapilVoid SetAlphaBlendMode( MapilInt32 mode );
 		/**
 		*	@brief			Draw string.
 		*	@param pFont	SharedPointer to the GraphicsFont object to be drawn.
