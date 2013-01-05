@@ -1506,7 +1506,6 @@ namespace MAPIL
 		ConvertToTChar( pFileName, -1, tstr, 1024 );
 		std::basic_string < MapilTChar > str = tstr;
 		MapilUInt32 index = GetEmptyIndex( &p->m_LocalModelList );
-		str += index;
 		ModelTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );

@@ -185,55 +185,67 @@ namespace MAPIL
 		m_Stream.read( reinterpret_cast < MapilChar* > ( &m_Header.m_DataSize ), sizeof( m_Header.m_DataSize ) );
 	}
 
-	// Load infomation data.
-	MapilVoid WAVFile::LoadInfo()
+	// Get information position.
+	MapilInt32 WAVFile::GetChunkPos( const MapilChar* pChunkName )
 	{
-		// "LIST" chunk will be not found, if seek is over listFoundOffset.
-		int listFoundOffset;
+		int nameLen = ::strlen( pChunkName );
+
+		// Chunk will be not found, if seek is over chunkFoundOffset.
+		int chunkFoundOffset;
 		// For small files.
 		if( m_FileSize <= 1000000 ){
-			listFoundOffset = m_FileSize - ( m_FileSize / 10 );
+			chunkFoundOffset = m_FileSize - ( m_FileSize / 10 );
 		}
 		// For big files.
 		else{
-			listFoundOffset = m_FileSize - 100000;
+			chunkFoundOffset = m_FileSize - 100000;
 		}
 
-		Assert(	m_OpenMode == FILE_OPEN_READ_MODE,
-					TSTR( "Mapil" ),
-					TSTR( "WAVFile" ),
-					TSTR( "LoadInfo" ),
-					TSTR( "Open mode isn't read mode." ),
-					-1 );
-
-		// Get LIST position.
-		MapilInt32 infoPos = 0;
-		MapilBool doesDetect = MapilFalse;
+		MapilInt32 chunkPos = 0;
 		m_Stream.seekg( 0, std::ios::end );
-		infoPos = static_cast < MapilInt32 > ( m_Stream.tellg() );
-		--infoPos;
+		chunkPos = static_cast < MapilInt32 > ( m_Stream.tellg() );
+		--chunkPos;
 		while( 1 ){
-			m_Stream.seekg( infoPos, std::ios::beg );
+			m_Stream.seekg( chunkPos, std::ios::beg );
 			MapilChar c = 0;
 			m_Stream.read( &c, sizeof( c ) );
-			if( c == 'T' ){
-				m_Stream.seekg( -4, std::ios::cur );
+			if( c == pChunkName[ nameLen - 1 ] ){
+				m_Stream.seekg( -nameLen, std::ios::cur );
 				MapilChar str[ 5 ];
 				m_Stream.read( str, sizeof( str ) - 1 );
-				str[ 4 ] = '\0';
-				if( !strcmp( str, "LIST" ) ){
-					infoPos -= 4;
+				str[ nameLen ] = '\0';
+				if( !strcmp( str, pChunkName ) ){
+					chunkPos -= 4;
 					break;
 				}
 			}
-			--infoPos;
-			if( infoPos <= listFoundOffset ){
-				break;
+			--chunkPos;
+			if( chunkPos <= chunkFoundOffset ){
+				return -1;
+			}
+		}
+
+		return chunkPos;
+	}
+
+	// Load infomation data.
+	MapilVoid WAVFile::LoadInfo()
+	{
+		Assert(	m_OpenMode == FILE_OPEN_READ_MODE, CURRENT_POSITION, TSTR( "Open mode isn't read mode." ), -1 );
+
+		MapilChar* pChunkNames[] = { "LIST", "smpl" };
+
+		MapilInt32 infoPos = m_FileSize;
+
+		for( MapilInt32 i = 0; i < sizeof( pChunkNames ) / sizeof( MapilChar* ); ++i ){
+			MapilInt32 chunkPos = GetChunkPos( pChunkNames[ i ] );
+			if( chunkPos < infoPos && chunkPos != -1 ){
+				infoPos = chunkPos;
 			}
 		}
 
 		// Get information data.
-		if( infoPos > listFoundOffset ){
+		if( infoPos < m_FileSize ){
 			m_InfoSize = m_FileSize - infoPos - 1;
 		}
 		else{
@@ -477,29 +489,31 @@ namespace MAPIL
 		LoadDataFromMemory( p, &pHeader->m_DataSize, sizeof( pHeader->m_DataSize ) );
 	}
 
-	MapilInt32 GetWAVFileInfo( const MapilChar* pData, MapilInt32 size )
+	MapilInt32 GetWAVFileChunkPos( const MapilChar* pChunkName, const MapilChar* pData, MapilInt32 size )
 	{
-		// "LIST" chunk will be not found, if seek is over listFoundOffset.
-		int listFoundOffset;
+		MapilInt32 nameLen = ::strlen( pChunkName );
+
+		// Chunk will be not found, if seek is over chunkFoundOffset.
+		MapilInt32 chunkFoundOffset;
 		// For small files.
 		if( size <= 1000000 ){
-			listFoundOffset = size - ( size / 10 );
+			chunkFoundOffset = size - ( size / 10 );
 		}
 		// For big files.
 		else{
-			listFoundOffset = size - 100000;
+			chunkFoundOffset = size - 100000;
 		}
 
 		const MapilChar* p = pData + size;
 
 		while( p >= pData ){
-			if( *p == 'T' ){
-				if( !::strncmp( p - 3, "LIST", 4 ) ){
-					return p - pData - 3;
+			if( *p == pChunkName[ nameLen - 1 ] ){
+				if( !::strncmp( p - ( nameLen - 1 ), pChunkName, nameLen ) ){
+					return p - pData - ( nameLen - 1 );
 				}
 			}
 			--p;
-			if( p - pData <= listFoundOffset ){
+			if( p - pData <= chunkFoundOffset ){
 				break;
 			}
 		}

@@ -106,10 +106,16 @@ namespace MAPIL
 
 		WAVFileHeader wfh;
 		GetWAVFileHeader( m_pWavData, &wfh );
-		int infoPos = GetWAVFileInfo( m_pWavData, size );		// LISTî•ñ‚ÌêŠ
-		// LISTî•ñ‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡
-		if( infoPos <= -1 ){
-			infoPos = size;
+
+		// Šeíî•ñ‚ÌêŠ‚ğæ“¾
+		MapilChar* pChunkNames[] = { "LIST", "smpl" };
+		MapilInt32 infoPos = size;
+
+		for( MapilInt32 i = 0; i < sizeof( pChunkNames ) / sizeof( MapilChar* ); ++i ){
+			MapilInt32 chunkPos = GetWAVFileChunkPos( pChunkNames[ i ], m_pWavData, size );
+			if( chunkPos < infoPos && chunkPos != -1 ){
+				infoPos = chunkPos;
+			}
 		}
 
 		SafeDeleteArray( m_pWavData );

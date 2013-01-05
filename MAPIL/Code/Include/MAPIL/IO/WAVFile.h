@@ -44,6 +44,8 @@ namespace MAPIL
 		MapilInt32								m_InfoSize;		// Information size.
 		FileOpenMode							m_OpenMode;		// Open mode.
 		MapilInt32								m_FileSize;		// File size.
+
+		MapilInt32 GetChunkPos( const MapilChar* pChunkName );
 	public:
 		// Constructor.
 		WAVFile();
@@ -105,7 +107,7 @@ namespace MAPIL
 
 	MapilVoid GetWAVFileHeader( const MapilChar* pData, WAVFileHeader* pHeader );
 
-	MapilInt32 GetWAVFileInfo( const MapilChar* pData, MapilInt32 size );
+	MapilInt32 GetWAVFileChunkPos( const MapilChar* pChunkName, const MapilChar* pData, MapilInt32 size );
 }
 
 #endif
