@@ -365,6 +365,20 @@ namespace MAPIL
 		SetupInput();
 		SetupSound();
 
+		ResourceHolder* p = ResourceHolder::GetInst();
+
+		// For multi-thread bugs.
+		p->m_LocalRectangle3DList.reserve( 200 );
+		p->m_LocalModelList.reserve( 200 );
+		p->m_LocalCameraList.reserve( 200 );
+		p->m_LocalGraphicsFontList.reserve( 200 );
+		p->m_LocalPointSpriteList.reserve( 200 );
+		p->m_LocalTextureList.reserve( 200 );
+		p->m_LocalDirectionalLightList.reserve( 200 );
+		p->m_LocalPointLightList.reserve( 200 );
+		p->m_LocalStaticBufferList.reserve( 200 );
+		p->m_LocalStreamingBufferList.reserve( 200 );
+
 		return 0;
 	}
 
