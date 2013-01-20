@@ -262,7 +262,7 @@ namespace MAPIL
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
 				break;
-			case ALPHA_BLEND_MODE_SUBTRACT:					//Subtraction (DEST*(1-SRC)-SRC*RGBA(0,0,0,0))
+			case ALPHA_BLEND_MODE_SUBTRACT_1:					//Subtraction (DEST*(1-SRC)-SRC*RGBA(0,0,0,0))
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_ZERO );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR );
@@ -282,10 +282,20 @@ namespace MAPIL
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_INVDESTCOLOR );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
 				break;
-			case ALPHA_BLEND_MODE_REVERSE:					//Reverse (SRC*(1-DEST)+DEST*(1-SRC))
+			case ALPHA_BLEND_MODE_REVERSE_1:					//Reverse (SRC*(1-DEST)+DEST*(1-SRC))
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_ADD );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_INVDESTCOLOR );
 				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR );
+				break;
+			case ALPHA_BLEND_MODE_SUBTRACT_2:
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT );
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_DESTALPHA );
+				break;
+			case ALPHA_BLEND_MODE_REVERSE_2:
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_BLENDOP, D3DBLENDOP_ADD );
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_INVDESTALPHA );
+				m_pDev->GetDev().GetPointer()->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
 				break;
 			default:
 				break;

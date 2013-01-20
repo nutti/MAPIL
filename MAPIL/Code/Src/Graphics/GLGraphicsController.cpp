@@ -135,7 +135,7 @@ namespace MAPIL
 			case ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT:
 				glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 				break;
-			case ALPHA_BLEND_MODE_SUBTRACT:
+			case ALPHA_BLEND_MODE_SUBTRACT_1:
 				glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
 				break;
 			case ALPHA_BLEND_MODE_MULTIPLY_1:
@@ -147,7 +147,7 @@ namespace MAPIL
 			case ALPHA_BLEND_MODE_SCREEN:
 				glBlendFunc( GL_ONE_MINUS_DST_COLOR, GL_ONE );
 				break;
-			case ALPHA_BLEND_MODE_REVERSE:
+			case ALPHA_BLEND_MODE_REVERSE_1:
 				glBlendFunc( GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR );
 				break;
 			default:

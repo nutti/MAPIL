@@ -130,11 +130,14 @@ namespace MAPIL
 		ALPHA_BLEND_MODE_SEMI_TRANSPARENT		= 2,	///< Semi transparent.
 		ALPHA_BLEND_MODE_ADD					= 3,	///< Addition.
 		ALPHA_BLEND_MODE_ADD_SEMI_TRANSPARENT	= 4,	///< Addition and semi transparent.
-		ALPHA_BLEND_MODE_SUBTRACT				= 5,	///< Subtraction.
+		ALPHA_BLEND_MODE_SUBTRACT_1				= 5,	///< Subtraction 1.
 		ALPHA_BLEND_MODE_MULTIPLY_1				= 6,	///< Multiplication 1.
 		ALPHA_BLEND_MODE_MULTIPLY_2				= 7,	///< Multiplication 2.
 		ALPHA_BLEND_MODE_SCREEN					= 8,	///< Screen.
-		ALPHA_BLEND_MODE_REVERSE				= 9,	///< Reverse.
+		ALPHA_BLEND_MODE_REVERSE_1				= 9,	///< Reverse 1.
+		ALPHA_BLEND_MODE_SUBTRACT_2				= 10,	///< Subtraction 2.
+		ALPHA_BLEND_MODE_REVERSE_2				= 11,	///< Reverse 2.
+		ALPHA_BLEND_MODE_TOTAL,
 	};
 
 	/**
