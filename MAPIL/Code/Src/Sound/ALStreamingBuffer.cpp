@@ -63,6 +63,8 @@ namespace MAPIL
 		alDeleteBuffers( 2, m_Bufs );
 
 		ZeroObject( m_Pos, sizeof( m_Pos ) );
+
+		m_IsUsed = MapilFalse;
 	}
 
 	MapilInt32 ALStreamingBuffer::WAVFileThread()
@@ -256,6 +258,7 @@ namespace MAPIL
 #elif defined ( API_POSIX )
 		POSIXThread::Create();
 #endif
+		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid ALStreamingBuffer::Create( const MapilTChar* pArchiveFileName, const MapilTChar* pFileName )
@@ -290,6 +293,7 @@ namespace MAPIL
 #elif defined ( API_POSIX )
 		POSIXThread::Create();
 #endif
+		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid ALStreamingBuffer::Create( Archiver* pArchiver, const MapilTChar* pFileName )
@@ -321,6 +325,7 @@ namespace MAPIL
 #elif defined ( API_POSIX )
 		POSIXThread::Create();
 #endif
+		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid ALStreamingBuffer::Play()
@@ -347,6 +352,7 @@ namespace MAPIL
 	{
 		m_HasTermSig = MapilTrue;
 		m_IsPlaying = MapilFalse;
+		m_IsUsed = MapilFalse;
 	}
 
 	MapilVoid ALStreamingBuffer::SetVolume( MapilUInt32 volume )

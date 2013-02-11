@@ -37,7 +37,7 @@ namespace MAPIL
 		::D3DMATERIAL9*				m_pMaterial;		///< Material structure.
 		::LPDIRECT3DTEXTURE9*		m_pD3DTexture;		///< Texture handler.
 		DWORD						m_NumMaterial;		///< Number of the material.
-		MapilBool					m_IsUsed;			///< The flag shows that the object is already used.
+		//MapilBool					m_IsUsed;			///< The flag shows that the object is already used.
 		/**
 		*	@brief		Draw model with no transformation. This is called in Draw method.
 		*/

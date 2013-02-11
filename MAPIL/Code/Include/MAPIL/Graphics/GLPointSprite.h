@@ -42,7 +42,7 @@ namespace MAPIL
 		GLfloat*						m_pColor;		///< Color of the vertex.
 		GLfloat*						m_pPos;			///< Position of the vertex. 
 		MapilInt32						m_NumVertex;	///< Number of the vertex.
-		MapilBool						m_IsUsed;		///< The flag shows that the object is already used.
+		//MapilBool						m_IsUsed;		///< The flag shows that the object is already used.
 		SharedPointer < Texture >		m_pTex;			///< Texture.
 	public:
 		/**

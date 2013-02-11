@@ -25,8 +25,7 @@
 namespace MAPIL
 {
 	D3DPointLight::D3DPointLight( SharedPointer < GraphicsDevice > pDev ) :	PointLight( pDev ),
-																			m_IsActive( MapilFalse ),
-																			m_IsUsed( MapilFalse )
+																			m_IsActive( MapilFalse )
 	{
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 	}

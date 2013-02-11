@@ -35,7 +35,7 @@ namespace MAPIL
 	{
 	private:
 		::LPD3DXFONT			m_pD3DFont;				///< Handler.
-		MapilBool				m_IsUsed;				///< Already used.
+		//MapilBool				m_IsUsed;				///< Already used.
 		MapilVoid DrawString( MapilTChar* pStr );
 	public:
 		/**

@@ -36,7 +36,6 @@ namespace MAPIL
 																				m_pColor( NULL ),
 																				m_pPos( NULL ),
 																				m_NumVertex( 0 ),
-																				m_IsUsed( MapilFalse ),
 																				m_pTex()
 	{
 	}

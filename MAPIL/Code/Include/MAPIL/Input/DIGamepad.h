@@ -27,7 +27,7 @@ namespace MAPIL
 	{
 	private:
 		::LPDIRECTINPUTDEVICE8			m_pGamepadDev;
-		MapilBool						m_IsUsed;
+		//MapilBool						m_IsUsed;
 		SharedPointer < WinAPIWindow >	m_pWnd;
 		MapilBool						m_IsInputActive;
 

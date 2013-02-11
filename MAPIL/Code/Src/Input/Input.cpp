@@ -10,11 +10,16 @@
 
 namespace MAPIL
 {
-	Input::Input( SharedPointer < InputDevice > pDev ) : MapilObject(), m_pDev( pDev )
+	Input::Input( SharedPointer < InputDevice > pDev ) : MapilObject(), m_pDev( pDev ), m_IsUsed( MapilFalse )
 	{
 	}
 
 	Input::~Input()
 	{
+	}
+
+	MapilBool Input::IsValid() const
+	{
+		return m_IsUsed;
 	}
 }

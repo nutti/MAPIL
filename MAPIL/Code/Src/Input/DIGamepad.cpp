@@ -19,7 +19,6 @@ namespace MAPIL
 {
 	DIGamepad::DIGamepad( SharedPointer < InputDevice > pDev ) :	Input( pDev ),
 																	m_pGamepadDev( NULL ),
-																	m_IsUsed( MapilFalse ),
 																	m_pWnd(),
 																	m_IsInputActive( MapilFalse )
 	{

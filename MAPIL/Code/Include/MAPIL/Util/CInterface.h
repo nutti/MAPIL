@@ -225,6 +225,10 @@ namespace MAPIL
 	MapilVoid SetCameraViewTrans(	MapilFloat32 eyeX, MapilFloat32 eyeY, MapilFloat32 eyeZ,
 									MapilFloat32 lookX, MapilFloat32 lookY, MapilFloat32 lookZ,
 									MapilFloat32 upX, MapilFloat32 upY, MapilFloat32 upZ );
+	// Get projection translation matrix. ( Camera )
+	Matrix4x4 < MapilFloat32 > GetCameraInvProjTransMat();
+	// Get view translation matrix. ( Camera )
+	Matrix4x4 < MapilFloat32 > GetCameraInvViewTransMat();
 	// Process message.
 	MapilInt32 ProcessMessage();
 	// Draw point sprite.

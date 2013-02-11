@@ -10,11 +10,16 @@
 
 namespace MAPIL
 {
-	Sound::Sound( SharedPointer < SoundDevice > pDev ) : MapilObject(), m_pDev( pDev )
+	Sound::Sound( SharedPointer < SoundDevice > pDev ) : MapilObject(), m_pDev( pDev ), m_IsUsed( MapilFalse )
 	{
 	}
 	
 	Sound::~Sound()
 	{
+	}
+
+	MapilBool Sound::IsValid() const
+	{
+		return m_IsUsed;
 	}
 }

@@ -35,7 +35,7 @@ namespace MAPIL
 	private:
 		::LPDIRECT3DTEXTURE9			m_pD3DTexture;		///< Original texture handle.
 		::LPDIRECT3DTEXTURE9*			m_ppD3DTexture;		///< Texture handle split.
-		MapilBool						m_IsUsed;			///< The flag shows that the object is already used.
+		//MapilBool						m_IsUsed;			///< The flag shows that the object is already used.
 		
 	public:
 		/**

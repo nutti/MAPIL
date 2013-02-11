@@ -50,6 +50,8 @@ namespace MAPIL
 		alDeleteBuffers( 1, &m_Buf );
 
 		ZeroObject( m_Pos, sizeof( m_Pos ) );
+
+		m_IsUsed = MapilFalse;
 	}
 
 	MapilVoid ALStaticBuffer::Create( const MapilTChar* pFileName )
@@ -90,6 +92,8 @@ namespace MAPIL
 
 		alBufferData( m_Buf, fmt, m_pWavData, m_DataSize, wfh.m_SampleRate );
 		alSourcei( m_Src, AL_BUFFER, m_Buf );
+
+		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid ALStaticBuffer::Create( Archiver* pArchiver, const MapilTChar* pFileName )
@@ -136,6 +140,7 @@ namespace MAPIL
 		alBufferData( m_Buf, fmt, m_pWavData, infoPos - 44, wfh.m_SampleRate );
 		alSourcei( m_Src, AL_BUFFER, m_Buf );
 
+		m_IsUsed = MapilTrue;
 	}
 
 	MapilVoid ALStaticBuffer::Play()
@@ -163,6 +168,7 @@ namespace MAPIL
 	{
 		m_IsPlaying = MapilFalse;
 		m_IsPausing = MapilFalse;
+		m_IsUsed = MapilFalse;
 	}
 
 	MapilVoid ALStaticBuffer::SetVolume( MapilUInt32 volume )

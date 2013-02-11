@@ -19,10 +19,12 @@ namespace MAPIL
 	class Sound : public MapilObject
 	{
 	protected:
-		SharedPointer < SoundDevice >			m_pDev;
+		SharedPointer < SoundDevice >	m_pDev;
+		MapilBool						m_IsUsed;
 	public:
 		Sound( SharedPointer < SoundDevice > pDev );
 		virtual ~Sound();
+		MapilBool IsValid() const;
 	};
 }
 

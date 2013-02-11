@@ -25,8 +25,7 @@ namespace MAPIL
 {
 	D3DCamera::D3DCamera( SharedPointer < GraphicsDevice > pDev ) :	Camera( pDev ),
 																	m_ViewMat(),
-																	m_ProjMat(),
-																	m_IsUsed( MapilFalse )
+																	m_ProjMat()
 	{
 	}
 
@@ -232,6 +231,38 @@ namespace MAPIL
 
 		m_pDev->GetDev().GetPointer()->SetTransform( D3DTS_VIEW, &m_ViewMat );
 		m_pDev->GetDev().GetPointer()->SetTransform( D3DTS_PROJECTION, &m_ProjMat );
+	}
+
+	Matrix4x4 < MapilFloat32 > D3DCamera::GetInvViewTransMat() const
+	{
+		::D3DXMATRIXA16 invMat;
+		::D3DXMatrixInverse( &invMat, NULL, &m_ViewMat );
+
+		Matrix4x4 < MapilFloat32 > mat;
+
+		for( MapilInt32 i = 0; i < 4; ++i ){
+			for( MapilInt32 j = 0; j < 4; ++j ){
+				mat.m_Elm[ i ][ j ] = invMat.m[ i ][ j ];
+			}
+		}
+
+		return mat;
+	}
+
+	Matrix4x4 < MapilFloat32 > D3DCamera::GetInvProjTransMat() const
+	{
+		::D3DXMATRIXA16 invMat;
+		::D3DXMatrixInverse( &invMat, NULL, &m_ProjMat );
+
+		Matrix4x4 < MapilFloat32 > mat;
+
+		for( MapilInt32 i = 0; i < 4; ++i ){
+			for( MapilInt32 j = 0; j < 4; ++j ){
+				mat.m_Elm[ i ][ j ] = invMat.m[ i ][ j ];
+			}
+		}
+
+		return mat;
 	}
 }
 

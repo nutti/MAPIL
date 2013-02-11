@@ -26,8 +26,7 @@
 namespace MAPIL
 {
 	D3DDirectionalLight::D3DDirectionalLight( SharedPointer < GraphicsDevice > pDev ) :	DirectionalLight( pDev ),
-																						m_IsActive( MapilFalse ),
-																						m_IsUsed( MapilFalse )
+																						m_IsActive( MapilFalse )
 	{
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 	}

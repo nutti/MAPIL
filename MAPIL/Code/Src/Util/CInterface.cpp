@@ -39,6 +39,7 @@
 #include "../../Include/MAPIL/Util/String.h"
 #include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
+#include "../../Include/MAPIL/Diag/Logger.h"
 #include "../../Include/MAPIL/IO/Archiver.h"
 
 #include <vector>
@@ -103,6 +104,8 @@ namespace MAPIL
 	public:
 		friend class Singleton < ResourceHolder >;
 
+		Logger				m_Logger;
+
 		MapilInt32			m_GUIAPI;
 		IGUIDevice			m_GUIDev;
 		GUIFactory*			m_pGUIFactory;
@@ -151,7 +154,9 @@ namespace MAPIL
 		std::vector < Archiver* >	m_ArchiverList;
 	};
 
-	ResourceHolder::ResourceHolder() :	m_GUIAPI( GUI_API_NONE ),
+	ResourceHolder::ResourceHolder() :	m_Logger( TSTR( "MAPIL.log" ) ),
+	
+										m_GUIAPI( GUI_API_NONE ),
 										m_GUIDev(),
 										m_pGUIFactory( NULL ),
 
@@ -186,10 +191,13 @@ namespace MAPIL
 										m_TextureBatch(),
 										m_StringBatch()
 	{
+		m_Logger.Create();
 	}
 
 	ResourceHolder::~ResourceHolder()
 	{
+		m_Logger.Terminate();
+
 		SafeDelete( m_pSoundFactory );
 		SafeDelete( m_pInputFactory );
 		SafeDelete( m_pGraphicsFactory );
@@ -359,13 +367,15 @@ namespace MAPIL
 
 	MapilInt32 InitMAPIL( const MapilChar* pWndName, MapilInt32 width, MapilInt32 height )
 	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+
+		p->m_Logger.Write( TSTR( "INFO" ), TSTR( "Initializing MAPIL ..." ) );
+
 		SetupFactories();
 		SetupGUI( pWndName, width, height );
 		SetupGraphics();
 		SetupInput();
 		SetupSound();
-
-		ResourceHolder* p = ResourceHolder::GetInst();
 
 		// For multi-thread bugs.
 		p->m_LocalRectangle3DList.reserve( 200 );
@@ -378,6 +388,8 @@ namespace MAPIL
 		p->m_LocalPointLightList.reserve( 200 );
 		p->m_LocalStaticBufferList.reserve( 200 );
 		p->m_LocalStreamingBufferList.reserve( 200 );
+
+		p->m_Logger.Write( TSTR( "INFO" ), TSTR( "Initialized MAPIL ..." ) );
 
 		return 0;
 	}
@@ -441,10 +453,12 @@ namespace MAPIL
 		CameraTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateCamera( str.c_str() );
-		tag.m_Resource->Create(	0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f, 0.0f );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create(	0.0f, 0.0f, 0.0f,
+									0.0f, 0.0f, 0.0f,
+									0.0f, 0.0f, 0.0f,
+									0.0f, 0.0f, 0.0f, 0.0f );
+		}
 		if( index == p->m_LocalCameraList.size() ){
 			p->m_LocalCameraList.push_back( tag );
 		}
@@ -466,7 +480,9 @@ namespace MAPIL
 		GraphicsFontTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateGraphicsFont( str.c_str() );
-		tag.m_Resource->Create( fmt );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( fmt );
+		}
 		if( index == p->m_LocalGraphicsFontList.size() ){
 			p->m_LocalGraphicsFontList.push_back( tag );
 		}
@@ -489,7 +505,9 @@ namespace MAPIL
 		TextureTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
-		tag.m_Resource->Create( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( str.c_str() );
+		}
 		if( index == p->m_LocalTextureList.size() ){
 			p->m_LocalTextureList.push_back( tag );
 		}
@@ -513,7 +531,9 @@ namespace MAPIL
 		TextureTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateTexture( str.c_str() );
-		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		}
 		if( index == p->m_LocalTextureList.size() ){
 			p->m_LocalTextureList.push_back( tag );
 		}
@@ -619,7 +639,9 @@ namespace MAPIL
 		PointSpriteTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource= p->m_pGraphicsFactory->CreatePointSprite( str.c_str() );
-		tag.m_Resource->Create( num, p->m_LocalTextureList[ texture ].m_Resource, VERTEX_MANAGEMENT_NONE );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( num, p->m_LocalTextureList[ texture ].m_Resource, VERTEX_MANAGEMENT_NONE );
+		}
 		if( index == p->m_LocalPointSpriteList.size() ){
 			p->m_LocalPointSpriteList.push_back( tag );
 		}
@@ -641,11 +663,13 @@ namespace MAPIL
 		DirectionalLightTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateDirectionalLight( str.c_str() );
-		tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
-								0.0f, 1.0f, 0.0f );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
+									0.0f, 1.0f, 0.0f );
+		}
 		if( index == p->m_LocalDirectionalLightList.size() ){
 			p->m_LocalDirectionalLightList.push_back( tag );
 		}
@@ -667,11 +691,13 @@ namespace MAPIL
 		PointLightTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreatePointLight( str.c_str() );
-		tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
-								MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
-								0.0f, 1.0f, 0.0f );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create(	MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::ColorARGB < MapilFloat32 > ( 0.0f, 0.0f, 0.0f, 0.0f ),
+									MAPIL::Vector3 < MapilFloat32 > ( 0.0f, 0.0f, 0.0f ),
+									0.0f, 1.0f, 0.0f );
+		}
 		if( index == p->m_LocalPointLightList.size() ){
 			p->m_LocalPointLightList.push_back( tag );
 		}
@@ -700,7 +726,9 @@ namespace MAPIL
 		StaticBufferTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pSoundFactory->CreateStaticBuffer( str.c_str() );
-		tag.m_Resource->Create( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( str.c_str() );
+		}
 		if( index ==p->m_LocalStaticBufferList.size() ){
 			p->m_LocalStaticBufferList.push_back( tag );
 		}
@@ -724,7 +752,9 @@ namespace MAPIL
 		StaticBufferTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pSoundFactory->CreateStaticBuffer( str.c_str() );
-		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str() );
+		}
 		if( index == p->m_LocalStaticBufferList.size() ){
 			p->m_LocalStaticBufferList.push_back( tag );
 		}
@@ -747,7 +777,9 @@ namespace MAPIL
 		StreamingBufferTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pSoundFactory->CreateStreamingBuffer( str.c_str() );
-		tag.m_Resource->Create( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( str.c_str() );
+		}
 		if( index == p->m_LocalStreamingBufferList.size() ){
 			p->m_LocalStreamingBufferList.push_back( tag );
 		}
@@ -773,7 +805,9 @@ namespace MAPIL
 		tag.m_Resource = p->m_pSoundFactory->CreateStreamingBuffer( str.c_str() );
 		MapilTChar arName[ 1024 ];
 		ConvertToTChar( p->m_ArchiverList[ archiveHandle ]->GetArchiveFileName(), -1, arName, 1024 );
-		tag.m_Resource->Create( arName, str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( arName, str.c_str() );
+		}
 		if( index == p->m_LocalStreamingBufferList.size() ){
 			p->m_LocalStreamingBufferList.push_back( tag );
 		}
@@ -1451,7 +1485,7 @@ namespace MAPIL
 	MapilVoid EnableCamera()
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
 		p->m_Camera->Enable();
 	}
 
@@ -1459,7 +1493,7 @@ namespace MAPIL
 	MapilVoid SetCameraProjTrans( MapilFloat32 fovy, MapilFloat32 aspect, MapilFloat32 nearClip, MapilFloat32 farClip )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
 		p->m_Camera->SetProjectionTransMat( fovy, aspect, nearClip, farClip );
 	}
 
@@ -1469,10 +1503,26 @@ namespace MAPIL
 									MapilFloat32 upX, MapilFloat32 upY, MapilFloat32 upZ )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
-		Assert( p->m_pGUIFactory != NULL, CURRENT_POSITION, TSTR( "GUI factory is not created yet." ), -1 );
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
 		p->m_Camera->SetViewTransMat(	eyeX, eyeY, eyeZ,
 										lookX, lookY, lookZ,
 										upX, upY, upZ );
+	}
+
+	// Get projection translation matrix. ( Camera )
+	Matrix4x4 < MapilFloat32 > GetCameraInvProjTransMat()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		return p->m_Camera->GetInvProjTransMat();
+	}
+
+	// Get view translation matrix. ( Camera )
+	Matrix4x4 < MapilFloat32 > GetCameraInvViewTransMat()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		return p->m_Camera->GetInvViewTransMat();
 	}
 
 	// Process message.
@@ -1523,7 +1573,9 @@ namespace MAPIL
 		ModelTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
-		tag.m_Resource->Create( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( str.c_str() );
+		}
 		if( index == p->m_LocalModelList.size() ){
 			p->m_LocalModelList.push_back( tag );
 		}
@@ -1548,7 +1600,9 @@ namespace MAPIL
 		ModelTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateModel( str.c_str() );
-		tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str(), tstr );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str(), tstr );
+		}
 		if( index == p->m_LocalModelList.size() ){
 			p->m_LocalModelList.push_back( tag );
 		}
@@ -1680,7 +1734,9 @@ namespace MAPIL
 		Rectangle3DTag tag;
 		tag.m_IsUsed = MapilTrue;
 		tag.m_Resource = p->m_pGraphicsFactory->CreateRectangle3D( str.c_str() );
-		tag.m_Resource->Create( fmt, SharedPointer < Texture > (), pShaderFileName, pTechName );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( fmt, SharedPointer < Texture > (), pShaderFileName, pTechName );
+		}
 		if( index == p->m_LocalModelList.size() ){
 			p->m_LocalRectangle3DList.push_back( tag );
 		}

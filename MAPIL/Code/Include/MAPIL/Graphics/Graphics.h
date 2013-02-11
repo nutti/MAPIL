@@ -61,12 +61,14 @@ namespace MAPIL
 	protected:
 		SharedPointer < GraphicsDevice >		m_pDev;
 		//GraphicsDevice*		m_pDev;
+		MapilBool								m_IsUsed;
 	public:
 		Graphics( GraphicsDevice* pDev );
 		Graphics( SharedPointer < GraphicsDevice > pDev );
 		virtual ~Graphics();
 		virtual MapilVoid LostResource();
 		virtual MapilVoid RestoreResource();
+		MapilBool IsValid() const;
 	};
 }
 

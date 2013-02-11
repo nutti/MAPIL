@@ -176,6 +176,24 @@ namespace MAPIL
 		glMatrixMode( GL_PROJECTION );
 		glLoadMatrixf( m_ProjMat );
 	}
+
+	Matrix4x4 < MapilFloat32 > GLCamera::GetInvViewTransMat() const
+	{
+		// TODO
+
+		Matrix4x4 < MapilFloat32 > mat;
+
+		return mat;
+	}
+
+	Matrix4x4 < MapilFloat32 > GLCamera::GetInvProjTransMat() const
+	{
+		//TODO
+
+		Matrix4x4 < MapilFloat32 > mat;
+
+		return mat;
+	}
 }
 
 #endif	// API_OPENGL

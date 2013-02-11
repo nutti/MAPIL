@@ -33,7 +33,7 @@ namespace MAPIL
 	{
 		::D3DXMATRIXA16						m_ViewMat;		///< View transformation matrix.
 		::D3DXMATRIXA16						m_ProjMat;		///< Projection transformation matrix.
-		MapilBool							m_IsUsed;		///< Flag which camera is being used now.
+		//MapilBool							m_IsUsed;		///< Flag which camera is being used now.
 	public:
 		/**
 		*	@brief Constructor.
@@ -200,6 +200,8 @@ namespace MAPIL
 											MapilFloat32 top,
 											MapilFloat32 nearClip,
 											MapilFloat32 farClip );
+		Matrix4x4 < MapilFloat32 > GetInvViewTransMat() const;
+		Matrix4x4 < MapilFloat32 > GetInvProjTransMat() const;
 		/**
 		*	@brief	Enable camera
 		*/

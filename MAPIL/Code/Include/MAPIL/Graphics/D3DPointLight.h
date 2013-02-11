@@ -31,7 +31,7 @@ namespace MAPIL
 	{
 		::D3DLIGHT9					m_D3DLight;			///< D3DLIGHT9 structure
 		MapilBool					m_IsActive;			///< Flag which light is drawing now
-		MapilBool					m_IsUsed;			///< Flag which light is being used now
+		//MapilBool					m_IsUsed;			///< Flag which light is being used now
 	public:
 		/**
 		*	@brief Constructor.

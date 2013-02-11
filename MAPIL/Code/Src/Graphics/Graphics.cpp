@@ -11,11 +11,11 @@
 
 namespace MAPIL
 {
-	Graphics::Graphics( GraphicsDevice* pDev ) : MapilObject(), m_pDev( pDev )
+	Graphics::Graphics( GraphicsDevice* pDev ) : MapilObject(), m_pDev( pDev ), m_IsUsed( MapilFalse )
 	{
 	}
 
-	Graphics::Graphics( SharedPointer < GraphicsDevice > pDev ) : MapilObject(), m_pDev( pDev )
+	Graphics::Graphics( SharedPointer < GraphicsDevice > pDev ) : MapilObject(), m_pDev( pDev ), m_IsUsed( MapilFalse )
 	{
 	}
 	
@@ -29,5 +29,10 @@ namespace MAPIL
 
 	MapilVoid Graphics::RestoreResource()
 	{
+	}
+
+	MapilBool Graphics::IsValid() const
+	{
+		return m_IsUsed;
 	}
 }

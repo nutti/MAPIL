@@ -29,7 +29,7 @@ namespace MAPIL
 	class D3D10Shader : public Shader
 	{
 	private:
-		MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
+		//MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
 		::D3D10_PASS_DESC					m_PassDesc;
 		::ID3D10EffectTechnique*			m_pEffectTech;
 	public:

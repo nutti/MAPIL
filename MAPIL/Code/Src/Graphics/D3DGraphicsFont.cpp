@@ -26,8 +26,7 @@
 namespace MAPIL
 {
 	D3DGraphicsFont::D3DGraphicsFont( SharedPointer < GraphicsDevice > pDev ) :	GraphicsFont( pDev ),
-																				m_pD3DFont( NULL ),
-																				m_IsUsed( MapilFalse )
+																				m_pD3DFont( NULL )
 	{
 	}
 

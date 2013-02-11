@@ -20,7 +20,7 @@ namespace MAPIL
 	class DIMouse : public Mouse
 	{
 		::LPDIRECTINPUTDEVICE8			m_pMouseDev;
-		MapilBool						m_IsUsed;
+		//MapilBool						m_IsUsed;
 		SharedPointer < WinAPIWindow >	m_pWnd;
 		MapilBool						m_IsInputActive;
 	public:

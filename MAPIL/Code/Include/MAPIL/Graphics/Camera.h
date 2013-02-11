@@ -19,6 +19,7 @@
 #include "Graphics.h"
 #include "../Type.h"
 #include "../Math/Vector.hpp"
+#include "../Math/Matrix.hpp"
 
 //-------------------------------------------------------------------
 // Definitions.
@@ -195,6 +196,8 @@ namespace MAPIL
 													MapilFloat32 top,
 													MapilFloat32 nearClip,
 													MapilFloat32 farClip ) = 0;
+		virtual Matrix4x4 < MapilFloat32 > GetInvViewTransMat() const = 0;
+		virtual Matrix4x4 < MapilFloat32 > GetInvProjTransMat() const = 0;
 		/**
 		*	@brief	Enable camera
 		*/

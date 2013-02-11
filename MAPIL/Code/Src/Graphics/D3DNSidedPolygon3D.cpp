@@ -27,7 +27,6 @@ namespace MAPIL
 	D3DNSidedPolygon3D::D3DNSidedPolygon3D( SharedPointer < GraphicsDevice > pDev ) :	NSidedPolygon3D( pDev ),
 																						m_pVertex( NULL ),
 																						m_pVertexDecl( NULL ),
-																						m_IsUsed( MapilFalse ),
 																						m_pTexture(),
 																						m_pNonBufVertex( NULL ),
 																						m_VertexManageMethod( VERTEX_MANAGEMENT_NONE )

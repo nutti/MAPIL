@@ -20,9 +20,11 @@ namespace MAPIL
 	{
 	protected:
 		SharedPointer < InputDevice >		m_pDev;
+		MapilBool							m_IsUsed;
 	public:
 		Input( SharedPointer < InputDevice > pDev );
 		virtual ~Input();
+		MapilBool IsValid() const;
 	};
 }
 

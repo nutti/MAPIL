@@ -18,7 +18,6 @@ namespace MAPIL
 {
 	DIKeyboard::DIKeyboard( SharedPointer < InputDevice > pDev ) :	Keyboard( pDev ),
 																	m_pKeyboardDev( NULL ),
-																	m_IsUsed( MapilFalse ),
 																	m_pWnd(),
 																	m_IsInputActive( MapilFalse )
 	{

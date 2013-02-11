@@ -29,8 +29,7 @@ namespace MAPIL
 {
 	D3DTexture::D3DTexture( SharedPointer < GraphicsDevice > pDev ) :	Texture( pDev ),
 																		m_pD3DTexture( NULL ),
-																		m_ppD3DTexture( NULL ),
-																		m_IsUsed( MapilFalse )
+																		m_ppD3DTexture( NULL )
 	{
 	}
 

@@ -79,18 +79,18 @@ namespace MAPIL
 		SharedPointer < Type > newResource = CreateInst();
 
 #ifdef LIB_STL
-		//std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.find( pKeyStr );
-		//// Not found.
-		//if( it == m_Holder.end() ){
-		//	newResource = CreateInst();
-		//	m_Holder.insert( std::pair < std::basic_string < MapilTChar >, SharedPointer < Type > > ( pKeyStr, newResource ) );
-		//}
-		//// Found.
-		//else{
-		//	newResource = it->second;
-		//}
+		std::map < std::basic_string < MapilTChar >, SharedPointer < Type > > ::iterator it = m_Holder.find( pKeyStr );
+		// Not found.
+		if( it == m_Holder.end() ){
+			newResource = CreateInst();
+			m_Holder.insert( std::pair < std::basic_string < MapilTChar >, SharedPointer < Type > > ( pKeyStr, newResource ) );
+		}
+		// Found.
+		else{
+			newResource = it->second;
+		}
 
-		m_Holder.insert( std::pair < std::basic_string < MapilTChar >, SharedPointer < Type > > ( pKeyStr, newResource ) );
+		//m_Holder.insert( std::pair < std::basic_string < MapilTChar >, SharedPointer < Type > > ( pKeyStr, newResource ) );
 #endif
 
 		return newResource; 

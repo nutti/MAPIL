@@ -28,7 +28,6 @@ namespace MAPIL
 	D3DRectangle3D::D3DRectangle3D( SharedPointer < GraphicsDevice > pDev ) :	Rectangle3D( pDev ),
 																				m_pVertex( NULL ),
 																				m_pVertexDecl( NULL ),
-																				m_IsUsed( MapilFalse ),
 																				m_pTexture(),
 																				m_pNonBufVertex( NULL ),
 																				m_VertexManageMethod( VERTEX_MANAGEMENT_NONE )

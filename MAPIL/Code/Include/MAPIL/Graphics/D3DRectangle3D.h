@@ -44,7 +44,7 @@ namespace MAPIL
 
 		::LPDIRECT3DVERTEXBUFFER9			m_pVertex;				///< Vertex buffer.
 		::LPDIRECT3DVERTEXDECLARATION9		m_pVertexDecl;			///< Vertex declaration.
-		MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
+		//MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
 		SharedPointer < Texture >			m_pTexture;				///< Texture.
 		VertexFormat*						m_pNonBufVertex;		///< Vertex buffer with no buffer.
 		VertexManagementMethod				m_VertexManageMethod;	///< Management method of the vertices.

@@ -23,6 +23,7 @@ namespace MAPIL
 	typedef	short int			MapilShortInt32;
 	typedef long int			MapilLongInt32;
 	typedef	int					MapilInt32;
+	typedef __int64				MapilInt64;
 	typedef unsigned int		MapilUInt32;
 	typedef unsigned short int	MapilUShortInt32;
 	typedef unsigned long int	MapilULongInt32;

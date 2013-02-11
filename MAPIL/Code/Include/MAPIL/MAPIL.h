@@ -9,8 +9,9 @@
 
 #include "CrossPlatform.h"
 
-// Exception.
+// Diag.
 #include "Diag/MapilException.h"
+#include "Diag/Logger.h"
 
 // GUI.
 #include "GUI/GUIFactory.h"

@@ -37,7 +37,7 @@ namespace MAPIL
 			::D3DXVECTOR3		m_Color;
 		};
 
-		MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
+		//MapilBool							m_IsUsed;				///< The flag shows that the object is already used.
 		SharedPointer < Texture >			m_pTexture;				///< Texture.
 		VertexFormat						m_VertexFmt[ 4 ];		///< Vertex format.
 		::ID3D10Buffer*						m_pBuffer;

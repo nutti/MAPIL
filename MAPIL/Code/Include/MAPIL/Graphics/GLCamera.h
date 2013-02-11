@@ -209,6 +209,8 @@ namespace MAPIL
 												MapilFloat32 top,
 												MapilFloat32 nearClip,
 												MapilFloat32 farClip );
+		Matrix4x4 < MapilFloat32 > GetInvViewTransMat() const;
+		Matrix4x4 < MapilFloat32 > GetInvProjTransMat() const;
 		/**
 		*	@brief	Enable camera
 		*/

@@ -31,8 +31,7 @@ namespace MAPIL
 																	m_pD3DMesh( NULL ),
 																	m_pMaterial( NULL ),
 																	m_pD3DTexture( NULL ),
-																	m_NumMaterial( 0 ),
-																	m_IsUsed( MapilFalse )
+																	m_NumMaterial( 0 )
 	{
 	}
 
@@ -266,7 +265,7 @@ namespace MAPIL
 
 				// Load texture
 				if( FAILED( ::D3DXCreateTextureFromFileInMemory(	m_pDev->GetDev().GetPointer(),
-																	texName,
+																	pData,
 																	size,
 																	&m_pD3DTexture[ i ] ) ) ){
 					SafeDeleteArray( pData );

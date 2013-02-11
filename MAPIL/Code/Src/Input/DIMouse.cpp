@@ -19,7 +19,6 @@ namespace MAPIL
 {
 	DIMouse::DIMouse( SharedPointer < InputDevice > pDev ) :	Mouse( pDev ),
 																m_pMouseDev( NULL ),
-																m_IsUsed( MapilFalse ),
 																m_pWnd(),
 																m_IsInputActive( MapilFalse )
 	{
