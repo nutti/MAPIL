@@ -71,8 +71,17 @@ namespace MAPIL
 		MapilUInt32							m_Color;
 	};
 
+	// Batch work of model on 2D screen.
+	struct ModelOn2DBatchWork
+	{
+		MapilUInt32					m_Handle;
+		Matrix4x4 < MapilFloat32 >	m_TransMat;
+		MapilInt32					m_AlphaBlendingMode;
+	};
+
 	typedef std::list < TextureBatchWork >		TextureBatch;
 	typedef std::list < StringBatchWork >		StringBatch;
+	typedef std::list < ModelOn2DBatchWork >	ModelOn2DBatch;
 
 	typedef ResourceTag < IRectangle3D >		Rectangle3DTag;
 	typedef ResourceTag < IModel >				ModelTag;
@@ -149,6 +158,7 @@ namespace MAPIL
 		// Batch
 		TextureBatch			m_TextureBatch;
 		StringBatch				m_StringBatch;
+		ModelOn2DBatch			m_ModelOn2DBatch;
 
 		// Archiver.
 		std::vector < Archiver* >	m_ArchiverList;
@@ -189,7 +199,8 @@ namespace MAPIL
 										m_LocalStreamingBufferList(),
 
 										m_TextureBatch(),
-										m_StringBatch()
+										m_StringBatch(),
+										m_ModelOn2DBatch()
 	{
 		m_Logger.Create();
 	}
@@ -1821,6 +1832,84 @@ namespace MAPIL
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert( p->m_pInputFactory != NULL, CURRENT_POSITION, TSTR( "Input factory is not created yet." ), -1 );
 		p->m_Keyboard->Update();
+	}
+
+	// Draw model on 2D.
+	MapilVoid AddModelOn2DBatchWork( MapilUInt32 handle, Matrix4x4 < MapilFloat32 > mat )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalModelList.size() > handle,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		ModelOn2DBatchWork work;
+		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_Handle = handle;
+		work.m_TransMat = mat;
+
+		p->m_ModelOn2DBatch.push_back( work );
+	}
+
+	// Draw model on 2D.
+	MapilVoid AddModelOn2DBatchWork(	MapilUInt32 handle,
+										MapilFloat32 x, MapilFloat32 y, MapilFloat32 z,
+										MapilFloat32 sx, MapilFloat32 sy, MapilFloat32 sz,
+										MapilFloat32 rx, MapilFloat32 ry, MapilFloat32 rz )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalModelList.size() > handle,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		ModelOn2DBatchWork work;
+		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_Handle = handle;
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > rotMatX;
+		Matrix4x4 < MapilFloat32 > rotMatY;
+		Matrix4x4 < MapilFloat32 > rotMatZ;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+
+		CreateRotationXMat( &rotMatX, rx );
+		CreateRotationYMat( &rotMatY, ry );
+		CreateRotationZMat( &rotMatZ, rz );
+		CreateScalingMat( &scaleMat, sx, sy, sy );
+		CreateTranslationMat( &transMat, -1.0f + x / ( p->m_GC->GetWidth() * 0.5f ), 1.0f - y / ( p->m_GC->GetHeight() * 0.5f ), z );
+		// Scaling -> Rotation Z -> Rotation Y -> Rotation X -> Translation.
+		work.m_TransMat =  scaleMat * rotMatZ * rotMatY * rotMatX * transMat;
+
+		p->m_ModelOn2DBatch.push_back( work );
+	}
+
+	// Do model on 2D batch works.
+	MapilVoid DoAllModelOn2DBatchWorks()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+
+		typedef ModelOn2DBatch::iterator Iter;
+
+		MapilInt32 prevMode = p->m_GraphicsCtrl->GetAlphaBlendMode();
+		
+		MAPIL::Matrix4x4 < MapilFloat32 > mat;
+		MAPIL::Matrix4x4 < MapilFloat32 > baseMat;
+		MAPIL::Matrix4x4 < MapilFloat32 > invProjMat;
+		MAPIL::Matrix4x4 < MapilFloat32 > invViewMat;
+		invProjMat = p->m_Camera->GetInvProjTransMat();
+		invViewMat = p->m_Camera->GetInvViewTransMat();
+
+		baseMat = invProjMat * invViewMat;
+		
+		for( Iter it = p->m_ModelOn2DBatch.begin(); it != p->m_ModelOn2DBatch.end(); ++it ){
+			if( prevMode != it->m_AlphaBlendingMode ){
+				p->m_GraphicsCtrl->SetAlphaBlendMode( it->m_AlphaBlendingMode );
+			}
+			mat = it->m_TransMat * baseMat;
+			p->m_LocalModelList[ it->m_Handle ].m_Resource->Draw( mat );
+		}
+
+		p->m_ModelOn2DBatch.clear();
+
+		p->m_GraphicsCtrl->SetAlphaBlendMode( prevMode );
 	}
 }
 

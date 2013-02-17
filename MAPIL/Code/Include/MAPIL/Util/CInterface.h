@@ -282,6 +282,18 @@ namespace MAPIL
 
 	// Update keyboard.
 	MapilVoid UpdateKeyboard();
+
+	// Draw model on 2D.
+	MapilVoid AddModelOn2DBatchWork( MapilUInt32 handle, Matrix4x4 < MapilFloat32 > mat );
+
+	// Draw model on 2D.
+	MapilVoid AddModelOn2DBatchWork(	MapilUInt32 handle,
+										MapilFloat32 x, MapilFloat32 y, MapilFloat32 z,
+										MapilFloat32 sx, MapilFloat32 sy, MapilFloat32 sz,
+										MapilFloat32 rx, MapilFloat32 ry, MapilFloat32 rz );
+
+	// Do model on 2D batch works.
+	MapilVoid DoAllModelOn2DBatchWorks();
 }
 
 #endif	// USE_C_INTERFACE
