@@ -28,10 +28,12 @@ namespace MAPIL
 	struct ModelData;
 	class GraphicsDevice;
 	class Archiver;
+	class GLTexture;
 	class GLModel : public Model
 	{
 	private:
 		ModelData*		m_pModelData;		///< Model data.
+		GLTexture**		m_ppTextures;		///< Textures.
 		/**
 		*	@brief		Draw model with no transformation. This is called in Draw method.
 		*/

@@ -33,6 +33,7 @@
 #include "../../Include/MAPIL/Diag/MapilException.h"
 #include "../../Include/MAPIL/TChar.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
+#include "../../Include/MAPIL/Graphics/GLTexture.h"
 
 //-------------------------------------------------------------------
 // Implementation.
@@ -40,12 +41,20 @@
 
 namespace MAPIL
 {
-	GLModel::GLModel( SharedPointer < GraphicsDevice > pDev ) : Model( pDev ), m_pModelData( NULL )
+	GLModel::GLModel( SharedPointer < GraphicsDevice > pDev ) :	Model( pDev ),
+																m_pModelData( NULL ),
+																m_ppTextures( NULL )
 	{
 	}
 
 	GLModel::~GLModel()
 	{
+		if( m_pModelData ){
+			for( MapilInt32 i = 0; i < m_pModelData->m_Model[ 0 ].m_Material.size(); ++i ){
+				SafeDelete( m_ppTextures[ i ] );
+			}
+			SafeDeleteArray( m_ppTextures );
+		}
 		SafeDelete( m_pModelData );
 	}
 
@@ -56,12 +65,11 @@ namespace MAPIL
 
 		m_pModelData = new ModelData();
 
+		// Analyze file format.
 		FileFormatAnalyzer ffa;
 		ffa.Open( name );
 		ffa.Analyze();
-
 		ModelFile* pModelFile = NULL;
-
 		if( ffa.GetFileFmt() == FILE_FORMAT_X ){
 			pModelFile = new XFile();
 		}
@@ -69,15 +77,26 @@ namespace MAPIL
 			pModelFile = new MQOFile();
 		}
 		else{
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "GLModel" ),
-									TSTR( "Create" ),
-									TSTR( "Invalid file format." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Invalid file format." ), -1 );
 		}
 
+		// Load model file.
 		pModelFile->Load( name );
 		pModelFile->CopyToModelData( m_pModelData );
+
+		// Create textures.
+		m_ppTextures = new GLTexture* [ m_pModelData->m_Model[ 0 ].m_Material.size() ];
+		for( MapilInt32 i = 0; i < m_pModelData->m_Model[ 0 ].m_Material.size(); ++i ){
+			m_ppTextures[ i ] = NULL;
+			if( strcmp( m_pModelData->m_Model[ 0 ].m_Material[ i ].m_TexFileName, "" ) ){
+				TCHAR str[ 1024 ];
+				ConvertToTChar(	m_pModelData->m_Model[ 0 ].m_Material[ i ].m_TexFileName,
+								-1,
+								str, 1024 );
+				m_ppTextures[ i ] = new GLTexture( m_pDev );
+				m_ppTextures[ i ]->Create( str );
+			}
+		}
 
 		SafeDelete( pModelFile );
 	}
@@ -90,6 +109,8 @@ namespace MAPIL
 	MapilVoid GLModel::DrawModel()
 	{
 		MapilFloat32 doesMaterialExist = MapilFalse;
+
+		
 
 		if( m_pModelData->m_Model[ 0 ].m_Material.size() > 0 ){
 			doesMaterialExist = MapilTrue;
@@ -106,19 +127,27 @@ namespace MAPIL
 
 			for( MapilInt32 j = 0; j < m_pModelData->m_Model[ 0 ].m_Object[ i ].m_NumFace; j++ ){
 				if( doesMaterialExist ){
+
 					curMaterial = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_MtrlNum;
+
+					// Optimization.
 					if( curMaterial != prevMaterial ){
-						//GLfloat color[] = {	m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Color[ 0 ],
-						//					m_pModelData->m_Material[ curMaterial ].m_Color[ 1 ],
-						//					m_pModelData->m_Material[ curMaterial ].m_Color[ 2 ],
-						//					m_pModelData->m_Material[ curMaterial ].m_Color[ 3 ] };
-						//glColor4fv( color );
+
+
+						/*GLfloat color[] = {	m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Color[ 0 ],
+											m_pModelData->m_Material[ curMaterial ].m_Color[ 1 ],
+											m_pModelData->m_Material[ curMaterial ].m_Color[ 2 ],
+											m_pModelData->m_Material[ curMaterial ].m_Color[ 3 ] };
+						glColor4fv( color );*/
+
+						// Setup materials for .mqo file.
 						if( m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Diffuse[ 1 ] == -1.0f ){
 							glMaterialf( GL_FRONT_AND_BACK, GL_AMBIENT, m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Ambient[ 0 ] );
 							glMaterialf( GL_FRONT_AND_BACK, GL_DIFFUSE, m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Diffuse[ 0 ] );
 							glMaterialf( GL_FRONT_AND_BACK, GL_SPECULAR, m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Specular[ 0 ] );
 							glMaterialf( GL_FRONT_AND_BACK, GL_EMISSION, m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Emissive[ 0 ] );
 						}
+						// Setup materials for .x file.
 						else{
 							GLfloat diffuse[] = {	m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Diffuse[ 1 ],
 													m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Diffuse[ 2 ],
@@ -142,6 +171,21 @@ namespace MAPIL
 							glMaterialfv( GL_FRONT_AND_BACK, GL_EMISSION, emissive );
 						}
 						glMaterialf( GL_FRONT_AND_BACK, GL_SHININESS, m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Power );
+						
+						// Setup texture.
+						if( strcmp( m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_TexFileName, "" ) ){
+							MapilInt32 handle = m_ppTextures[ curMaterial ]->Get();
+							glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+							glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+							glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+							glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+							glBindTexture( GL_TEXTURE_2D, handle );
+						}
+						// Unset texture.
+						else{
+							glBindTexture( GL_TEXTURE_2D, 0 );
+						}
+
 						prevMaterial = curMaterial;
 					}
 				}
@@ -153,67 +197,19 @@ namespace MAPIL
 				}
 				for( MapilInt32 k = 0; k < m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_NumElm; ++k ){
 					GLfloat v[ 3 ];
-					if( m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_NumElm == 3 ){
-						v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 ];
-						v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 1 ];
-						v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 2 ];
-					}
-					else{
-						if( k == 0 ){
-							v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 3 ] * 3 ];
-							v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 3 ] * 3 + 1 ];
-							v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 3 ] * 3 + 2 ];
-						}
-						else if( k == 1 ){
-							v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 ];
-							v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 + 1 ];
-							v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 + 2 ];
-						}
-						else if( k == 2 ){
-							v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 ];
-							v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 + 1 ];
-							v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 + 2 ];
-						}
-						else if( k == 3 ){
-							v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 ];
-							v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 1 ];
-							v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 2 ];
-						}
-						//if( k == 0 ){
-						//	v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 ];
-						//	v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 1 ];
-						//	v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 2 ];
-						//}
-						//else if( k == 1 ){
-						//	v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 ];
-						//	v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 + 1 ];
-						//	v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 0 ] * 3 + 2 ];
-						//}
-						//else if( k == 2 ){
-						//	v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 ];
-						//	v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 1 ];
-						//	v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 2 ] * 3 + 2 ];
-						//}
-						//else if( k == 3 ){
-						//	v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 ];
-						//	v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 + 1 ];
-						//	v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ 1 ] * 3 + 2 ];
-						//}
-					}
+					v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 ];
+					v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 1 ];
+					v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 2 ];
+					GLfloat normal[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 0 ],
+											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 1 ],
+											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 2 ] };
+					GLfloat texCoord[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 0 ],
+											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 1 ] };
 
+					// Need to call Texture -> Normal -> Vertex.
+					glTexCoord2fv( texCoord );
+					glNormal3fv( normal );
 					glVertex3fv( v );
-					// ‚±‚±‚ª‚¿‚å‚Á‚Æ‚¨‚©‚µ‚¢B
-					if( m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal ){
-						GLfloat normal[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 0 ],
-												m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 1 ],
-												m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 2 ] };
-						glNormal3fv( normal );
-					}
-				//	if( doesTextureExist ){
-				//		GLfloat texCoord[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 0 ],
-				//								m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 1 ] };
-				//		glTexCoord2fv( texCoord );
-				//	}
 				}
 				glEnd();
 			}

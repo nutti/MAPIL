@@ -664,25 +664,6 @@ namespace MAPIL
 			model.m_Object.push_back( obj );
 			pData->m_Model.push_back( model );
 		}
-				
-
-		//for( MapilUInt32 i = 0; i < m_Object.size(); ++i ){
-		//	ModelData::Object obj;
-		//	obj.m_NumVertex = m_Object[ i ].m_NumVertex;
-		//	for( MapilInt32 j = 0; j < m_Object[ i ].m_Vertex.size(); ++j ){
-		//		obj.m_Vertex.push_back( m_Object[ i ].m_Vertex[ j ] );
-		//	}
-		//	obj.m_NumFace = m_Object[ i ].m_NumFace;
-		//	for( MapilUInt32 j = 0; j < m_Object[ i ].m_Face.size(); ++j ){
-		//		ModelData::Object::Face face;
-		//		face.m_NumElement = m_Object[ i ].m_Face[ j ].m_NumElement;
-		//		face.m_MaterialNum = m_Object[ i ].m_Face[ j ].m_MaterialNum;
-		//		memcpy( face.m_Index, m_Object[ i ].m_Face[ j ].m_Index, sizeof( face.m_Index ) );
-		//		memcpy( face.m_TextureCoord, m_Object[ i ].m_Face[ j ].m_TextureCoord, sizeof( face.m_TextureCoord ) );
-		//		obj.m_Face.push_back( face );
-		//	}
-		//	pData->m_Object.push_back( obj );
-		//}
 	}
 
 	MapilVoid XFile::Open( const MapilChar* pFileName, FileOpenMode mode )
