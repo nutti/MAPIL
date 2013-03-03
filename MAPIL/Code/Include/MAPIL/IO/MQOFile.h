@@ -33,7 +33,7 @@ namespace MAPIL
 										MapilChar* pToken,
 										MapilInt32* pHierarchyNum );
 		// Get token.
-		MapilVoid GetToken(	std::basic_ifstream < MapilChar >* pFIn,
+		MapilInt32 GetToken(	std::basic_ifstream < MapilChar >* pFIn,
 							MapilChar* pToken );
 	protected:
 		struct Material

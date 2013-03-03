@@ -67,11 +67,7 @@ namespace MAPIL
 		// Skip '{'
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "MQOFile" ),
-									TSTR( "ProcessSceneToken" ),
-									TSTR( "{ isn't found." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -100,11 +96,7 @@ namespace MAPIL
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "MQOFile" ),
-									TSTR( "ProcessMaterialToken" ),
-									TSTR( "{ isn't found." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -112,114 +104,68 @@ namespace MAPIL
 
 		Material mat;
 
-		for( MapilInt32 i = 0; i < m_NumMaterial; i++ ){
-			// Skip material name.
-			GetToken( pFIn, pToken );
+
+		// Skip material name and line feed.
+		GetToken( pFIn, pToken );
+		GetToken( pFIn, pToken );
+		while( strcmp( pToken, "}" ) && !pFIn->eof() ){
 			// Check "col" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "col" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"col\" token isn't found." ),
-										-2 );
-			}
-			// Get color.
-			for( MapilInt32 j = 0; j < 4; j++ ){
-				GetToken( pFIn, pToken );
-				mat.m_Color[ j ] = static_cast < MapilFloat32 > ( atof( pToken ) );
+			if( !strcmp( pToken, "col" ) ){
+				// Get color.
+				for( MapilInt32 j = 0; j < 4; j++ ){
+					GetToken( pFIn, pToken );
+					mat.m_Color[ j ] = static_cast < MapilFloat32 > ( atof( pToken ) );
+				}
 			}
 			// Check "dif" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "dif" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"dif\" token isn't found." ),
-										-3 );
+			else if( !strcmp( pToken, "dif" ) ){
+				// Get diffuse.
+				GetToken( pFIn, pToken );
+				mat.m_Diffuse = static_cast < MapilFloat32 > ( atof( pToken ) );
 			}
-			// Get diffuse.
-			GetToken( pFIn, pToken );
-			mat.m_Diffuse = static_cast < MapilFloat32 > ( atof( pToken ) );
 			// Check "amb" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "amb" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"amb\" token isn't found." ),
-										-4 );
+			else if( !strcmp( pToken, "amb" ) ){
+				// Get ambient.
+				GetToken( pFIn, pToken );
+				mat.m_Ambient = static_cast < MapilFloat32 > ( atof( pToken ) );
 			}
-			// Get ambient.
-			GetToken( pFIn, pToken );
-			mat.m_Ambient = static_cast < MapilFloat32 > ( atof( pToken ) );
 			// Check "emi" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "emi" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"emi\" token isn't found." ),
-										-5 );
+			else if( !strcmp( pToken, "emi" ) ){
+				// Get emissive.
+				GetToken( pFIn, pToken );
+				mat.m_Emissive = static_cast < MapilFloat32 > ( atof( pToken ) );
 			}
-			// Get emissive.
-			GetToken( pFIn, pToken );
-			mat.m_Emissive = static_cast < MapilFloat32 > ( atof( pToken ) );
 			// Check "spc" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "spc" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"spc\" token isn't found." ),
-										-6 );
+			else if( !strcmp( pToken, "spc" ) ){
+				// Get specular.
+				GetToken( pFIn, pToken );
+				mat.m_Specular = static_cast < MapilFloat32 > ( atof( pToken ) );
 			}
-			// Get specular.
-			GetToken( pFIn, pToken );
-			mat.m_Specular = static_cast < MapilFloat32 > ( atof( pToken ) );
 			// Check "power" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "power" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessMaterialToken" ),
-										TSTR( "\"power\" token isn't found." ),
-										-7 );
+			else if( !strcmp( pToken, "power" ) ){
+				// Get power.
+				GetToken( pFIn, pToken );
+				mat.m_Power = static_cast < MapilFloat32 > ( atof( pToken ) );
 			}
-			// Get power.
-			GetToken( pFIn, pToken );
-			mat.m_Power = static_cast < MapilFloat32 > ( atof( pToken ) );
 			// Check "tex" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "tex" ) ){
-				//throw MapilException(	TSTR( "Mapil" ),
-				//						TSTR( "MQOFile" ),
-				//						TSTR( "ProcessMaterialToken" ),
-				//						TSTR( "\"tex\" token isn't found." ),
-				//						-8 );
-				pFIn->seekg( -1, std::ios::cur );
-				ZeroObject( mat.m_TextureFileName, sizeof( mat.m_TextureFileName ) );
-			}
-			else{
+			else if( !strcmp( pToken, "tex" ) ){
 				// Get texture file name.
 				GetToken( pFIn, pToken );
 				strcpy( mat.m_TextureFileName, pToken );
+				//pFIn->seekg( -1, std::ios::cur );
+				//ZeroObject( mat.m_TextureFileName, sizeof( mat.m_TextureFileName ) );
 			}
-					
-			m_Material.push_back( mat );
+			else if( !strcmp( pToken, "\n" ) ){
+				m_Material.push_back( mat );
+			}
+				
+			GetToken( pFIn, pToken );
 		}
 
-		// Check '}'.
-		GetToken( pFIn, pToken );
-		if( strcmp( pToken, "}" ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "MQOFile" ),
-									TSTR( "ProcessMaterialToken" ),
-									TSTR( "} isn't found." ),
-									-9 );
-		}
-		else{
-			( *pHierarchyNum )--;
+		( *pHierarchyNum )--;
+
+		if( pFIn->eof() || m_Material.size() != m_NumMaterial ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Invalid Format." ), -9 );
 		}
 	}
 
@@ -275,6 +221,9 @@ namespace MAPIL
 			( *pHierarchyNum )++;
 		}
 
+		// Skip line feed.
+		GetToken( pFIn, pToken );
+
 		MapilFloat32 buf;
 
 		for( MapilInt32 i = 0; i < obj.m_NumVertex; i++ ){
@@ -283,6 +232,9 @@ namespace MAPIL
 				buf = static_cast < MapilFloat32 > ( atof( pToken ) );
 				obj.m_Vertex.push_back( buf );
 			}
+
+			// Skip line feed.
+			GetToken( pFIn, pToken );
 		}
 				
 		// Chech '}' token.
@@ -297,6 +249,9 @@ namespace MAPIL
 		else{
 			( *pHierarchyNum )--;
 		}
+
+		// Skip line feed.
+		GetToken( pFIn, pToken );
 
 		// Check "face" token.
 		GetToken( pFIn, pToken );
@@ -325,99 +280,89 @@ namespace MAPIL
 			( *pHierarchyNum )++;
 		}
 
+		// Skip line feed.
+		GetToken( pFIn, pToken );
 				
 
-		for( MapilInt32 i = 0; i < obj.m_NumFace; i++ ){
-			Object::Face face;
+		bool first = true;
+		
+		GetToken( pFIn, pToken );
+		Object::Face face;
+		while( !pFIn->eof() && strcmp( pToken, "}" ) ){
 			// Get number of element.
-			GetToken( pFIn, pToken );
-			face.m_NumElement = atoi( pToken );
-			// Check "V" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "V" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessObjectToken" ),
-										TSTR( "\"V\" token isn't found." ),
-										-7 );
+			if( first ){
+				face.m_NumElement = atoi( pToken );
+				first = false;
 			}
-			// Get index.
-			for( MapilInt32 j = 0; j < 4; j++ ){
-				if( j < face.m_NumElement ){
-					GetToken( pFIn, pToken );
-					face.m_Index[ j ] = atoi( pToken );	
-				}
-				else{
-					face.m_Index[ j ] = -1;
+			else if( !strcmp( pToken, "V" ) ){
+				// Get index.
+				for( MapilInt32 j = 0; j < 4; j++ ){
+					if( j < face.m_NumElement ){
+						GetToken( pFIn, pToken );
+						face.m_Index[ j ] = atoi( pToken );	
+					}
+					else{
+						face.m_Index[ j ] = -1;
+					}
 				}
 			}
 			// Check "M" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "M" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessObjectToken" ),
-										TSTR( "\"M\" token isn't found." ),
-										-8 );
+			else if( !strcmp( pToken, "M" ) ){
+				// Get material number.
+				GetToken( pFIn, pToken );
+				face.m_MaterialNum = atoi( pToken );
 			}
-			// Get material number.
-			GetToken( pFIn, pToken );
-			face.m_MaterialNum = atoi( pToken );
 			// Check "UV" token.
-			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "UV" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessObjectToken" ),
-										TSTR( "\"UV\" token isn't found." ),
-										-9 );
-			}
-			// Get texture coordinate.
-			for( MapilInt32 j = 0; j < 8; j++ ){
-				if( j < face.m_NumElement * 2 ){
-					GetToken( pFIn, pToken );
-					face.m_TextureCoord[ j ] = static_cast < MapilFloat32 > ( atof( pToken ) );
+			else if( !strcmp( pToken, "UV" ) ){
+				// Get texture coordinate.
+				for( MapilInt32 j = 0; j < 8; j++ ){
+					if( j < face.m_NumElement * 2 ){
+						GetToken( pFIn, pToken );
+						face.m_TextureCoord[ j ] = static_cast < MapilFloat32 > ( atof( pToken ) );
+					}
+					else{
+						face.m_TextureCoord[ j ] = -1;
+					}						
 				}
-				else{
-					face.m_TextureCoord[ j ] = -1;
-				}						
 			}
-
-			obj.m_Face.push_back( face );
-		}
-
-		// Chech '}' token twice.
-		for( MapilInt32 i = 0; i < 2; i++ ){
+			else if( !strcmp( pToken, "\n" ) ){
+				obj.m_Face.push_back( face );
+				first = true;
+			}
 			GetToken( pFIn, pToken );
-			if( strcmp( pToken, "}" ) ){
-				throw MapilException(	TSTR( "Mapil" ),
-										TSTR( "MQOFile" ),
-										TSTR( "ProcessObjectToken" ),
-										TSTR( "} isn't found." ),
-										-10 );
-			}
-			else{
-				( *pHierarchyNum )--;
-			}
 		}
+
+		( *pHierarchyNum )--;
+
+		if( pFIn->eof() || obj.m_NumFace != obj.m_Face.size() ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Invalid Format." ), -9 );
+		}
+
+		// Skip line feed.
+		GetToken( pFIn, pToken );
 
 		m_Object.push_back( obj );
 	}
 
 	// Get token.
-	MapilVoid MQOFile::GetToken(	std::basic_ifstream < MapilChar >* pFIn,
+	MapilInt32 MQOFile::GetToken(	std::basic_ifstream < MapilChar >* pFIn,
 												MapilChar* pToken )
 	{
 		MapilChar data;
 
 		pFIn->get( data );
-		while( !pFIn->eof() && ( data == ' ' || data == '\t' || data == '\n' || data == '\r' || data == ';' || data == ',' || data == '\"' || data == '(' || data == ')' ) ){
+		while( !pFIn->eof() && ( data == ' ' || data == '\t' /*|| data == '\n'*/ || data == '\r' || data == ';' || data == ',' || data == '\"' || data == '(' || data == ')' ) ){
 			pFIn->get( data );
+		}
+		if( data == '\n' ){
+			pToken[ 0 ] = data;
+			pToken[ 1 ] = '\0';
+			return 1;
 		}
 
 		MapilInt32 count = 0;
 		pToken[ count ] = data;
-		while( !pFIn->eof() && data != ' ' && data != '\t' && data != '\n' && data != '\r' && data != ';' && data != ',' && data != '{' && data != '}' && data != '\"' && data != '(' && data != ')' ){
+		while( !pFIn->eof() && data != ' ' && data != '\t' /*&& data != '\n'*/ && data != '\r' && data != ';' && data != ',' && data != '{' && data != '}' && data != '\"' && data != '(' && data != ')' ){
 			pFIn->get( data );
 			if( pFIn->eof() || data == ' ' || data == '\t' || data == '\n' || data == '\r' || data == ';' || data == ',' || data == '{' || data == '}' || data == '\"' || data == '(' || data == ')' ){
 				pFIn->seekg( -1, std::ios::cur );
@@ -426,7 +371,10 @@ namespace MAPIL
 			count++;
 			pToken[ count ] = data;
 		}
+
 		pToken[ count + 1 ] = '\0';
+
+		return 0;
 	}
 
 	// Load mesh from x-file.

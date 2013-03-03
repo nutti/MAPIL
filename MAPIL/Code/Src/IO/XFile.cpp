@@ -75,16 +75,25 @@ namespace MAPIL
 													MapilInt32* pHierarchyNum )
 	{
 		Mesh mesh;
+		mesh.m_Face.clear();
+		mesh.m_Material.clear();
+		mesh.m_Normal.clear();
+		mesh.m_NumIndex = 0;
+		mesh.m_NumMaterial = 0;
+		mesh.m_NumNormal = 0;
+		mesh.m_NumTextureCoord = 0;
+		mesh.m_NumVertex = 0;
+		mesh.m_NumVertexColor = 0;
+		mesh.m_TextureCoord.clear();
+		mesh.m_Vertex.clear();
+		mesh.m_VertexColor.clear();
+
 		MapilInt32 first = *pHierarchyNum;
 
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "XFile" ),
-									TSTR( "ProcessMeshToken" ),
-									TSTR( "{ isn't found." ),
-									-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -360,11 +369,7 @@ namespace MAPIL
 		GetToken( pFIn, pToken );
 		num = atoi( pToken );
 		if( num != pMesh->m_NumIndex ){
-			throw MapilException(	TSTR( "Mapil" ),
-									TSTR( "XFile" ),
-									TSTR( "ProcessMeshNormalsToken" ),
-									TSTR( "Number of index doesn't correspond to that of face." ),
-									-2 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Number of index doesn't correspond to that of face." ), -2 );
 		}
 
 		for( MapilInt32 i = 0; i < pMesh->m_NumIndex; i++ ){
@@ -631,26 +636,28 @@ namespace MAPIL
 				else{
 					face.m_TexCoord[ 6 ] = face.m_TexCoord[ 7 ] = -1.0f;
 				}
-				face.m_VertexCol[ 0 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_A;
-				face.m_VertexCol[ 1 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_R;
-				face.m_VertexCol[ 2 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_G;
-				face.m_VertexCol[ 3 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_B;
-				face.m_VertexCol[ 4 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_A;
-				face.m_VertexCol[ 5 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_R;
-				face.m_VertexCol[ 6 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_G;
-				face.m_VertexCol[ 7 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_B;
-				face.m_VertexCol[ 8 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_A;
-				face.m_VertexCol[ 9 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_R;
-				face.m_VertexCol[ 10 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_G;
-				face.m_VertexCol[ 11 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_B;
-				if( m_Mesh[ i ].m_Face[ j ].m_NumElement == 4 ){
-					face.m_VertexCol[ 12 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_A;
-					face.m_VertexCol[ 13 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_R;
-					face.m_VertexCol[ 14 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_G;
-					face.m_VertexCol[ 15 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_B;
-				}
-				else{
-					face.m_VertexCol[ 12 ] = face.m_VertexCol[ 13 ] = face.m_VertexCol[ 14 ] = face.m_VertexCol[ 15 ] = -1.0f;
+				if( m_Mesh[ i ].m_NumVertexColor > 0 ){
+					face.m_VertexCol[ 0 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_A;
+					face.m_VertexCol[ 1 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_R;
+					face.m_VertexCol[ 2 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_G;
+					face.m_VertexCol[ 3 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_B;
+					face.m_VertexCol[ 4 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_A;
+					face.m_VertexCol[ 5 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_R;
+					face.m_VertexCol[ 6 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_G;
+					face.m_VertexCol[ 7 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_B;
+					face.m_VertexCol[ 8 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_A;
+					face.m_VertexCol[ 9 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_R;
+					face.m_VertexCol[ 10 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_G;
+					face.m_VertexCol[ 11 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_B;
+					if( m_Mesh[ i ].m_Face[ j ].m_NumElement == 4 ){
+						face.m_VertexCol[ 12 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_A;
+						face.m_VertexCol[ 13 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_R;
+						face.m_VertexCol[ 14 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_G;
+						face.m_VertexCol[ 15 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_B;
+					}
+					else{
+						face.m_VertexCol[ 12 ] = face.m_VertexCol[ 13 ] = face.m_VertexCol[ 14 ] = face.m_VertexCol[ 15 ] = -1.0f;
+					}
 				}
 				obj.m_Face.push_back( face );
 			}

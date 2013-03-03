@@ -70,6 +70,7 @@ namespace MAPIL
 										-1 );
 			}
 			::png_init_io( m_SP, m_pFile );
+			m_OpenMode = mode;
 		}
 	}
 
