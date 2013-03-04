@@ -41,7 +41,7 @@ namespace MAPIL
 	// Load.
 	MapilVoid TTFFile::Load( MapilTChar* pFilePath )
 	{
-#ifdef OS_WIN_32BIT
+#if defined ( API_WIN32API )
 		m_FilePath = pFilePath;
 		if( AddFontResourceEx( m_FilePath.c_str(), FR_PRIVATE, NULL ) <= 0 ){
 			throw MapilException(	TSTR( "Mapil" ),
@@ -56,7 +56,7 @@ namespace MAPIL
 	// Destroy.
 	MapilVoid TTFFile::Destroy()
 	{
-#ifdef OS_WIN_32BIT
+#if defined ( API_WIN32API )
 		if( !RemoveFontResourceEx( m_FilePath.c_str(), FR_PRIVATE, NULL ) ){
 			throw MapilException(	TSTR( "Mapil" ),
 									TSTR( "Font" ),

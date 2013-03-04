@@ -437,27 +437,27 @@ namespace MAPIL
 		}
 
 		// Copy object to ModelData.
-		for( MapilUInt32 i = 0; i < m_Object.size(); ++i ){
-			ModelData::Model::Object obj;
-			obj.m_NumVertex = m_Object[ i ].m_NumVertex;
-			for( MapilUInt32 j = 0; j < m_Object[ i ].m_Vertex.size(); ++j ){
-				obj.m_Vertex.push_back( m_Object[ i ].m_Vertex[ j ] );
-			}
-			obj.m_NumFace = m_Object[ i ].m_NumFace;
-			for( MapilUInt32 j = 0; j < m_Object[ i ].m_Face.size(); ++j ){
-				ModelData::Model::Object::Face face;
-				face.m_NumElm = m_Object[ i ].m_Face[ j ].m_NumElement;
-				face.m_MtrlNum = m_Object[ i ].m_Face[ j ].m_MaterialNum;
-				memcpy( face.m_Index, m_Object[ i ].m_Face[ j ].m_Index, sizeof( face.m_Index ) );
-				memcpy( face.m_TexCoord, m_Object[ i ].m_Face[ j ].m_TextureCoord, sizeof( face.m_TexCoord ) );
-				for( MapilInt32 index = 0; index < sizeof( face.m_Normal ) / sizeof( face.m_Normal[ 0 ] ); ++index ){
-					face.m_Normal[ index ] = -1.0f;
-				}
-				memcpy( face.m_VertexCol, m_Material[ m_Object[ i ].m_Face[ j ].m_MaterialNum ].m_Color, sizeof( face.m_VertexCol ) );
-				obj.m_Face.push_back( face );
-			}
-			model.m_Object.push_back( obj );
-		}
+		//for( MapilUInt32 i = 0; i < m_Object.size(); ++i ){
+		//	ModelData::Model::Object obj;
+		//	obj.m_NumVertex = m_Object[ i ].m_NumVertex;
+		//	for( MapilUInt32 j = 0; j < m_Object[ i ].m_Vertex.size(); ++j ){
+		//		obj.m_Vertex.push_back( m_Object[ i ].m_Vertex[ j ] );
+		//	}
+		//	obj.m_NumFace = m_Object[ i ].m_NumFace;
+		//	for( MapilUInt32 j = 0; j < m_Object[ i ].m_Face.size(); ++j ){
+		//		ModelData::Model::Object::Face face;
+		//		face.m_NumElm = m_Object[ i ].m_Face[ j ].m_NumElement;
+		//		face.m_MtrlNum = m_Object[ i ].m_Face[ j ].m_MaterialNum;
+		//		memcpy( face.m_Index, m_Object[ i ].m_Face[ j ].m_Index, sizeof( face.m_Index ) );
+		//		memcpy( face.m_TexCoord, m_Object[ i ].m_Face[ j ].m_TextureCoord, sizeof( face.m_TexCoord ) );
+		//		for( MapilInt32 index = 0; index < sizeof( face.m_Normal ) / sizeof( face.m_Normal[ 0 ] ); ++index ){
+		//			face.m_Normal[ index ] = -1.0f;
+		//		}
+		//		memcpy( face.m_VertexCol, m_Material[ m_Object[ i ].m_Face[ j ].m_MaterialNum ].m_Color, sizeof( face.m_VertexCol ) );
+		//		obj.m_Face.push_back( face );
+		//	}
+		//	model.m_Object.push_back( obj );
+		//}
 
 		pData->m_Model.push_back( model );
 	}

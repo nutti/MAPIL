@@ -8,6 +8,8 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <iterator>
+#include <algorithm>
 
 #include "../../Include/MAPIL/IO/XFile.h"
 
@@ -105,14 +107,16 @@ namespace MAPIL
 				
 		// Get vertex information.
 		for( MapilInt32 i = 0; i < mesh.m_NumVertex; i++ ){
-			Vector3 < MapilFloat32 > vertex;
+			MapilFloat32 val;
 			GetToken( pFIn, pToken );
-			vertex.m_X = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			mesh.m_Vertex.push_back( val );
 			GetToken( pFIn, pToken );
-			vertex.m_Y = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			mesh.m_Vertex.push_back( val );
 			GetToken( pFIn, pToken );
-			vertex.m_Z = static_cast < MapilFloat32 > ( atof( pToken ) );
-			mesh.m_Vertex.push_back( vertex );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			mesh.m_Vertex.push_back( val );
 		}
 
 		// Get number of index.
@@ -354,14 +358,16 @@ namespace MAPIL
 
 		// Get normal information.
 		for( MapilInt32 i = 0; i < pMesh->m_NumNormal; i++ ){
-			Vector3 < MapilFloat32 > normal;
+			MapilFloat32 val;
 			GetToken( pFIn, pToken );
-			normal.m_X = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_Normal.push_back( val );
 			GetToken( pFIn, pToken );
-			normal.m_Y = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_Normal.push_back( val );
 			GetToken( pFIn, pToken );
-			normal.m_Z = static_cast < MapilFloat32 > ( atof( pToken ) );
-			pMesh->m_Normal.push_back( normal );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_Normal.push_back( val );
 		}
 
 		// Check number of index.
@@ -430,12 +436,13 @@ namespace MAPIL
 
 		// Get texture coordinate information.
 		for( MapilInt32 i = 0; i < pMesh->m_NumTextureCoord; i++ ){
-			Vector2 < MapilFloat32 > texCoord;
+			MapilFloat32 val;
 			GetToken( pFIn, pToken );
-			texCoord.m_X = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_TextureCoord.push_back( val );
 			GetToken( pFIn, pToken );
-			texCoord.m_Y = static_cast < MapilFloat32 > ( atof( pToken ) );
-			pMesh->m_TextureCoord.push_back( texCoord );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_TextureCoord.push_back( val );
 		}
 
 		// Chech '}'.
@@ -477,18 +484,21 @@ namespace MAPIL
 
 		// Get vertex color information.
 		for( MapilInt32 i = 0; i < pMesh->m_NumVertexColor; i++ ){
-			ColorARGB < MapilFloat32 > col;
+			MapilFloat32 val;
 			// Skip number.
 			GetToken( pFIn, pToken );
 			GetToken( pFIn, pToken );
-			col.m_R = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_VertexColor.push_back( val );
 			GetToken( pFIn, pToken );
-			col.m_G = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_VertexColor.push_back( val );
 			GetToken( pFIn, pToken );
-			col.m_B = static_cast < MapilFloat32 > ( atof( pToken ) );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_VertexColor.push_back( val );
 			GetToken( pFIn, pToken );
-			col.m_A = static_cast < MapilFloat32 > ( atof( pToken ) );
-			pMesh->m_VertexColor.push_back( col );
+			val = static_cast < MapilFloat32 > ( atof( pToken ) );
+			pMesh->m_VertexColor.push_back( val );
 		}
 
 		// Check '}'.
@@ -592,76 +602,20 @@ namespace MAPIL
 				strcpy( mtrl.m_TexFileName, m_Mesh[ i ].m_Material[ j ].m_TextureFileName );
 				model.m_Material.push_back( mtrl );
 			}
-			// ここ要修正。Xファイル読み込みのフォーマットがおかしい。
-			ModelData::Model::Object obj;
-			obj.m_NumVertex = m_Mesh[ i ].m_NumVertex;
-			for( MapilInt32 j = 0; j < m_Mesh[ i ].m_NumVertex; ++j ){
-				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_X );
-				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_Y );
-				obj.m_Vertex.push_back( m_Mesh[ i ].m_Vertex[ j ].m_Z );
-			}
-			obj.m_NumFace = m_Mesh[ i ].m_Face.size();
+			std::copy( m_Mesh[ i ].m_Vertex.begin(), m_Mesh[ i ].m_Vertex.end(), std::back_inserter( model.m_Vertices ) );
+			std::copy( m_Mesh[ i ].m_Normal.begin(), m_Mesh[ i ].m_Normal.end(), std::back_inserter( model.m_Normals ) );
+			std::copy( m_Mesh[ i ].m_TextureCoord.begin(), m_Mesh[ i ].m_TextureCoord.end(), std::back_inserter( model.m_TexCoords ) );
+			std::copy( m_Mesh[ i ].m_VertexColor.begin(), m_Mesh[ i ].m_VertexColor.end(), std::back_inserter( model.m_VertexCols ) );
 			for( MapilUInt32 j = 0; j < m_Mesh[ i ].m_Face.size(); ++j ){
-				ModelData::Model::Object::Face face;
+				ModelData::Model::Face face;
 				face.m_NumElm = m_Mesh[ i ].m_Face[ j ].m_NumElement;
 				face.m_MtrlNum = m_Mesh[ i ].m_Face[ j ].m_MaterialNum;
-				memcpy( face.m_Index, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_Index ) );
-				face.m_Normal[ 0 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 0 ] ].m_X;
-				face.m_Normal[ 1 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 0 ] ].m_Y;
-				face.m_Normal[ 2 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 0 ] ].m_Z;
-				face.m_Normal[ 3 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 1 ] ].m_X;
-				face.m_Normal[ 4 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 1 ] ].m_Y;
-				face.m_Normal[ 5 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 1 ] ].m_Z;
-				face.m_Normal[ 6 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 2 ] ].m_X;
-				face.m_Normal[ 7 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 2 ] ].m_Y;
-				face.m_Normal[ 8 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 2 ] ].m_Z;
-				if( m_Mesh[ i ].m_Face[ j ].m_NumElement == 4 ){
-					face.m_Normal[ 9 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 3 ] ].m_X;
-					face.m_Normal[ 10 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 3 ] ].m_Y;
-					face.m_Normal[ 11 ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ j ].m_NormalNum[ 3 ] ].m_Z;
-				}
-				else{
-					face.m_Normal[ 9 ] = face.m_Normal[ 10 ] = face.m_Normal[ 11 ] = -1.0f;
-				}
-				face.m_TexCoord[ 0 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_X;
-				face.m_TexCoord[ 1 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_Y;
-				face.m_TexCoord[ 2 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_X;
-				face.m_TexCoord[ 3 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_Y;
-				face.m_TexCoord[ 4 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_X;
-				face.m_TexCoord[ 5 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_Y;
-				if( m_Mesh[ i ].m_Face[ j ].m_NumElement == 4 ){
-					face.m_TexCoord[ 6 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_X;
-					face.m_TexCoord[ 7 ] = m_Mesh[ i ].m_TextureCoord[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_Y;
-				}
-				else{
-					face.m_TexCoord[ 6 ] = face.m_TexCoord[ 7 ] = -1.0f;
-				}
-				if( m_Mesh[ i ].m_NumVertexColor > 0 ){
-					face.m_VertexCol[ 0 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_A;
-					face.m_VertexCol[ 1 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_R;
-					face.m_VertexCol[ 2 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_G;
-					face.m_VertexCol[ 3 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] ].m_B;
-					face.m_VertexCol[ 4 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_A;
-					face.m_VertexCol[ 5 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_R;
-					face.m_VertexCol[ 6 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_G;
-					face.m_VertexCol[ 7 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] ].m_B;
-					face.m_VertexCol[ 8 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_A;
-					face.m_VertexCol[ 9 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_R;
-					face.m_VertexCol[ 10 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_G;
-					face.m_VertexCol[ 11 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] ].m_B;
-					if( m_Mesh[ i ].m_Face[ j ].m_NumElement == 4 ){
-						face.m_VertexCol[ 12 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_A;
-						face.m_VertexCol[ 13 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_R;
-						face.m_VertexCol[ 14 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_G;
-						face.m_VertexCol[ 15 ] = m_Mesh[ i ].m_VertexColor[ m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] ].m_B;
-					}
-					else{
-						face.m_VertexCol[ 12 ] = face.m_VertexCol[ 13 ] = face.m_VertexCol[ 14 ] = face.m_VertexCol[ 15 ] = -1.0f;
-					}
-				}
-				obj.m_Face.push_back( face );
+				memcpy( face.m_VertexIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_VertexIndices ) );
+				memcpy( face.m_NormalIndices, m_Mesh[ i ].m_Face[ j ].m_NormalNum, sizeof( face.m_NormalIndices ) );
+				memcpy( face.m_TexCoordIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_TexCoordIndices ) );
+				memcpy( face.m_VertexColIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_VertexColIndices ) );
+				model.m_Face.push_back( face );
 			}
-			model.m_Object.push_back( obj );
 			pData->m_Model.push_back( model );
 		}
 	}

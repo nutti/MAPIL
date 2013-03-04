@@ -58,7 +58,7 @@ namespace MAPIL
 	{
 	}
 
-#if defined ( API_WIN32API )
+#if defined ( API_WIN32API ) && defined ( API_DIRECTINPUT )
 	COMPointer < IDirectInput8 > InputDevice::GetDev()
 	{
 		return m_DI;

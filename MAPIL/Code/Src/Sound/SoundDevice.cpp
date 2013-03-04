@@ -12,13 +12,17 @@
 
 namespace MAPIL
 {
-	SoundDevice::SoundDevice( MapilInt32 api ) : m_pDev( NULL ), m_API( api )
+	SoundDevice::SoundDevice( MapilInt32 api ) :
+#if defined ( API_OPENAL ) || defined ( API_ALSA )
+													m_pDev( NULL ),
+#endif
+													m_API( api )
 	{
 	}
 	
 	SoundDevice::~SoundDevice()
 	{
-		SafeDelete( m_pDev );
+		Destroy();
 		m_API = SOUND_API_UNKNOWN;
 	}
 	
@@ -34,12 +38,16 @@ namespace MAPIL
 	
 	MapilVoid SoundDevice::Destroy()
 	{
+#if defined ( API_OPENAL ) || defined ( API_ALSA )
 		SafeDelete( m_pDev );
+#endif
 	}
 	
 	MapilVoid SoundDevice::SetVolume( MapilUInt32 volume )
 	{
+#if defined ( API_OPENAL ) || defined ( API_ALSA )
 		m_pDev->SetVolume( volume );
+#endif
 	}
 
 #if defined ( API_ALSA )

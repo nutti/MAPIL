@@ -13,6 +13,7 @@
 namespace MAPIL
 {
 	SoundFactory::SoundFactory( SharedPointer < SoundDevice > pDev ) : m_pDev( pDev )
+
 	{
 	}
 
@@ -33,7 +34,9 @@ namespace MAPIL
 
 		if( api == SOUND_API_OPENAL ){
 			//return SharedPointer < GraphicsFactory > ( new D3DGraphicsFactory( pDev ) );
+#if defined ( API_OPENAL )
 			return new ALSoundFactory( pDev );
+#endif
 		}
 		else{
 			return NULL;

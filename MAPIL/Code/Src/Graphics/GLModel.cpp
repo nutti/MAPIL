@@ -110,25 +110,24 @@ namespace MAPIL
 	{
 		MapilFloat32 doesMaterialExist = MapilFalse;
 
-		
+		for( MapilUInt32 i = 0; i < m_pModelData->m_Model.size(); i++ ){
 
-		if( m_pModelData->m_Model[ 0 ].m_Material.size() > 0 ){
-			doesMaterialExist = MapilTrue;
-		}
+			if( m_pModelData->m_Model[ i ].m_Material.size() > 0 ){
+				doesMaterialExist = MapilTrue;
+			}
 
-		for( MapilUInt32 i = 0; i < m_pModelData->m_Model[ 0 ].m_Object.size() ; i++ ){
 			MapilFloat32 doesFaceExist = MapilFalse;
 			MapilInt32 curMaterial = -1;
 			MapilInt32 prevMaterial = -1;
 					
-			if( m_pModelData->m_Model[ 0 ].m_Object[ i ].m_NumFace > 0 ){
+			if( m_pModelData->m_Model[ i ].m_Face.size() > 0 ){
 				doesFaceExist = MapilTrue;
 			}
 
-			for( MapilInt32 j = 0; j < m_pModelData->m_Model[ 0 ].m_Object[ i ].m_NumFace; j++ ){
+			for( MapilInt32 j = 0; j < m_pModelData->m_Model[ i ].m_Face.size(); j++ ){
 				if( doesMaterialExist ){
 
-					curMaterial = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_MtrlNum;
+					curMaterial = m_pModelData->m_Model[ i ].m_Face[ j ].m_MtrlNum;
 
 					// Optimization.
 					if( curMaterial != prevMaterial ){
@@ -189,22 +188,22 @@ namespace MAPIL
 						prevMaterial = curMaterial;
 					}
 				}
-				if( m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_NumElm == 3 ){
+				if( m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm == 3 ){
 					glBegin( GL_TRIANGLES );
 				}
 				else{
 					glBegin( GL_QUADS );
 				}
-				for( MapilInt32 k = 0; k < m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_NumElm; ++k ){
+				for( MapilInt32 k = 0; k < m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm; ++k ){
 					GLfloat v[ 3 ];
-					v[ 0 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 ];
-					v[ 1 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 1 ];
-					v[ 2 ] = m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Vertex[ m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Index[ k ] * 3 + 2 ];
-					GLfloat normal[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 0 ],
-											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 1 ],
-											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_Normal[ k * 3 + 2 ] };
-					GLfloat texCoord[] = {	m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 0 ],
-											m_pModelData->m_Model[ 0 ].m_Object[ i ].m_Face[ j ].m_TexCoord[ k * 2 + 1 ] };
+					v[ 0 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 ];
+					v[ 1 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 + 1 ];
+					v[ 2 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 + 2 ];
+					GLfloat normal[] = {	m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 ],
+											m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 + 1 ],
+											m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 + 2 ] };
+					GLfloat texCoord[] = {	m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Face[ j ].m_TexCoordIndices[ k ] * 2 ],
+											m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Face[ j ].m_TexCoordIndices[ k ] * 2 + 1 ] };
 
 					// Need to call Texture -> Normal -> Vertex.
 					glTexCoord2fv( texCoord );

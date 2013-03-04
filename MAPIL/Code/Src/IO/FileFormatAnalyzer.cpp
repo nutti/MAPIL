@@ -43,6 +43,8 @@ namespace MAPIL
 		MapilChar str[ 200 ];
 		m_FIn.read( str, sizeof( str ) );
 
+		const char PNG_SIGNATURE[ 5 ] = { 0x89, 0x50, 0x4E, 0x47, 0 };
+
 		if( !strncmp( str, "RIFF", 4 ) ){
 			if( !strncmp( str + 8, "WAVE", 4 ) ){
 				m_Fmt = FILE_FORMAT_WAV;
@@ -56,6 +58,9 @@ namespace MAPIL
 		}
 		else if( !strncmp( str, "xof", 3 ) ){
 			m_Fmt = FILE_FORMAT_X;
+		}
+		else if( !strncmp( str, PNG_SIGNATURE, 4 ) ){
+			m_Fmt = FILE_FORMAT_PNG;
 		}
 		else{
 			m_Fmt = FILE_FORMAT_UNKNOWN;
