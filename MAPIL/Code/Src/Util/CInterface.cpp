@@ -1869,14 +1869,17 @@ namespace MAPIL
 		Matrix4x4 < MapilFloat32 > rotMatZ;
 		Matrix4x4 < MapilFloat32 > scaleMat;
 		Matrix4x4 < MapilFloat32 > transMat;
+		Matrix4x4 < MapilFloat32 > aspectMat;
 
 		CreateRotationXMat( &rotMatX, rx );
 		CreateRotationYMat( &rotMatY, ry );
 		CreateRotationZMat( &rotMatZ, rz );
-		CreateScalingMat( &scaleMat, sx, sy, sy );
+		MapilFloat32 aspect = p->m_GC->GetWidth() * 1.0f / p->m_GC->GetHeight();
+		CreateScalingMat( &aspectMat, 1.0f, aspect, 1.0f );
+		CreateScalingMat( &scaleMat, sx, sy, sz );
 		CreateTranslationMat( &transMat, -1.0f + x / ( p->m_GC->GetWidth() * 0.5f ), 1.0f - y / ( p->m_GC->GetHeight() * 0.5f ), z );
 		// Scaling -> Rotation Z -> Rotation Y -> Rotation X -> Translation.
-		work.m_TransMat =  scaleMat * rotMatZ * rotMatY * rotMatX * transMat;
+		work.m_TransMat =  scaleMat * rotMatZ * rotMatY * rotMatX * aspectMat * transMat;
 
 		p->m_ModelOn2DBatch.push_back( work );
 	}
