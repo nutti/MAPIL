@@ -36,17 +36,26 @@
 namespace MAPIL
 {
 	GLGraphicsController::GLGraphicsController( SharedPointer < GraphicsDevice > pDev ) :	GraphicsController( pDev ),
-																			m_pGC()
+																							m_pGC(),
+																							m_IsGLControlled( MapilFalse )
 	{
 	}
 	
 	GLGraphicsController::~GLGraphicsController()
 	{
+		m_IsGLControlled = MapilFalse;
 	}
 
 	MapilVoid GLGraphicsController::Create( SharedPointer < GraphicsContext > pGC )
 	{
 		m_pGC = pGC;
+		m_IsGLControlled = MapilFalse;
+	}
+
+	MapilVoid GLGraphicsController::Create( SharedPointer < Window > pWin )
+	{
+		m_pWin = pWin;
+		m_IsGLControlled = MapilTrue;
 	}
 	
 	// Begin rendering

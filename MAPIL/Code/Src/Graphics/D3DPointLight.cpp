@@ -17,6 +17,7 @@
 #include "../../Include/MAPIL/Util/Memory.hpp"
 #include "../../Include/MAPIL/Diag/Assertion.hpp"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
+#include "../../Include/MAPIL/Diag/MapilException.h"
 
 //-------------------------------------------------------------------
 // Implementation.
@@ -25,16 +26,19 @@
 namespace MAPIL
 {
 	D3DPointLight::D3DPointLight( SharedPointer < GraphicsDevice > pDev ) :	PointLight( pDev ),
-																			m_IsActive( MapilFalse )
+																			m_IsActive( MapilFalse ),
+																			m_LightIndex( -1 )
 	{
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 	}
 
 	D3DPointLight::~D3DPointLight()
 	{
+		ReleaseLightIndex( m_LightIndex );
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 		m_IsActive = MapilFalse;
 		m_IsUsed = MapilFalse;
+		m_LightIndex = -1;
 	}
 
 	// Create.
@@ -44,12 +48,13 @@ namespace MAPIL
 										const Vector3 < MapilFloat32 >& vPos,
 										MapilFloat32 attenuation0, MapilFloat32 attenuation1, MapilFloat32 attenuation2 )
 	{
-		Assert(	!m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DPointLight" ),
-				TSTR( "Create" ),
-				TSTR( "The point light was already created." ),
-				-1 );
+		Assert( !m_IsUsed, CURRENT_POSITION, TSTR( "The point light was already created." ), -1 );
+
+		m_LightIndex = AttachLightIndex();
+
+		Assert(	m_LightIndex != -1, CURRENT_POSITION, TSTR( "Reached max light index." ), -2 );
+
+		m_IsUsed = MapilTrue;
 
 		//Type of light
 		m_D3DLight.Type = ::D3DLIGHT_POINT;
@@ -59,8 +64,6 @@ namespace MAPIL
 		SetPosition( vPos );
 
 		m_D3DLight.Range = 100.0f;
-
-		m_IsUsed = MapilTrue;
 	}
 
 	// Enagle light
@@ -75,14 +78,12 @@ namespace MAPIL
 
 		//Case that light has already being drawn
 		if( m_IsActive ){
-			int m_Index = 0;
-			m_pDev->GetDev().GetPointer()->SetLight( m_Index, &m_D3DLight );
-			m_pDev->GetDev().GetPointer()->LightEnable( m_Index, TRUE );
+			m_pDev->GetDev().GetPointer()->SetLight( m_LightIndex, &m_D3DLight );
+			m_pDev->GetDev().GetPointer()->LightEnable( m_LightIndex, TRUE );
 		}
 		else{
-			int m_Index = 0;
-			m_pDev->GetDev().GetPointer()->SetLight( m_Index, &m_D3DLight );
-			m_pDev->GetDev().GetPointer()->LightEnable( m_Index, TRUE );
+			m_pDev->GetDev().GetPointer()->SetLight( m_LightIndex, &m_D3DLight );
+			m_pDev->GetDev().GetPointer()->LightEnable( m_LightIndex, TRUE );
 			m_IsActive = MapilTrue;
 		}
 	}

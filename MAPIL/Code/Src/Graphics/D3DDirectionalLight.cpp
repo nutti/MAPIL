@@ -26,16 +26,19 @@
 namespace MAPIL
 {
 	D3DDirectionalLight::D3DDirectionalLight( SharedPointer < GraphicsDevice > pDev ) :	DirectionalLight( pDev ),
-																						m_IsActive( MapilFalse )
+																						m_IsActive( MapilFalse ),
+																						m_LightIndex( -1 )
 	{
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 	}
 
 	D3DDirectionalLight::~D3DDirectionalLight()
 	{
+		ReleaseLightIndex( m_LightIndex );
 		ZeroObject( &m_D3DLight, sizeof( m_D3DLight ) );
 		m_IsActive = MapilFalse;
 		m_IsUsed = MapilFalse;
+		m_LightIndex = -1;
 	}
 
 	// Create.
@@ -46,6 +49,10 @@ namespace MAPIL
 											MapilFloat32 attenuation0, MapilFloat32 attenuation1, MapilFloat32 attenuation2 )
 	{
 		Assert(	!m_IsUsed, CURRENT_POSITION, TSTR( "The directional light was already created." ), -1 );
+
+		m_LightIndex = AttachLightIndex();
+
+		Assert(	m_LightIndex != -1, CURRENT_POSITION, TSTR( "Reached max light index." ), -2 );
 
 		m_IsUsed = MapilTrue;
 
@@ -64,14 +71,12 @@ namespace MAPIL
 
 		//Case that light has already being drawn
 		if( m_IsActive ){
-			int m_Index = 0;
-			m_pDev->GetDev().GetPointer()->SetLight( m_Index, &m_D3DLight );
-			m_pDev->GetDev().GetPointer()->LightEnable( m_Index, TRUE );
+			m_pDev->GetDev().GetPointer()->SetLight( m_LightIndex, &m_D3DLight );
+			m_pDev->GetDev().GetPointer()->LightEnable( m_LightIndex, TRUE );
 		}
 		else{
-			int m_Index = 0;
-			m_pDev->GetDev().GetPointer()->SetLight( m_Index, &m_D3DLight );
-			m_pDev->GetDev().GetPointer()->LightEnable( m_Index, TRUE );
+			m_pDev->GetDev().GetPointer()->SetLight( m_LightIndex, &m_D3DLight );
+			m_pDev->GetDev().GetPointer()->LightEnable( m_LightIndex, TRUE );
 			m_IsActive = MapilTrue;
 		}
 	}
@@ -79,12 +84,7 @@ namespace MAPIL
 	// Set diffuse color
 	MapilVoid D3DDirectionalLight::SetDiffuseColor( const ColorARGB < MapilFloat32 >& colorDiffuse )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "SetDiffuseColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert( m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Diffuse.r = colorDiffuse.m_R;
 		m_D3DLight.Diffuse.g = colorDiffuse.m_G;
@@ -95,12 +95,7 @@ namespace MAPIL
 	// Set ambient color
 	MapilVoid D3DDirectionalLight::SetAmbientColor( const ColorARGB < MapilFloat32 >& colorAmbient )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "SetAmbientColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Ambient.r = colorAmbient.m_R;
 		m_D3DLight.Ambient.g = colorAmbient.m_G;
@@ -111,12 +106,7 @@ namespace MAPIL
 	// Set specular color
 	MapilVoid D3DDirectionalLight::SetSpecularColor( const ColorARGB < MapilFloat32 >& colorSpecular )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "SetSpecularColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Specular.r = colorSpecular.m_R;
 		m_D3DLight.Specular.g = colorSpecular.m_G;
@@ -127,12 +117,7 @@ namespace MAPIL
 	// Set diffuse color
 	MapilVoid D3DDirectionalLight::SetDiffuseColor( const ColorARGB < MapilUChar >& color )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DPointLight" ),
-				TSTR( "SetDiffuseColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Diffuse.r = color.m_R / 255.0f;
 		m_D3DLight.Diffuse.g = color.m_G / 255.0f;
@@ -143,12 +128,7 @@ namespace MAPIL
 	// Set ambient color
 	MapilVoid D3DDirectionalLight::SetAmbientColor( const ColorARGB < MapilUChar >& color )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DPointLight" ),
-				TSTR( "SetAmbientColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Ambient.r = color.m_R / 255.0f;
 		m_D3DLight.Ambient.g = color.m_G / 255.0f;
@@ -159,12 +139,7 @@ namespace MAPIL
 	// Set specular color
 	MapilVoid D3DDirectionalLight::SetSpecularColor( const ColorARGB < MapilUChar >& color )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DPointLight" ),
-				TSTR( "SetSpecularColor" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		m_D3DLight.Specular.r = color.m_R / 255.0f;
 		m_D3DLight.Specular.g = color.m_G / 255.0f;
@@ -175,12 +150,7 @@ namespace MAPIL
 	// Set attenuation of light
 	MapilVoid D3DDirectionalLight::SetAttenuation( MapilFloat32 attenuation0, MapilFloat32 attenuation1, MapilFloat32 attenuation2 )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "SetAttenuation" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 		m_D3DLight.Attenuation0 = attenuation0;
 		m_D3DLight.Attenuation1 = attenuation1;
 		m_D3DLight.Attenuation2 = attenuation2;
@@ -189,12 +159,7 @@ namespace MAPIL
 	// Set position.
 	MapilVoid D3DDirectionalLight::SetDirection( const Vector3 < MapilFloat32 >& vDir )
 	{
-		Assert(	m_IsUsed,
-				TSTR( "Mapil" ),
-				TSTR( "D3DDirectionalLight" ),
-				TSTR( "SetPosition" ),
-				TSTR( "The light isn't created yet." ),
-				-1 );
+		Assert( m_IsUsed, CURRENT_POSITION, TSTR( "The light isn't created yet." ), -1 );
 
 		D3DXVECTOR3 vDXDir( vDir.m_X, vDir.m_Y, vDir.m_Z );
 		D3DXVec3Normalize( static_cast < D3DXVECTOR3* > ( &m_D3DLight.Direction ), &vDXDir );		//Normalize

@@ -31,7 +31,9 @@ namespace MAPIL
 	class GraphicsDevice;
 	class GLGraphicsController : public GraphicsController
 	{
-		SharedPointer < GraphicsContext >		m_pGC;		///< Graphics context.
+		SharedPointer < GraphicsContext >		m_pGC;					///< Graphics context.
+		SharedPointer < Window >				m_pWin;					///< Main window.
+		MapilBool								m_IsGLControlled;		///< Controlled by Open GL.
 	public:
 		/**
 		*	@brief		Constructor.
@@ -47,6 +49,7 @@ namespace MAPIL
 		*	@param pGC	SharedPointer to the GraphicsContext object.
 		*/
 		MapilVoid Create( SharedPointer < GraphicsContext > pGC );
+		MapilVoid Create( SharedPointer < Window > pWin );
 		/**
 		*	@brief		Begin rendering.
 		*/

@@ -18,6 +18,14 @@ namespace MAPIL
 	class GraphicsDevice;
 	class Light : public Graphics
 	{
+	protected:
+		const MapilInt32			MAX_LIGHT_INDEX;
+		static MapilBool			m_UsedMap[ 8 ];		// Light used map.
+
+		// Attach light index.
+		MapilInt32 AttachLightIndex();
+		// Release light index.
+		MapilVoid ReleaseLightIndex( MapilInt32 index );
 	public:
 		// Constructor
 		Light( SharedPointer < GraphicsDevice > pDev );

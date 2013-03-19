@@ -48,6 +48,7 @@ namespace MAPIL
 		*	@param pGC	SharedPointer to the GraphicsContext object.
 		*/
 		virtual MapilVoid Create( SharedPointer < GraphicsContext > pGC ) = 0;
+		virtual MapilVoid Create( SharedPointer < Window > pWin ) = 0;
 		/**
 		*	@brief		Begin rendering.
 		*/

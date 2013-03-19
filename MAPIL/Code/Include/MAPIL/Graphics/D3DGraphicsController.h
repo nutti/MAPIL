@@ -36,8 +36,9 @@ namespace MAPIL
 	{
 	private:
 		SharedPointer < GraphicsContext >		m_pGC;					///< Graphics context.
+		SharedPointer < Window >				m_pWin;					///< Main window.
 		MapilBool								m_DoesDevLost;			///< Devicelost flag.
-		//MapilBool								m_DoesDispChangeNext;	///< Display changing flag.
+		MapilBool								m_DoesDispChangeNext;	///< Display changing flag.
 		MapilBool								m_IsZBufferEnable;		///< Z-buffering status.
 		MapilBool								m_IsLightEnable;		///< Lighting status.
 		MapilBool								m_IsAlphaBlendEnable;	///< Alpha blend status.
@@ -46,6 +47,7 @@ namespace MAPIL
 		MapilInt32								m_CullMode;				///< Culling mode.
 		RECT									m_LastWndPos;			///< Last position of the window.
 		GraphicsFactory*						m_pGraphicsFactory;		///< Graphics factory.
+		MapilBool								m_IsD3DControlled;		///< Controlled by Direct 3D.
 		/**
 		*	@brief	Restore devicelost.
 		*	@return	True if the device restores.
@@ -78,6 +80,7 @@ namespace MAPIL
 		*	@param pGC	SharedPointer to the GraphicsContext object.
 		*/
 		MapilVoid Create( SharedPointer < GraphicsContext > pGC );
+		MapilVoid Create( SharedPointer < Window > pWin );
 		/**
 		*	@brief		Begin rendering.
 		*/

@@ -28,7 +28,7 @@ namespace MAPIL
 {
 	D3DGraphicsController::D3DGraphicsController( SharedPointer < GraphicsDevice > pDev ) :	GraphicsController( pDev ),
 																							m_DoesDevLost( MapilFalse ),
-																						//	m_DoesDispChangeNext( MapilFalse ),
+																							m_DoesDispChangeNext( MapilFalse ),
 																							m_IsZBufferEnable( MapilFalse ),
 																							m_IsLightEnable( MapilFalse ),
 																							m_IsAlphaBlendEnable( MapilFalse ),
@@ -36,7 +36,8 @@ namespace MAPIL
 																							m_AlphaBlendMode( ALPHA_BLEND_MODE_DISABLED ),
 																							m_CullMode( CULL_MODE_DISABLED ),
 																							m_pGC(),
-																							m_pGraphicsFactory( NULL )
+																							m_pGraphicsFactory( NULL ),
+																							m_IsD3DControlled( MapilFalse )
 	{
 	}
 
@@ -50,26 +51,36 @@ namespace MAPIL
 		m_AlphaBlendMode = ALPHA_BLEND_MODE_DISABLED;
 		m_CullMode = CULL_MODE_DISABLED;
 		m_pGraphicsFactory = NULL;
+		m_IsD3DControlled = MapilFalse;
 	}
 
 	MapilVoid D3DGraphicsController::Create( SharedPointer < GraphicsContext > pGC )
 	{
 		m_pGC = pGC;
+		m_IsD3DControlled = MapilFalse;
+	}
+
+	MapilVoid D3DGraphicsController::Create( SharedPointer < Window > pWin )
+	{
+		m_IsD3DControlled = MapilTrue;
 	}
 
 	MapilBool D3DGraphicsController::RestoreLostDev()
 	{
 		if( !m_pDev->m_pD3D.GetPointer() || !m_pDev->GetDev().GetPointer() ){
-			OutputDebugString( TSTR( "-----test:0\n" ) );
+			//OutputDebugString( TSTR( "-----test:0\n" ) );
 			return MapilFalse;
 		}
-		SharedPointer < WinAPIWindow > pWnd;
-		pWnd.DownCast( m_pDev->m_pWnd->GetParentWnd() );
 
-		if( !pWnd->IsActive() ){
-			return MapilTrue;
+		if( m_IsD3DControlled ){
 		}
-
+		else{
+			SharedPointer < WinAPIWindow > pWnd;
+			pWnd.DownCast( m_pDev->m_pWnd->GetParentWnd() );
+			if( !pWnd->IsActive() ){
+				return MapilTrue;
+			}
+		}
 		//Procedure when lost device
 		if( m_DoesDevLost ){
 			Sleep( 100 );		//Wait 100 milli seconds
@@ -136,8 +147,8 @@ namespace MAPIL
 	MapilVoid D3DGraphicsController::BeginRendering()
 	{
 		//Change display mode
-		//if( m_DoesDispChangeNext ){
-			//ChangeDispMode();
+	//	if( m_DoesDispChangeNext ){
+	//		ChangeDispMode();
 	//	}
 
 		//Check lost device
@@ -467,73 +478,76 @@ namespace MAPIL
 
 	MapilVoid D3DGraphicsController::SetWndMode( MapilInt32 mode )
 	{
-		::HWND hWnd;
-		SharedPointer < WinAPIWindow > pWnd;
-		pWnd.DownCast( m_pDev->GetContext()->GetParentWnd() );
-		hWnd = pWnd->GetHWnd();
-		if( mode == 0 || mode == 1 ){
-			pWnd->SetWndMode( mode );
+		if( m_IsD3DControlled ){
+			// DirectX full screen mode.
+			SharedPointer < WinAPIWindow > pWnd;
+			pWnd.DownCast( m_pWin );
+			HWND hWnd = pWnd->GetHWnd();
+			LostResource();
+			m_pDev->ChangeWndMode( mode );
+			if( mode == 1 ){
+				GetWindowRect( hWnd, &m_LastWndPos );
+			}
+
+			::D3DPRESENT_PARAMETERS d3dPP = m_pDev->GetD3DPP();
+
+			HRESULT hr = m_pDev->GetDev().GetPointer()->Reset( &d3dPP );
+			if( FAILED( hr ) ){
+				//Device is lost
+				if( hr == D3DERR_DEVICELOST ){
+					m_DoesDevLost = MapilTrue;
+				}
+				//Unexpected error
+				else{
+					if( hr == D3DERR_DRIVERINTERNALERROR ){
+						OutputDebugString( TSTR( "-----test:2-1\n" ) );
+					}
+					else if( hr == D3DERR_INVALIDCALL ){
+						OutputDebugString( TSTR( "-----test:2-2\n" ) );
+					}
+					else if( hr == D3DERR_OUTOFVIDEOMEMORY ){
+						OutputDebugString( TSTR( "-----test:2-3\n" ) );
+					}
+					else if( hr == E_OUTOFMEMORY ){
+						OutputDebugString( TSTR( "-----test:2-4\n" ) );
+					}
+					throw MapilException( CURRENT_POSITION, TSTR( "Unexpected error has occurred." ), -1 );
+				}
+			}
+			//Restore resource
+			RestoreResource();
+
+			//Change into window mode
+			if( mode == 0 ){
+				//Change window style
+				SetWindowLong( hWnd, GWL_STYLE, WS_OVERLAPPED | WS_SYSMENU | WS_VISIBLE | WS_CAPTION );
+				//Set window position
+				SetWindowPos(	hWnd,
+								HWND_NOTOPMOST,
+								m_LastWndPos.left,
+								m_LastWndPos.top,
+								m_LastWndPos.right - m_LastWndPos.left,
+								m_LastWndPos.bottom - m_LastWndPos.top,
+								SWP_SHOWWINDOW );
+			}
+			//Change into full screen mode
+			else if( mode == 1 ){
+				SetWindowLong( hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE );
+			}
 		}
-		//// DirectX full screen mode.
-		//else if( mode == 2 ){
-		//	LostResource();
-		//	m_pDev->ChangeWndMode( mode );
-		//	if( mode == 1 ){
-		//		GetWindowRect( hWnd, &m_LastWndPos );
-		//	}
+		else{
+			::HWND hWnd;
+			SharedPointer < WinAPIWindow > pWnd;
+			pWnd.DownCast( m_pDev->GetContext()->GetParentWnd() );
+			hWnd = pWnd->GetHWnd();
+			if( mode == 0 || mode == 1 ){
+				pWnd->SetWndMode( mode );
+			}
+		}
 
-		//	::D3DPRESENT_PARAMETERS d3dPP = m_pDev->GetD3DPP();
+		
 
-		//	HRESULT hr = m_pDev->GetDev().GetPointer()->Reset( &d3dPP );
-		//	if( FAILED( hr ) ){
-		//		//Device is lost
-		//		if( hr == D3DERR_DEVICELOST ){
-		//			m_DoesDevLost = MapilTrue;
-		//		}
-		//		//Unexpected error
-		//		else{
-		//			if( hr == D3DERR_DRIVERINTERNALERROR ){
-		//				OutputDebugString( TSTR( "-----test:2-1\n" ) );
-		//			}
-		//			else if( hr == D3DERR_INVALIDCALL ){
-		//				OutputDebugString( TSTR( "-----test:2-2\n" ) );
-		//			}
-		//			else if( hr == D3DERR_OUTOFVIDEOMEMORY ){
-		//				OutputDebugString( TSTR( "-----test:2-3\n" ) );
-		//			}
-		//			else if( hr == E_OUTOFMEMORY ){
-		//				OutputDebugString( TSTR( "-----test:2-4\n" ) );
-		//			}
-		//			throw MapilException(	TSTR( "MAPIL" ),
-		//									TSTR( "D3DManager" ),
-		//									TSTR( "ChangeDispMode" ),
-		//									TSTR( "Unexpected error has occurred." ),
-		//									-1 );
-		//		}
-		//	}
-		//	//Restore resource
-		//	RestoreResource();
-
-		//	//Change into window mode
-		//	if( mode == 0 ){
-		//		//Change window style
-		//		SetWindowLong( hWnd, GWL_STYLE, WS_OVERLAPPED | WS_SYSMENU | WS_VISIBLE | WS_CAPTION );
-		//		//Set window position
-		//		SetWindowPos(	hWnd,
-		//						HWND_NOTOPMOST,
-		//						m_LastWndPos.left,
-		//						m_LastWndPos.top,
-		//						m_LastWndPos.right - m_LastWndPos.left,
-		//						m_LastWndPos.bottom - m_LastWndPos.top,
-		//						SWP_SHOWWINDOW );
-		//	}
-		//	//Change into full screen mode
-		//	else if( mode == 1 ){
-		//		SetWindowLong( hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE );
-		//	}
-		//}
-
-		//m_DoesDispChangeNext = MapilFalse;
+		m_DoesDispChangeNext = MapilFalse;
 	}
 
 	MapilVoid D3DGraphicsController::SetGraphicsFactory( GraphicsFactory* pFactory )
