@@ -34,6 +34,7 @@ namespace MAPIL
 	private:
 		ModelData*		m_pModelData;		///< Model data.
 		GLTexture**		m_ppTextures;		///< Textures.
+		GLuint			m_Buffers[ 4 ];		///< Buffer name.
 		/**
 		*	@brief		Draw model with no transformation. This is called in Draw method.
 		*/

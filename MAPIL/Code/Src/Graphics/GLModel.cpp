@@ -15,6 +15,7 @@
 #if defined ( API_WIN32API )
 #include <Windows.h>
 #endif
+
 #if defined ( OS_WIN_32BIT )
 #include <gl/GL.h>
 #include <gl/GLU.h>
@@ -83,6 +84,46 @@ namespace MAPIL
 		// Load model file.
 		pModelFile->Load( name );
 		pModelFile->CopyToModelData( m_pModelData );
+		/*
+		// Create buffer object.
+		::glGenBuffers( 4, m_Buffers );
+
+		// Attach vertex data.
+		::glBindBuffer( GL_ARRAY_BUFFER, m_Buffers[ 0 ] );
+		::glBufferData(	GL_ARRAY_BUFFER,
+						sizeof( MapilFloat32 ) * m_pModelData->m_Model[ 0 ].m_Vertices.size(),
+						&m_pModelData->m_Model[ 0 ].m_Vertices[ 0 ],
+						GL_STATIC_DRAW );
+
+		// Attach normal data.
+		::glBindBuffer( GL_ARRAY_BUFFER, m_Buffers[ 1 ] );
+		::glBufferData(	GL_ARRAY_BUFFER,
+						sizeof( MapilFloat32 ) * m_pModelData->m_Model[ 0 ].m_Normals.size(),
+						&m_pModelData->m_Model[ 0 ].m_Normals[ 0 ],
+						GL_STATIC_DRAW );
+
+		// Attach texture data.
+		::glBindBuffer( GL_ARRAY_BUFFER, m_Buffers[ 2 ] );
+		::glBufferData(	GL_ARRAY_BUFFER,
+						sizeof( MapilFloat32 ) * m_pModelData->m_Model[ 0 ].m_TexCoords.size(),
+						&m_pModelData->m_Model[ 0 ].m_TexCoords[ 0 ],
+						GL_STATIC_DRAW );
+
+		// Attach index data.
+		std::vector < MapilInt32 > indices;
+		for( MapilInt32 i = 0; i < m_pModelData->m_Model[ 0 ].m_Face.size(); i++ ){
+			for( MapilInt32 j = 0; j < m_pModelData->m_Model[ 0 ].m_Face[ i ].m_NumElm; ++j ){
+				indices.push_back( m_pModelData->m_Model[ 0 ].m_Face[ i ].m_VertexIndices[ j ] );
+			}
+		}
+		::glBindBuffer( GL_ARRAY_BUFFER, m_Buffers[ 3 ] );
+		::glBufferData(	GL_ARRAY_BUFFER,
+						sizeof( MapilInt32 ) * indices.size(),
+						&indices[ 0 ],
+						GL_STATIC_DRAW );*/
+
+		
+
 
 		// Create textures.
 		m_ppTextures = new GLTexture* [ m_pModelData->m_Model[ 0 ].m_Material.size() ];
@@ -124,6 +165,8 @@ namespace MAPIL
 				doesFaceExist = MapilTrue;
 			}
 
+			MapilInt32 idx = 0;		// Index.
+
 			for( MapilInt32 j = 0; j < m_pModelData->m_Model[ i ].m_Face.size(); j++ ){
 				if( doesMaterialExist ){
 
@@ -131,13 +174,6 @@ namespace MAPIL
 
 					// Optimization.
 					if( curMaterial != prevMaterial ){
-
-
-						/*GLfloat color[] = {	m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Color[ 0 ],
-											m_pModelData->m_Material[ curMaterial ].m_Color[ 1 ],
-											m_pModelData->m_Material[ curMaterial ].m_Color[ 2 ],
-											m_pModelData->m_Material[ curMaterial ].m_Color[ 3 ] };
-						glColor4fv( color );*/
 
 						// Setup materials for .mqo file.
 						if( m_pModelData->m_Model[ 0 ].m_Material[ curMaterial ].m_Diffuse[ 1 ] == -1.0f ){
@@ -188,29 +224,40 @@ namespace MAPIL
 						prevMaterial = curMaterial;
 					}
 				}
-				if( m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm == 3 ){
-					glBegin( GL_TRIANGLES );
-				}
-				else{
-					glBegin( GL_QUADS );
-				}
-				for( MapilInt32 k = 0; k < m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm; ++k ){
-					GLfloat v[ 3 ];
-					v[ 0 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 ];
-					v[ 1 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 + 1 ];
-					v[ 2 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Face[ j ].m_VertexIndices[ k ] * 3 + 2 ];
-					GLfloat normal[] = {	m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 ],
-											m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 + 1 ],
-											m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Face[ j ].m_NormalIndices[ k ] * 3 + 2 ] };
-					GLfloat texCoord[] = {	m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Face[ j ].m_TexCoordIndices[ k ] * 2 ],
-											m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Face[ j ].m_TexCoordIndices[ k ] * 2 + 1 ] };
 
-					// Need to call Texture -> Normal -> Vertex.
-					glTexCoord2fv( texCoord );
-					glNormal3fv( normal );
-					glVertex3fv( v );
+				MapilInt32 iter = 0;		// Iteration.
+				// Triangle * 1.
+				if( m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm == 3 ){
+					iter = 1;
 				}
-				glEnd();
+				// Triangle * 2.
+				else if( m_pModelData->m_Model[ i ].m_Face[ j ].m_NumElm == 4 ){
+					iter = 2;
+				}
+				for( MapilInt32 k = 0; k < iter; ++k ){
+					glBegin( GL_TRIANGLES );
+					for( MapilInt32 id = 0; id < 3; ++id ){
+						GLfloat v[ 3 ];
+						v[ 0 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 ];
+						v[ 1 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 + 1 ];
+						v[ 2 ] = m_pModelData->m_Model[ i ].m_Vertices[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 + 2 ];
+						GLfloat normal[] = {	m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 ],
+												m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 + 1 ],
+												m_pModelData->m_Model[ i ].m_Normals[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 3 + 2 ] };
+						GLfloat texCoord[] = {	m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 2 ],
+												m_pModelData->m_Model[ i ].m_TexCoords[ m_pModelData->m_Model[ i ].m_Indices[ idx ] * 2 + 1 ] };
+
+						// Need to call Texture -> Normal -> Vertex.
+						glTexCoord2fv( texCoord );
+						glNormal3fv( normal );
+						glVertex3fv( v );
+
+						
+						idx += 1;
+					}
+					glEnd();
+					
+				}
 			}
 		}
 	}

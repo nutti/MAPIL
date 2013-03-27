@@ -30,13 +30,28 @@ namespace MAPIL
 	struct ModelData;
 	class GraphicsDevice;
 	class Archiver;
+	class D3DTexture;
 	class D3DModel : public Model
 	{
 	private:
+		struct VertexFormat
+		{
+			MapilFloat32		m_Vertex[ 3 ];
+			MapilFloat32		m_Normal[ 3 ];
+			MapilFloat32		m_TexCoord[ 2 ];
+		};
+
 		::LPD3DXMESH				m_pD3DMesh;			///< Mesh handler.
 		::D3DMATERIAL9*				m_pMaterial;		///< Material structure.
 		::LPDIRECT3DTEXTURE9*		m_pD3DTexture;		///< Texture handler.
 		DWORD						m_NumMaterial;		///< Number of the material.
+
+		::LPDIRECT3DVERTEXBUFFER9			m_pVertex;				///< Vertex buffer.
+		::LPDIRECT3DINDEXBUFFER9			m_pIndex;				///< Index buffer.
+		::LPDIRECT3DVERTEXDECLARATION9		m_pVertexDecl;			///< Vertex declaration.
+		D3DTexture*							m_pTexture;				///< Texture.
+		MapilInt32							m_VertexTotal;			///< Number of vertex.
+		MapilInt32							m_IndexTotal;			///< Number of index.
 		//MapilBool					m_IsUsed;			///< The flag shows that the object is already used.
 		/**
 		*	@brief		Draw model with no transformation. This is called in Draw method.

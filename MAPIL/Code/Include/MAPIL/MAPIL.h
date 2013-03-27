@@ -52,7 +52,6 @@
 
 
 
-
 // Input.
 #if defined ( API_WIN32API )
 #include "Input/WinAPIInputFactory.h"

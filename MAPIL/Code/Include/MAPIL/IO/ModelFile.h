@@ -14,7 +14,10 @@
 
 #if defined ( LIB_STL )
 #include <vector>
+#include <map>
 #endif
+
+#include "../Math/Matrix.hpp"
 
 namespace MAPIL
 {
@@ -36,23 +39,59 @@ namespace MAPIL
 			{
 				MapilInt32		m_NumElm;
 				MapilInt32		m_MtrlNum;
-				MapilInt32		m_VertexIndices[ 4 ];
-				MapilInt32		m_TexCoordIndices[ 4 ];
-				MapilInt32		m_NormalIndices[ 4 ];
-				MapilInt32		m_VertexColIndices[ 4 ];
 			};
 
-			//MapilInt32						m_NumVertex;
 			std::vector < MapilFloat32 >	m_Vertices;
 			std::vector < MapilFloat32 >	m_TexCoords;
 			std::vector < MapilFloat32 >	m_Normals;
 			std::vector < MapilFloat32 >	m_VertexCols;
-			//MapilInt32						m_NumFace;
+			std::vector < MapilInt32 >		m_Indices;
 			std::vector < Face >			m_Face;
+			MapilInt32						m_FaceTotal;
 
 			std::vector < Material >		m_Material;
 		};
 		std::vector < Model >		m_Model;
+	};
+
+	struct AnimModelData
+	{
+		struct Frame
+		{
+			ModelData::Model				m_Mesh;			///< Mesh.
+			Matrix4x4 < MapilFloat32 >		m_TransMat;		///< Translation matrix.
+			Frame*							m_pFirstChild;	///< First of child.
+			Frame*							m_pSibling;		///< Sibling.
+			std::basic_string < MapilChar >	m_Name;			///< Frame name.
+		};
+		struct Animation
+		{
+			// Animation set.
+			struct AnimSet
+			{
+				// Animation item.
+				struct AnimItem
+				{
+					// Animation key.
+					struct Key
+					{
+						MapilInt32					m_Type;			///< Animation type.
+						// Translation value.
+						struct TransValue
+						{
+							MapilFloat32			m_Elm[ 4 ];
+						};
+						std::map < MapilInt32, TransValue >		m_Entries;		///< Entries.
+					};
+					std::map < std::basic_string < MapilChar >, std::vector < Key > >	m_Keys;		///< Keys
+				};
+				std::map < std::basic_string < MapilChar >, AnimItem >	m_AnimItems;	///< Animation items.
+			};
+			std::map < std::basic_string < MapilChar >, AnimSet >	m_AnimSetList;	///< Animation set list.
+		};
+
+		Frame		m_RootFame;		// Root frame.
+		Animation	m_Animation;	// Animation data.
 	};
 
 	class ModelFile : public MapilObject

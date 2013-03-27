@@ -603,18 +603,45 @@ namespace MAPIL
 				model.m_Material.push_back( mtrl );
 			}
 			std::copy( m_Mesh[ i ].m_Vertex.begin(), m_Mesh[ i ].m_Vertex.end(), std::back_inserter( model.m_Vertices ) );
-			std::copy( m_Mesh[ i ].m_Normal.begin(), m_Mesh[ i ].m_Normal.end(), std::back_inserter( model.m_Normals ) );
+			// For normal.
+			model.m_Normals.resize( m_Mesh[ i ].m_NumVertex * 3 );
+			for( MapilUInt32 nidx = 0; nidx < m_Mesh[ i ].m_Face.size(); ++nidx ){
+				for( MapilUInt32 elm = 0; elm < m_Mesh[ i ].m_Face[ nidx ].m_NumElement; ++elm ){
+					if( model.m_Normals.size() <= m_Mesh[ i ].m_Face[ nidx ].m_Index[ elm ] * 3 ){
+						exit( 0 );
+					}
+					if( m_Mesh[ i ].m_Normal.size() <= m_Mesh[ i ].m_Face[ nidx ].m_NormalNum[ elm ] * 3 ){
+						exit( 0 );
+					}
+					for( MapilInt32 coord = 0; coord < 3; ++coord ){
+						model.m_Normals[ m_Mesh[ i ].m_Face[ nidx ].m_Index[ elm ] * 3 + coord ] = m_Mesh[ i ].m_Normal[ m_Mesh[ i ].m_Face[ nidx ].m_NormalNum[ elm ] * 3 + coord ];
+					}
+				}
+			}
+			
 			std::copy( m_Mesh[ i ].m_TextureCoord.begin(), m_Mesh[ i ].m_TextureCoord.end(), std::back_inserter( model.m_TexCoords ) );
 			std::copy( m_Mesh[ i ].m_VertexColor.begin(), m_Mesh[ i ].m_VertexColor.end(), std::back_inserter( model.m_VertexCols ) );
 			for( MapilUInt32 j = 0; j < m_Mesh[ i ].m_Face.size(); ++j ){
 				ModelData::Model::Face face;
 				face.m_NumElm = m_Mesh[ i ].m_Face[ j ].m_NumElement;
 				face.m_MtrlNum = m_Mesh[ i ].m_Face[ j ].m_MaterialNum;
-				memcpy( face.m_VertexIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_VertexIndices ) );
-				memcpy( face.m_NormalIndices, m_Mesh[ i ].m_Face[ j ].m_NormalNum, sizeof( face.m_NormalIndices ) );
-				memcpy( face.m_TexCoordIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_TexCoordIndices ) );
-				memcpy( face.m_VertexColIndices, m_Mesh[ i ].m_Face[ j ].m_Index, sizeof( face.m_VertexColIndices ) );
+				if( face.m_NumElm == 3 ){
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] );
+				}
+				// Quad -> Triangle.
+				else{
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 0 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 1 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 2 ] );
+					model.m_Indices.push_back( m_Mesh[ i ].m_Face[ j ].m_Index[ 3 ] );
+					++model.m_FaceTotal;
+				}
 				model.m_Face.push_back( face );
+				++model.m_FaceTotal;
 			}
 			pData->m_Model.push_back( model );
 		}

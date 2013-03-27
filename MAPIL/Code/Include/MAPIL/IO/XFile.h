@@ -52,20 +52,16 @@ namespace MAPIL
 				MapilInt32						m_NormalNum[ 4 ];
 			};
 			MapilInt32												m_NumVertex;
-			//std::vector < Vector3 < MapilFloat32 > >				m_Vertex;
 			std::vector < MapilFloat32 >							m_Vertex;
 			MapilInt32												m_NumIndex;
 			MapilInt32												m_NumNormal;
-			//std::vector < Vector3 < MapilFloat32 > >				m_Normal;
 			std::vector < MapilFloat32 >							m_Normal;
 			std::vector < Face >									m_Face;
 			MapilInt32												m_NumTextureCoord;
-			//std::vector < Vector2 < MapilFloat32 > >				m_TextureCoord;
 			std::vector < MapilFloat32 >							m_TextureCoord;
 			MapilInt32												m_NumMaterial;
 			std::vector < Material >								m_Material;
 			MapilInt32												m_NumVertexColor;
-			//std::vector < ColorARGB < MapilFloat32 > >				m_VertexColor;
 			std::vector < MapilFloat32 >							m_VertexColor;
 		};
 
@@ -115,14 +111,14 @@ namespace MAPIL
 		// Constructor.
 		XFile();
 		// Destructor.
-		~XFile();
+		virtual ~XFile();
 		// Load mesh from x-file.
-		MapilVoid Load( const MapilChar* pFileName );
+		virtual MapilVoid Load( const MapilChar* pFileName );
 		// Copy to model data.
 		MapilVoid CopyToModelData( ModelData* pData );
 
-		MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode );
-		MapilVoid Close();
+		virtual MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode );
+		virtual MapilVoid Close();
 	};
 }
 
