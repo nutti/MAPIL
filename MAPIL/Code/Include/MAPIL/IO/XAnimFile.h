@@ -190,6 +190,13 @@ namespace MAPIL
 		MapilVoid DeleteF( Frame* pFrame );
 		// Delete each frame.
 		MapilVoid DeleteFrame();
+
+		// Copy mesh.
+		MapilVoid CopyMeshToModelData( const Frame::Mesh& mesh, AnimModelData::Frame* pFrame );
+		// Copy frame.
+		MapilVoid CopyFrameToModelData( const Frame& frame, AnimModelData::Frame* pFrame );
+		// Clear frame.
+		MapilVoid ClearModelDataFrame( AnimModelData::Frame* pFrame );
 	public:
 		// Constructor.
 		XAnimFile();
@@ -197,6 +204,8 @@ namespace MAPIL
 		virtual ~XAnimFile();
 		// Load.
 		MapilVoid Load( const MapilChar* pFileName );
+		// Copy to model data.
+		MapilVoid CopyToModelData( AnimModelData* pData );
 		// Calculate world matrix for all frame.
 		MapilVoid CalcFrameWorldMat();
 		// Update world matrix for all frame.

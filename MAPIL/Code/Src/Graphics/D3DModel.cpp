@@ -155,7 +155,7 @@ namespace MAPIL
 		m_pIndex->Unlock();
 
 		// !!!!! temporary
-		for( MapilInt32 i = 0; pModelData->m_Model[ 0 ].m_Material.size(); ++i ){
+		for( MapilInt32 i = 0; i < pModelData->m_Model[ 0 ].m_Material.size(); ++i ){
 			if( ::strcmp( "", pModelData->m_Model[ 0 ].m_Material[ i ].m_TexFileName ) ){
 #ifdef CHAR_CODE_UNICODE
 				//Change Multi-byte character into Unicode character

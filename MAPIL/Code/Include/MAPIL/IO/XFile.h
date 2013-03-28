@@ -111,14 +111,14 @@ namespace MAPIL
 		// Constructor.
 		XFile();
 		// Destructor.
-		virtual ~XFile();
+		~XFile();
 		// Load mesh from x-file.
-		virtual MapilVoid Load( const MapilChar* pFileName );
+		MapilVoid Load( const MapilChar* pFileName );
 		// Copy to model data.
 		MapilVoid CopyToModelData( ModelData* pData );
 
-		virtual MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode );
-		virtual MapilVoid Close();
+		MapilVoid Open( const MapilChar* pFileName, FileOpenMode mode );
+		MapilVoid Close();
 	};
 }
 

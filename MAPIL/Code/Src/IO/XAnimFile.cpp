@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <iterator>
 
 #include "../../Include/MAPIL/IO/XAnimFile.h"
 
@@ -74,8 +75,7 @@ namespace MAPIL
 	}
 
 	// Get token.
-	MapilVoid XAnimFile::GetToken(	std::basic_ifstream < MapilChar >* pFIn,
-												MapilChar* pToken )
+	MapilVoid XAnimFile::GetToken(	std::basic_ifstream < MapilChar >* pFIn, MapilChar* pToken )
 	{
 		MapilChar data;
 
@@ -100,8 +100,8 @@ namespace MAPIL
 
 	// Process "template" token.
 	MapilVoid XAnimFile::ProcessTemplateToken(	std::basic_ifstream < MapilChar >* pFIn,
-															MapilChar* pToken,
-															MapilInt32* pHierarchyNum )
+												MapilChar* pToken,
+												MapilInt32* pHierarchyNum )
 	{
 		MapilInt32 hierNum = *pHierarchyNum;
 
@@ -126,9 +126,9 @@ namespace MAPIL
 
 	// Process "Frame" token.
 	MapilVoid XAnimFile::ProcessFrameToken(	std::basic_ifstream < MapilChar >* pFIn,
-														MapilChar* pToken,
-														MapilInt32* pHierarchyNum,
-														Frame* pFrame )
+											MapilChar* pToken,
+											MapilInt32* pHierarchyNum,
+											Frame* pFrame )
 	{
 		MapilBool isFirstTime = MapilTrue;
 		MapilInt32 hierNum = *pHierarchyNum;
@@ -175,18 +175,14 @@ namespace MAPIL
 
 	// Process "FrameTransformMatrix" token.
 	MapilVoid XAnimFile::ProcessFrameTransformMatrixToken(	std::basic_ifstream < MapilChar >* pFIn,
-																		MapilChar* pToken,
-																		MapilInt32* pHierarchyNum,
-																		Frame* pFrame )
+															MapilChar* pToken,
+															MapilInt32* pHierarchyNum,
+															Frame* pFrame )
 	{
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessFrameTransformMatrixToken" ),
-													TSTR( "{ isn't found." ),
-													-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -229,11 +225,7 @@ namespace MAPIL
 		// Check '}'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "}" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessFrameTransformMatrixToken" ),
-													TSTR( "} isn't found." ),
-													-2 );
+			throw MapilException( CURRENT_POSITION, TSTR( "} isn't found." ), -2 );
 		}
 		else{
 			( *pHierarchyNum )--;
@@ -242,9 +234,9 @@ namespace MAPIL
 
 	// Process "Mesh" token.
 	MapilVoid XAnimFile::ProcessMeshToken(	std::basic_ifstream < MapilChar >* pFIn,
-														MapilChar* pToken,
-														MapilInt32* pHierarchyNum,
-														Frame* pFrame )
+											MapilChar* pToken,
+											MapilInt32* pHierarchyNum,
+											Frame* pFrame )
 	{
 		MapilInt32 hierNum = *pHierarchyNum;
 
@@ -253,11 +245,7 @@ namespace MAPIL
 		if( strcmp( pToken, "{" ) ){
 			GetToken( pFIn, pToken );
 			if( strcmp( pToken, "{" ) ){
-				throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-														TSTR( "XAnimFile" ),
-														TSTR( "ProcessMeshToken" ),
-														TSTR( "{ isn't found." ),
-														-1 );
+				throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 			}
 			else{
 				( *pHierarchyNum )++;
@@ -331,18 +319,14 @@ namespace MAPIL
 
 	// Process "MeshMaterialList" token.
 	MapilVoid XAnimFile::ProcessMeshMaterialListToken(	std::basic_ifstream < MapilChar >* pFIn,
-																	MapilChar* pToken,
-																	MapilInt32* pHierarchyNum,
-																	Frame* pFrame )
+														MapilChar* pToken,
+														MapilInt32* pHierarchyNum,
+														Frame* pFrame )
 	{
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshMaterialListToken" ),
-													TSTR( "{ isn't found." ),
-													-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -353,11 +337,7 @@ namespace MAPIL
 		pFrame->m_Mesh.m_NumMaterial = atoi( pToken );
 		GetToken( pFIn, pToken );
 		if( pFrame->m_Mesh.m_NumIndex != atoi( pToken ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshMaterialListToken" ),
-													TSTR( "Number of index doesn't correspond to that of material." ),
-													-2 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Number of index doesn't correspond to that of material." ), -2 );
 		}
 
 		// Get material number.
@@ -379,11 +359,7 @@ namespace MAPIL
 		// Check '}'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "}" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshMaterialListToken" ),
-													TSTR( "} isn't found." ),
-													-3 );
+			throw MapilException( CURRENT_POSITION, TSTR( "} isn't found." ), -3 );
 		}
 		else{
 			( *pHierarchyNum )--;
@@ -392,18 +368,14 @@ namespace MAPIL
 
 	// Process "Material" token.
 	MapilVoid XAnimFile::ProcessMaterialToken(	std::basic_ifstream < MapilChar >* pFIn,
-															MapilChar* pToken,
-															MapilInt32* pHierarchyNum,
-															Frame* pFrame )
+												MapilChar* pToken,
+												MapilInt32* pHierarchyNum,
+												Frame* pFrame )
 	{
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMaterialToken" ),
-													TSTR( "{ isn't found." ),
-													-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -412,6 +384,7 @@ namespace MAPIL
 		// Get material information.
 		// Get diffuse color.
 		Frame::Mesh::Material material;
+		material.m_TextureFileName[ 0 ] = '\0';
 		GetToken( pFIn, pToken );
 		material.m_MaterialColor.m_Diffuse.m_R = static_cast < MapilFloat32 > ( atof( pToken ) );
 		GetToken( pFIn, pToken );
@@ -445,11 +418,7 @@ namespace MAPIL
 			// Skip '{'.
 			GetToken( pFIn, pToken );
 			if( strcmp( pToken, "{" ) ){
-				throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-														TSTR( "XAnimFile" ),
-														TSTR( "ProcessMaterialToken" ),
-														TSTR( "{ isn't found." ),
-														-2 );
+				throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -2 );
 			}
 			else{
 				( *pHierarchyNum )++;
@@ -462,11 +431,7 @@ namespace MAPIL
 			for( MapilInt32 i = 0; i < 2; i++ ){
 				GetToken( pFIn, pToken );
 				if( strcmp( pToken, "}" ) ){
-					throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-															TSTR( "XAnimFile" ),
-															TSTR( "ProcessMaterialToken" ),
-															TSTR( "} isn't found." ),
-															-3 );
+					throw MapilException( CURRENT_POSITION, TSTR( "} isn't found." ), -3 );
 				}
 				else{
 					( *pHierarchyNum )--;
@@ -477,11 +442,7 @@ namespace MAPIL
 			( *pHierarchyNum )--;
 		}
 		else{
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMaterialToken" ),
-													TSTR( "Unknown token is found." ),
-													-4 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Unknown token is found." ), -4 );
 		}
 
 		pFrame->m_Mesh.m_Material.push_back( material );
@@ -489,18 +450,14 @@ namespace MAPIL
 
 	// Process "MeshNormals" token.
 	MapilVoid XAnimFile::ProcessMeshNormalsToken(	std::basic_ifstream < MapilChar >* pFIn,
-																MapilChar* pToken,
-																MapilInt32* pHierarchyNum,
-																Frame* pFrame )
+													MapilChar* pToken,
+													MapilInt32* pHierarchyNum,
+													Frame* pFrame )
 	{
 		// Skip '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshNormalsToken" ),
-													TSTR( "{ isn't found." ),
-													-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -527,11 +484,7 @@ namespace MAPIL
 		GetToken( pFIn, pToken );
 		num = atoi( pToken );
 		if( num != pFrame->m_Mesh.m_NumIndex ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshNormalsToken" ),
-													TSTR( "Number of index doesn't correspond to that of face." ),
-													-2 );
+			throw MapilException( CURRENT_POSITION, TSTR( "Number of index doesn't correspond to that of face." ), -2 );
 		}
 
 		for( MapilInt32 i = 0; i < pFrame->m_Mesh.m_NumIndex; i++ ){
@@ -556,11 +509,7 @@ namespace MAPIL
 		// Check '}'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "}" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessMeshNormalsToken" ),
-													TSTR( "} isn't found." ),
-													-3 );
+			throw MapilException( CURRENT_POSITION, TSTR( "} isn't found." ), -3 );
 		}
 		else{
 			( *pHierarchyNum )--;
@@ -569,9 +518,9 @@ namespace MAPIL
 
 	// Process "MeshTextureCoords" token.
 	MapilVoid XAnimFile::ProcessMeshTextureCoordsToken(	std::basic_ifstream < MapilChar >* pFIn,
-																	MapilChar* pToken,
-																	MapilInt32* pHierarchyNum,
-																	Frame* pFrame )
+														MapilChar* pToken,
+														MapilInt32* pHierarchyNum,
+														Frame* pFrame )
 	{
 		// Skip '{'.
 		GetToken( pFIn, pToken );
@@ -735,11 +684,7 @@ namespace MAPIL
 		// Check '{'.
 		GetToken( pFIn, pToken );
 		if( strcmp( pToken, "{" ) ){
-			throw MapilException(	TSTR( "Nutti::Lib::FileIO" ),
-													TSTR( "XAnimFile" ),
-													TSTR( "ProcessAnimationKeyToken" ),
-													TSTR( "{ isn't found." ),
-													-1 );
+			throw MapilException( CURRENT_POSITION, TSTR( "{ isn't found." ), -1 );
 		}
 		else{
 			( *pHierarchyNum )++;
@@ -783,6 +728,7 @@ namespace MAPIL
 				transVal.m_Z = static_cast < MapilFloat32 > ( atof( pToken ) );
 				GetToken( pFIn, pToken );
 				transVal.m_W = static_cast < MapilFloat32 > ( atof( pToken ) );
+				key.m_TransVal.push_back( transVal );
 			}
 		}
 
@@ -838,6 +784,168 @@ namespace MAPIL
 		}
 
 		fIn.close();
+	}
+
+	// Copy mesh.
+	MapilVoid XAnimFile::CopyMeshToModelData( const Frame::Mesh& mesh, AnimModelData::Frame* pFrame )
+	{
+		for( MapilUInt32 j = 0; j < mesh.m_Material.size(); ++j ){
+			ModelData::Model::Material mtrl;
+			mtrl.m_Diffuse[ 0 ] = mesh.m_Material[ j ].m_MaterialColor.m_Diffuse.m_A;
+			mtrl.m_Diffuse[ 1 ] = mesh.m_Material[ j ].m_MaterialColor.m_Diffuse.m_R;
+			mtrl.m_Diffuse[ 2 ] = mesh.m_Material[ j ].m_MaterialColor.m_Diffuse.m_G;
+			mtrl.m_Diffuse[ 3 ] = mesh.m_Material[ j ].m_MaterialColor.m_Diffuse.m_B;
+			memcpy( mtrl.m_Ambient, mtrl.m_Diffuse, sizeof( mtrl.m_Ambient ) );
+			mtrl.m_Specular[ 0 ] = mesh.m_Material[ j ].m_MaterialColor.m_Specular.m_A;
+			mtrl.m_Specular[ 1 ] = mesh.m_Material[ j ].m_MaterialColor.m_Specular.m_R;
+			mtrl.m_Specular[ 2 ] = mesh.m_Material[ j ].m_MaterialColor.m_Specular.m_G;
+			mtrl.m_Specular[ 3 ] = mesh.m_Material[ j ].m_MaterialColor.m_Specular.m_B;
+			mtrl.m_Emissive[ 0 ] = mesh.m_Material[ j ].m_MaterialColor.m_Emissive.m_A;
+			mtrl.m_Emissive[ 1 ] = mesh.m_Material[ j ].m_MaterialColor.m_Emissive.m_R;
+			mtrl.m_Emissive[ 2 ] = mesh.m_Material[ j ].m_MaterialColor.m_Emissive.m_G;
+			mtrl.m_Emissive[ 3 ] = mesh.m_Material[ j ].m_MaterialColor.m_Emissive.m_B;
+			mtrl.m_Power = mesh.m_Material[ j ].m_MaterialColor.m_Power;
+			strcpy( mtrl.m_TexFileName, mesh.m_Material[ j ].m_TextureFileName );
+			pFrame->m_Mesh.m_Material.push_back( mtrl );
+		}
+		for( MapilInt32 i = 0; i < mesh.m_Vertex.size(); ++i ){
+			pFrame->m_Mesh.m_Vertices.push_back( mesh.m_Vertex[ i ].m_X );
+			pFrame->m_Mesh.m_Vertices.push_back( mesh.m_Vertex[ i ].m_Y );
+			pFrame->m_Mesh.m_Vertices.push_back( mesh.m_Vertex[ i ].m_Z );
+		}
+		// For normal.
+		pFrame->m_Mesh.m_Normals.resize( mesh.m_NumVertex * 3 );
+		for( MapilUInt32 nidx = 0; nidx < mesh.m_Face.size(); ++nidx ){
+			for( MapilUInt32 elm = 0; elm < mesh.m_Face[ nidx ].m_NumElement; ++elm ){
+				if( pFrame->m_Mesh.m_Normals.size() <= mesh.m_Face[ nidx ].m_Index[ elm ] * 3 ){
+					exit( 0 );
+				}
+				if( mesh.m_Normal.size() <= mesh.m_Face[ nidx ].m_NormalNum[ elm ] ){
+					exit( 0 );
+				}
+				pFrame->m_Mesh.m_Normals[ mesh.m_Face[ nidx ].m_Index[ elm ] * 3 + 0 ] = mesh.m_Normal[ mesh.m_Face[ nidx ].m_NormalNum[ elm ] ].m_X;
+				pFrame->m_Mesh.m_Normals[ mesh.m_Face[ nidx ].m_Index[ elm ] * 3 + 1 ] = mesh.m_Normal[ mesh.m_Face[ nidx ].m_NormalNum[ elm ] ].m_Y;
+				pFrame->m_Mesh.m_Normals[ mesh.m_Face[ nidx ].m_Index[ elm ] * 3 + 2 ] = mesh.m_Normal[ mesh.m_Face[ nidx ].m_NormalNum[ elm ] ].m_Z;
+			}
+		}
+		
+		for( MapilInt32 i = 0; i < mesh.m_TextureCoord.size(); ++i ){
+			pFrame->m_Mesh.m_TexCoords.push_back( mesh.m_TextureCoord[ i ].m_X );
+			pFrame->m_Mesh.m_TexCoords.push_back( mesh.m_TextureCoord[ i ].m_Y );
+		}
+
+		//std::copy( m_Mesh[ i ].m_VertexColor.begin(), m_Mesh[ i ].m_VertexColor.end(), std::back_inserter( model.m_VertexCols ) );
+		for( MapilUInt32 j = 0; j < mesh.m_Face.size(); ++j ){
+			ModelData::Model::Face face;
+			face.m_NumElm = mesh.m_Face[ j ].m_NumElement;
+			face.m_MtrlNum = mesh.m_Face[ j ].m_MaterialNum;
+			if( face.m_NumElm == 3 ){
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 0 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 1 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 2 ] );
+			}
+			// Quad -> Triangle.
+			else{
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 0 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 1 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 3 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 1 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 2 ] );
+				pFrame->m_Mesh.m_Indices.push_back( mesh.m_Face[ j ].m_Index[ 3 ] );
+				++pFrame->m_Mesh.m_FaceTotal;
+			}
+			pFrame->m_Mesh.m_Face.push_back( face );
+			++pFrame->m_Mesh.m_FaceTotal;
+		}
+	}
+
+	// Clear frame.
+	MapilVoid XAnimFile::ClearModelDataFrame( AnimModelData::Frame* pFrame )
+	{
+		pFrame->m_Mesh.m_Face.clear();
+		pFrame->m_Mesh.m_FaceTotal = 0;
+		pFrame->m_Mesh.m_Indices.clear();
+		pFrame->m_Mesh.m_Material.clear();
+		pFrame->m_Mesh.m_Normals.clear();
+		pFrame->m_Mesh.m_TexCoords.clear();
+		pFrame->m_Mesh.m_VertexCols.clear();
+		pFrame->m_Mesh.m_Vertices.clear();
+
+		pFrame->m_Name.clear();
+		pFrame->m_pFirstChild = NULL;
+		pFrame->m_pSibling = NULL;
+	}
+
+	// Copy frame.
+	MapilVoid XAnimFile::CopyFrameToModelData( const Frame& frame, AnimModelData::Frame* pFrame )
+	{
+		// Copy first child.
+		if( frame.m_pFirstChild ){
+			pFrame->m_pFirstChild = new AnimModelData::Frame;
+			ClearModelDataFrame( pFrame->m_pFirstChild );
+			CopyFrameToModelData( *frame.m_pFirstChild, pFrame->m_pFirstChild );
+		}
+
+		// Copy sibling
+		if( frame.m_pSibling ){
+			pFrame->m_pSibling = new AnimModelData::Frame;
+			ClearModelDataFrame( pFrame->m_pSibling );
+			CopyFrameToModelData( *frame.m_pSibling, pFrame->m_pSibling );
+		}
+
+		pFrame->m_Name = frame.m_FrameName;
+		pFrame->m_TransMat = frame.m_TransMat;
+		CopyMeshToModelData( frame.m_Mesh, pFrame );
+	}
+
+	// Copy to model data.
+	MapilVoid XAnimFile::CopyToModelData( AnimModelData* pData )
+	{
+		// Copy all frames.
+		ClearModelDataFrame( &pData->m_RootFame );
+		CopyFrameToModelData( m_RootFrame, &pData->m_RootFame );
+
+		// Copy all animations.
+		typedef std::map < std::basic_string < MapilChar >, Anim::AnimationSet > ::iterator AnimSetIter;
+
+		// Copy all animation set.
+		for( AnimSetIter itSet = m_Anim.m_AnimSetMap.begin(); itSet != m_Anim.m_AnimSetMap.end(); ++itSet ){
+			
+			AnimModelData::Animation::AnimSet animSet;
+
+			
+			// Copy all animation item.
+			typedef std::map < std::basic_string < MapilChar >, Anim::AnimationSet::Animation > ::iterator AnimationIter;
+			for( AnimationIter itAnimation = itSet->second.m_AnimMap.begin(); itAnimation != itSet->second.m_AnimMap.end(); ++itAnimation ){
+				std::basic_string < MapilChar > animationName = itAnimation->first;
+				Anim::AnimationSet::Animation& anim = itAnimation->second;
+
+				AnimModelData::Animation::AnimSet::AnimItem item;
+				
+				std::vector < AnimModelData::Animation::AnimSet::AnimItem::Key > keys;
+				// Copy all animation keys.
+				for( MapilInt32 i = 0; i < anim.m_AnimKey.size(); ++i ){
+					AnimModelData::Animation::AnimSet::AnimItem::Key key;
+					// Copy all list.
+					for( MapilInt32 j = 0; j < anim.m_AnimKey[ i ].m_TransTime.size(); ++j ){
+						AnimModelData::Animation::AnimSet::AnimItem::Key::TransValue transVal;
+						MapilInt32 transTime = anim.m_AnimKey[ i ].m_TransTime[ j ];
+						transVal.m_Elm[ 0 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_X;
+						transVal.m_Elm[ 1 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Y;
+						transVal.m_Elm[ 2 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Z;
+						transVal.m_Elm[ 3 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_W;
+						key.m_Entries[ transTime ] = transVal;
+					}
+					key.m_Type = anim.m_AnimKey[ i ].m_TransType;
+					keys.push_back( key );
+				}
+				item.m_Keys[ anim.m_AnimName ] = keys;
+
+				animSet.m_AnimItems[ itAnimation->first ] = item;
+			}
+
+			pData->m_Animation.m_AnimSetList[ itSet->first ] = animSet;
+		}
 	}
 
 	// Calculate world matrix each frame.
