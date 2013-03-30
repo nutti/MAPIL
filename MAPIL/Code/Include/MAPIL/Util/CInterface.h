@@ -156,7 +156,8 @@ namespace MAPIL
 							MapilFloat32 posX, MapilFloat32 posY,
 							MapilFloat32 scaleX, MapilFloat32 scaleY,
 							MapilFloat32 angle, MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
-
+	// Get texutre size.
+	MapilVoid GetTextureSize( MapilUInt32 index, MapilUInt32* pX, MapilUInt32* pY );
 	// Draw polygon 3D. (without resource holding.)
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal );
 	// Draw polygon 3D. (without resource holding.)

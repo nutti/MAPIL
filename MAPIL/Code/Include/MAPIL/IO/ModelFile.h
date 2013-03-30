@@ -76,17 +76,27 @@ namespace MAPIL
 					struct Key
 					{
 						MapilInt32					m_Type;			///< Animation type.
-						// Translation value.
-						struct TransValue
+						struct Entry
 						{
-							MapilFloat32			m_Elm[ 4 ];
+							MapilInt32					m_Time;			///< Animation time.
+							// Translation value.
+							struct TransValue
+							{
+								MapilFloat32			m_Elm[ 4 ];
+							};
+							TransValue					m_TransVal;
 						};
-						std::map < MapilInt32, TransValue >		m_Entries;		///< Entries.
+						std::vector < Entry >		m_Entries;
+						// Key:Animation time.
+						//std::map < MapilInt32, TransValue >		m_Entries;		///< Entries.
 					};
+					// Key:Target frame.
 					std::map < std::basic_string < MapilChar >, std::vector < Key > >	m_Keys;		///< Keys
 				};
+				// Key:Animation name.
 				std::map < std::basic_string < MapilChar >, AnimItem >	m_AnimItems;	///< Animation items.
 			};
+			// Key:Animation set name.(trackname)
 			std::map < std::basic_string < MapilChar >, AnimSet >	m_AnimSetList;	///< Animation set list.
 		};
 

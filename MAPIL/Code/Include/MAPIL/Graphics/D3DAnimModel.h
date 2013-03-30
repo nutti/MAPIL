@@ -16,6 +16,7 @@
 #if defined ( API_DIRECT3D )
 
 #include <d3dx9.h>
+#include <stack>
 
 #include "Model.h"
 
@@ -60,10 +61,12 @@ namespace MAPIL
 			Frame*							m_pFirstChild;	///< First of child.
 			Frame*							m_pSibling;		///< Sibling.
 			std::basic_string < MapilChar >	m_Name;			///< Frame name.
+			Matrix4x4 < MapilFloat32 >		m_CalcTransMat;	///< Calculated Matrix.
 		};
 
 		Frame						m_RootFrame;
 		AnimModelData::Animation	m_Animation;
+		std::stack < Matrix4x4 < MapilFloat32 > >		m_MatStack;
 
 		/**
 		*	@brief		Draw model with no transformation. This is called in Draw method.
@@ -80,6 +83,35 @@ namespace MAPIL
 		MapilVoid DrawFrame( const Frame& frame );
 
 		MapilVoid DrawMesh( const Frame::Mesh& mesh );
+
+		MapilVoid GetAnimTransMat(	const MapilChar* pTrackName,
+									const MapilChar* pFrameName,
+									Matrix4x4 < MapilFloat32 >* pMatOut,
+									MapilFloat32 advanceTime,
+									MapilFloat32 nowTime );
+		// Create lerp translation matrix.
+		MapilVoid CreateLerpTranslationMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+											MapilFloat32 advanceTime,
+											MapilFloat32 nowTime,
+											const AnimModelData::Animation::AnimSet::AnimItem::Key& key );
+		// Create lerp scaling matrix.
+		MapilVoid CreateLerpScalingMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+										MapilFloat32 advanceTime,
+										MapilFloat32 nowTime,
+										const AnimModelData::Animation::AnimSet::AnimItem::Key& key );
+		// Create lerp rotation matrix.
+		MapilVoid CreateLerpRotationMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+											MapilFloat32 advanceTime,
+											MapilFloat32 nowTime,
+											const AnimModelData::Animation::AnimSet::AnimItem::Key& key );
+
+		// Calculate world matrix for each frame.
+		MapilVoid CalcFWM( Frame* pFrame );
+		// Update world matrix for each frame.
+		MapilVoid UpdateFWM(	Frame* pFrame,
+								const MapilChar* pTrackName,
+								MapilFloat32 advanceTime, 
+								MapilFloat32 nowTime );
 	public:
 		/**
 		*	@brief		Constructor.
@@ -103,6 +135,13 @@ namespace MAPIL
 											const Vector3 < MapilFloat32 >& vRayOrig,
 											Vector2 < MapilFloat32 >* pVCollisionPos,
 											MapilFloat32* pDistance );
+		// Calculate world matrix of all frame.
+		MapilVoid CalcFrameWorldMat();
+		MapilVoid SetAnim( const MapilChar* pTrackName );
+		// Update world matrix for all frame.
+		MapilVoid UpdateFrameWorldMat(	const MapilChar* pTrackName,
+										MapilFloat32 advanceTime, 
+										MapilFloat32 nowTime );
 	};
 }
 

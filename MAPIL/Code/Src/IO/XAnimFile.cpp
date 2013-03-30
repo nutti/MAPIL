@@ -928,13 +928,14 @@ namespace MAPIL
 					AnimModelData::Animation::AnimSet::AnimItem::Key key;
 					// Copy all list.
 					for( MapilInt32 j = 0; j < anim.m_AnimKey[ i ].m_TransTime.size(); ++j ){
-						AnimModelData::Animation::AnimSet::AnimItem::Key::TransValue transVal;
-						MapilInt32 transTime = anim.m_AnimKey[ i ].m_TransTime[ j ];
-						transVal.m_Elm[ 0 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_X;
-						transVal.m_Elm[ 1 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Y;
-						transVal.m_Elm[ 2 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Z;
-						transVal.m_Elm[ 3 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_W;
-						key.m_Entries[ transTime ] = transVal;
+						AnimModelData::Animation::AnimSet::AnimItem::Key::Entry entry;
+						entry.m_Time = anim.m_AnimKey[ i ].m_TransTime[ j ];
+						entry.m_TransVal.m_Elm[ 0 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_X;
+						entry.m_TransVal.m_Elm[ 1 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Y;
+						entry.m_TransVal.m_Elm[ 2 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_Z;
+						entry.m_TransVal.m_Elm[ 3 ] = anim.m_AnimKey[ i ].m_TransVal[ j ].m_W;
+						key.m_Entries.push_back( entry );
+						//key.m_Entries[ transTime ] = transVal;
 					}
 					key.m_Type = anim.m_AnimKey[ i ].m_TransType;
 					keys.push_back( key );

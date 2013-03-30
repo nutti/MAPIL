@@ -1198,7 +1198,8 @@ namespace MAPIL
 		pOut->m_44 = in.m_44;
 	}
 
-
+	// Create matrix from quaternion.
+	MapilVoid CreateMatrixFromQuaternion( const Vector4 < MapilFloat32 >& in, Matrix4x4 < MapilFloat32 >* pOut );
 
 
 	template < typename Type, MapilInt32 ROW, MapilInt32 COLMUN >

@@ -1247,6 +1247,17 @@ namespace MAPIL
 		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
 	}
 
+	// Get texutre size.
+	MapilVoid GetTextureSize( MapilUInt32 index, MapilUInt32* pX, MapilUInt32* pY )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index );
+
+		*pX = p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X;
+		*pY = p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y;
+	}
+
 	// Draw polygon 3D. (without resource holding.)
 	MapilVoid DrawPolygon3D( const Polygon3DVertexFormat* pFmt, MapilInt32 polygonTotal )
 	{

@@ -13,6 +13,8 @@
 #if defined ( API_DIRECT3D )
 #if ( DIRECT3D_VERSION == D3D_VER_9_0_C )
 
+#include <bitset>
+
 #include "../../Include/MAPIL/IO/Archiver.h"
 #include "../../Include/MAPIL/Graphics/D3DAnimModel.h"
 #include "../../Include/MAPIL/Graphics/D3DTexture.h"
@@ -32,11 +34,17 @@ namespace MAPIL
 	D3DAnimModel::D3DAnimModel( SharedPointer < GraphicsDevice > pDev ) :	Model( pDev )
 	{
 		ClearFrame( &m_RootFrame );
+		while( !m_MatStack.empty() ){
+			m_MatStack.pop();
+		}
 	}
 
 	D3DAnimModel::~D3DAnimModel()
 	{
 		ClearFrame( &m_RootFrame );
+		while( !m_MatStack.empty() ){
+			m_MatStack.pop();
+		}
 	}
 
 	// Create frame.
@@ -254,6 +262,13 @@ namespace MAPIL
 			DrawFrame( *frame.m_pSibling );
 		}
 
+		::D3DXMATRIXA16 matWorld;
+		for( MapilInt32 i = 0; i < 4; i++ ){
+			for( MapilInt32 j = 0; j < 4; j++ ){
+				matWorld.m[ i ][ j ] = frame.m_CalcTransMat.m_Elm[ i ][ j ];
+			}
+		}
+		m_pDev->GetDev().GetPointer()->SetTransform( D3DTS_WORLD, &matWorld );
 		DrawMesh( frame.m_Mesh );
 	}
 
@@ -305,11 +320,286 @@ namespace MAPIL
 	}
 
 	MapilBool D3DAnimModel::DetectCollision(	const Vector3 < MapilFloat32 >& vRayDir,
-											const Vector3 < MapilFloat32 >& vRayOrig,
-											Vector2 < MapilFloat32 >* pVCollisionPos,
-											MapilFloat32* pDistance )
+												const Vector3 < MapilFloat32 >& vRayOrig,
+												Vector2 < MapilFloat32 >* pVCollisionPos,
+												MapilFloat32* pDistance )
 	{
 		return MapilFalse;
+	}
+
+	// Calculate world matrix for each frame.
+	MapilVoid D3DAnimModel::CalcFWM( Frame* pFrame )
+	{
+		pFrame->m_CalcTransMat = m_MatStack.top();
+		pFrame->m_CalcTransMat.Mul( pFrame->m_TransMat );
+
+		if( pFrame->m_pFirstChild ){
+			m_MatStack.push( pFrame->m_CalcTransMat );
+			CalcFWM( pFrame->m_pFirstChild );
+			m_MatStack.pop();
+		}
+
+		if( pFrame->m_pSibling ){
+			CalcFWM( pFrame->m_pSibling );
+		}
+	}
+
+	// Calculate world matrix of all frame.
+	MapilVoid D3DAnimModel::CalcFrameWorldMat()
+	{
+		Matrix4x4 < MapilFloat32 > mat;
+		mat.m_11 = mat.m_22 = mat.m_33 = mat.m_44 = 1.0f;
+		m_MatStack.push( mat );
+		CalcFWM( &m_RootFrame );
+		m_MatStack.pop();
+	}
+
+	// Update world matrix for each frame.
+	MapilVoid D3DAnimModel::UpdateFWM(	Frame* pFrame,
+										const MapilChar* pTrackName,
+										MapilFloat32 advanceTime, 
+										MapilFloat32 nowTime )
+	{
+		pFrame->m_CalcTransMat = m_MatStack.top();
+
+		Matrix4x4 < MapilFloat32 > mat;
+		GetAnimTransMat( pTrackName, pFrame->m_Name.c_str(), &mat, advanceTime, nowTime );
+		pFrame->m_CalcTransMat.Mul( mat );
+
+		if( pFrame->m_pFirstChild ){
+			m_MatStack.push( pFrame->m_CalcTransMat );
+			UpdateFWM( pFrame->m_pFirstChild, pTrackName, advanceTime, nowTime );
+			m_MatStack.pop();
+		}
+
+		if( pFrame->m_pSibling ){
+			UpdateFWM( pFrame->m_pSibling, pTrackName, advanceTime, nowTime );
+		}
+	}
+
+	// Update world matrix for all frame.
+	MapilVoid D3DAnimModel::UpdateFrameWorldMat(	const MapilChar* pTrackName,
+													MapilFloat32 advanceTime, 
+													MapilFloat32 nowTime )
+	{
+		Matrix4x4 < MapilFloat32 > mat;
+		mat.m_11 = mat.m_22 = mat.m_33 = mat.m_44 = 1.0f;
+		m_MatStack.push( mat );
+		UpdateFWM( &m_RootFrame, pTrackName, advanceTime, nowTime );
+		m_MatStack.pop();
+	}
+
+
+	// Create lerp translation matrix.
+	MapilVoid D3DAnimModel::CreateLerpTranslationMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+														MapilFloat32 advanceTime,
+														MapilFloat32 nowTime,
+														const AnimModelData::Animation::AnimSet::AnimItem::Key& key )
+	{
+		MapilFloat32 nextTime = nowTime + advanceTime;
+
+		MapilInt32 sel = 0;		// Next key.
+
+		while( !sel ){
+			for( MapilUInt32 i = 1; i < key.m_Entries.size(); i++ ){
+				if( nextTime < key.m_Entries[ i ].m_Time ){
+					sel = i;
+					break;
+				}
+			}
+			if( !sel ){
+				nextTime -= key.m_Entries[ key.m_Entries.size() - 1 ].m_Time;
+			}
+		}
+
+		MapilFloat32 rate = ( nextTime - key.m_Entries[ sel - 1 ].m_Time ) / ( key.m_Entries[ sel ].m_Time - key.m_Entries[ sel - 1 ].m_Time );
+
+		pMatOut->m_41 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 0 ] * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 0 ] * rate;		// X
+		pMatOut->m_42 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 1 ]  * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 1 ] * rate;		// Y
+		pMatOut->m_43 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 2 ] * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 2 ] * rate;		// Z
+	}
+
+	// Create lerp scaling matrix.
+	MapilVoid D3DAnimModel::CreateLerpScalingMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+													MapilFloat32 advanceTime,
+													MapilFloat32 nowTime,
+													const AnimModelData::Animation::AnimSet::AnimItem::Key& key )
+	{
+		MapilFloat32 nextTime = nowTime + advanceTime;
+
+		MapilInt32 sel = 0;		// Next key.
+
+		while( !sel ){
+			for( MapilUInt32 i = 1; i < key.m_Entries.size(); i++ ){
+				if( nextTime < key.m_Entries[ i ].m_Time ){
+					sel = i;
+					break;
+				}
+			}
+			if( !sel ){
+				nextTime -= key.m_Entries[ key.m_Entries.size() - 1 ].m_Time;
+			}
+		}
+
+		MapilFloat32 rate = ( nextTime - key.m_Entries[ sel - 1 ].m_Time ) / ( key.m_Entries[ sel ].m_Time - key.m_Entries[ sel - 1 ].m_Time );
+
+		pMatOut->m_11 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 0 ] * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 0 ] * rate;		// X
+		pMatOut->m_22 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 1 ]  * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 1 ] * rate;		// Y
+		pMatOut->m_33 = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 2 ] * ( 1 - rate ) + key.m_Entries[ sel ].m_TransVal.m_Elm[ 2 ] * rate;		// Z
+	}
+
+	// Create lerp rotation matrix.
+	MapilVoid D3DAnimModel::CreateLerpRotationMat(	Matrix4x4 < MapilFloat32 >* pMatOut,
+													MapilFloat32 advanceTime,
+													MapilFloat32 nowTime,
+													const AnimModelData::Animation::AnimSet::AnimItem::Key& key )
+	{
+		MapilFloat32 nextTime = nowTime + advanceTime;
+
+		MapilInt32 sel = 0;		// Next key.
+
+		while( !sel ){
+			for( MapilUInt32 i = 1; i < key.m_Entries.size(); i++ ){
+				if( nextTime < key.m_Entries[ i ].m_Time ){
+					sel = i;
+					break;
+				}
+			}
+			if( !sel ){
+				nextTime -= key.m_Entries[ key.m_Entries.size() - 1 ].m_Time;
+			}
+		}
+
+		MapilFloat32 rate = ( nextTime - key.m_Entries[ sel - 1 ].m_Time ) / ( key.m_Entries[ sel ].m_Time - key.m_Entries[ sel - 1 ].m_Time );
+
+		//Vector4 < MapilFloat32 > q1;
+		//Vector4 < MapilFloat32 > q2;
+		::D3DXQUATERNION q1;
+		::D3DXQUATERNION q2;
+
+		q1.x = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 0 ];		// X
+		q1.y = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 1 ];		// Y
+		q1.z = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 2 ];		// Z
+		q1.w = key.m_Entries[ sel - 1 ].m_TransVal.m_Elm[ 3 ];		// W
+
+		q2.x = key.m_Entries[ sel ].m_TransVal.m_Elm[ 0 ];		// X
+		q2.y = key.m_Entries[ sel ].m_TransVal.m_Elm[ 1 ];		// Y
+		q2.z = key.m_Entries[ sel ].m_TransVal.m_Elm[ 2 ];		// Z
+		q2.w = key.m_Entries[ sel ].m_TransVal.m_Elm[ 3 ];		// W
+
+		::D3DXQUATERNION qOut;
+		::D3DXQuaternionSlerp( &qOut, &q1, &q2, rate );
+		//::D3DXQuaternionNormalize( &qOut, &qOut );
+
+
+		Vector4 < MapilFloat32 > q;
+		q.m_X = qOut.x;
+		q.m_Y = qOut.y;
+		q.m_Z = qOut.z;
+		q.m_W = qOut.w;
+
+		::D3DXMATRIXA16 mat;
+		::D3DXMatrixRotationQuaternion( &mat, &qOut );
+
+		for( MapilInt32 i = 0; i < 4; i++ ){
+			for( MapilInt32 j = 0; j < 4; j++ ){
+				pMatOut->m_Elm[ i ][ j ] = mat.m[ i ][ j ];
+			}
+		}
+
+		CreateMatrixFromQuaternion( q, pMatOut );
+	}
+
+	MapilVoid D3DAnimModel::GetAnimTransMat(	const MapilChar* pTrackName,
+												const MapilChar* pFrameName,
+												Matrix4x4 < MapilFloat32 >* pMatOut,
+												MapilFloat32 advanceTime,
+												MapilFloat32 nowTime )
+	{
+		// 今後バグになる可能性あり。
+		if( !strcmp( pFrameName, "Frame_SCENE_ROOT" ) ){
+			pMatOut->m_11 = pMatOut->m_22 = pMatOut->m_33 = pMatOut->m_44 = 1.0f;
+			return;
+		}
+
+		// Search animation set.
+		std::map < std::basic_string < MapilChar >, AnimModelData::Animation::AnimSet > ::iterator itAnimSet;
+		itAnimSet = m_Animation.m_AnimSetList.find( pTrackName );
+		if( itAnimSet == m_Animation.m_AnimSetList.end() ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Can't find animation track name." ), -1 );
+		}
+		
+		// Search animation item.
+		std::map < std::basic_string < MapilChar >, AnimModelData::Animation::AnimSet::AnimItem > ::iterator itAnimItem;
+		itAnimItem = itAnimSet->second.m_AnimItems.find( pFrameName );
+		if( itAnimItem == itAnimSet->second.m_AnimItems.end() ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Can't find target frame." ), -2 );
+		}
+
+		// Get key total.
+		MapilInt32 frameTotal;
+		frameTotal = itAnimItem->second.m_Keys.size();
+		if( frameTotal != 1 ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Multiple frames are found." ), -3 );
+		}
+
+		//MapilInt32 interval = itt->second.m_AnimKey[ 0 ].m_TransTime[ 1 ] - itt->second.m_AnimKey[ 0 ].m_TransTime[ 0 ];
+		//MapilInt32 numAnim = itt->second.m_AnimKey[ 0 ].m_NumAnim;
+				
+		// Get transform matrix.
+		typedef std::map < std::basic_string < MapilChar >, std::vector < AnimModelData::Animation::AnimSet::AnimItem::Key > > ::iterator KeyIter;
+		KeyIter itKey = itAnimItem->second.m_Keys.begin();
+
+		enum Transformation
+		{
+			TRANSLATION,
+			SCALING,
+			ROTATION,
+			TRANSFORMATION_TOTAL,
+		};
+
+		std::bitset < TRANSFORMATION_TOTAL > transList;
+		Matrix4x4 < MapilFloat32 > matTmp[ 3 ];
+		for( MapilInt32 j = 0; j < 3; ++j ){
+			matTmp[ j ].m_11 = matTmp[ j ].m_22 = matTmp[ j ].m_33 = matTmp[ j ].m_44 = 1.0f;
+		}
+
+		Matrix4x4 < MapilFloat32 > mat;
+		mat.m_11 = mat.m_22 = mat.m_33 = mat.m_44 = 1.0f;
+		for( MapilInt32 i = 0; i < itKey->second.size(); ++i ){
+			switch( itKey->second[ i ].m_Type ){
+				case 0:
+					CreateLerpRotationMat( &matTmp[ 0 ], advanceTime, nowTime, itKey->second[ i ] );
+					transList.set( ROTATION );
+					break;
+				case 1:
+					CreateLerpScalingMat( &matTmp[ 1 ], advanceTime, nowTime, itKey->second[ i ] );
+					transList.set( SCALING );
+					break;
+				case 2:
+					CreateLerpTranslationMat( &matTmp[ 2 ], advanceTime, nowTime, itKey->second[ i ] );
+					transList.set( TRANSLATION );
+					break;
+				case 3:
+					break;
+				default:
+					break;
+			}
+		}
+
+		if( transList[ SCALING ] ){
+			mat.Mul( matTmp[ 1 ] );
+		}
+		if( transList[ ROTATION ] ){
+			mat.Mul( matTmp[ 0 ] );
+		}
+		if( transList[ TRANSLATION ] ){
+			mat.Mul( matTmp[ 2 ] );
+		}
+
+
+
+		*pMatOut = mat;
 	}
 
 }
