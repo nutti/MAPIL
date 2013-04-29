@@ -472,8 +472,6 @@ namespace MAPIL
 
 		MapilFloat32 rate = ( nextTime - key.m_Entries[ sel - 1 ].m_Time ) / ( key.m_Entries[ sel ].m_Time - key.m_Entries[ sel - 1 ].m_Time );
 
-		//Vector4 < MapilFloat32 > q1;
-		//Vector4 < MapilFloat32 > q2;
 		::D3DXQUATERNION q1;
 		::D3DXQUATERNION q2;
 
