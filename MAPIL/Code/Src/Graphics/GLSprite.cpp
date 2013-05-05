@@ -162,6 +162,13 @@ namespace MAPIL
 		glPopMatrix();
 	}
 
+	MapilVoid GLSprite::DrawClipedTexture(	SharedPointer < Texture > pTexture,
+											MapilFloat32 x, MapilFloat32 y,
+											MapilFloat32 texCoordX, MapilFloat32 texCoordY,
+											MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
 	MapilVoid GLSprite::DrawString(	SharedPointer < GraphicsFont > pFont,
 									const MapilTChar* pStr,
 									ImageTransformationMethod method,

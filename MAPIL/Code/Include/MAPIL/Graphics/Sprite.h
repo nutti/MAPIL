@@ -91,6 +91,10 @@ namespace MAPIL
 		virtual MapilVoid DrawRotateTexture(	SharedPointer < Texture > pTexture,
 												MapilFloat32 x, MapilFloat32 y, MapilFloat32 angle,
 												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
+		virtual MapilVoid DrawClipedTexture(	SharedPointer < Texture > pTexture,
+												MapilFloat32 x, MapilFloat32 y,
+												MapilFloat32 texCoordX, MapilFloat32 texCoordY,
+												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
 		virtual MapilVoid SetAlphaBlendMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Draw string.
