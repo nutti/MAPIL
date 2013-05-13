@@ -169,6 +169,16 @@ namespace MAPIL
 	{
 	}
 
+	MapilVoid GLSprite::DrawClipedTexture(	SharedPointer < Texture > pTexture,
+											MapilFloat32 x, MapilFloat32 y,
+											MapilFloat32 sx, MapilFloat32 sy,
+											MapilFloat32 angle,
+											MapilFloat32 cx1, MapilFloat32 cy1,
+											MapilFloat32 cx2, MapilFloat32 cy2,
+											MapilBool centerize, MapilUInt32 color )
+	{
+	}
+
 	MapilVoid GLSprite::DrawString(	SharedPointer < GraphicsFont > pFont,
 									const MapilTChar* pStr,
 									ImageTransformationMethod method,

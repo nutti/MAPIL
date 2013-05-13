@@ -95,6 +95,13 @@ namespace MAPIL
 												MapilFloat32 x, MapilFloat32 y,
 												MapilFloat32 texCoordX, MapilFloat32 texCoordY,
 												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
+		virtual MapilVoid DrawClipedTexture(	SharedPointer < Texture > pTexture,
+												MapilFloat32 x, MapilFloat32 y,
+												MapilFloat32 sx, MapilFloat32 sy,
+												MapilFloat32 angle,
+												MapilFloat32 cx1, MapilFloat32 cy1,
+												MapilFloat32 cx2, MapilFloat32 cy2,
+												MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF ) = 0;
 		virtual MapilVoid SetAlphaBlendMode( MapilInt32 mode ) = 0;
 		/**
 		*	@brief			Draw string.

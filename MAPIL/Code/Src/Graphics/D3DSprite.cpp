@@ -367,6 +367,64 @@ namespace MAPIL
 		}
 	}
 
+	MapilVoid D3DSprite::DrawClipedTexture(	SharedPointer < Texture > pTexture,
+											MapilFloat32 x, MapilFloat32 y,
+											MapilFloat32 sx, MapilFloat32 sy,
+											MapilFloat32 angle,
+											MapilFloat32 cx1, MapilFloat32 cy1,
+											MapilFloat32 cx2, MapilFloat32 cy2,
+											MapilBool centerize, MapilUInt32 color )
+	{
+		Assert(	m_IsUsed, CURRENT_POSITION, TSTR( "The sprite isn't created yet." ), -1 );
+
+		MapilFloat32 width = cx2 - cx1;
+		MapilFloat32 height = cy2 - cy1;
+
+		D3DXMATRIXA16 matWorld;
+		::D3DXMatrixIdentity( &matWorld );
+
+		::D3DXMATRIXA16 trans;
+		::D3DXMATRIXA16 scale;
+		::D3DXMATRIXA16 rot;
+		::D3DXMATRIXA16 offset;
+
+		::D3DXMatrixIdentity( &trans );
+		::D3DXMatrixIdentity( &scale );
+		::D3DXMatrixIdentity( &rot );
+
+		// World coordinate transformation
+		if( centerize ){
+			::D3DXMatrixIdentity( &offset );
+			offset._41 = - width / 2.0f;
+			offset._42 = - height / 2.0f;
+		}
+		trans._41 = x;
+		trans._42 = y;
+		scale._11 = sx;
+		scale._22 = sy;
+		::D3DXMatrixRotationZ( &rot, angle );
+
+		matWorld = offset * scale * rot * trans;	// Centering -> Scaling -> Rotation -> Translation.
+
+		m_pD3DSprite->SetTransform( &matWorld );
+
+		// Set range of drawing.
+		RECT rc;
+		rc.top		= static_cast < MapilInt32 > ( cy1 );
+		rc.bottom	= static_cast < MapilInt32 > ( cy2 );
+		rc.left		= static_cast < MapilInt32 > ( cx1 );
+		rc.right	= static_cast < MapilInt32 > ( cx2 );
+
+		// Draw
+		if( FAILED( m_pD3DSprite->Draw(	reinterpret_cast < LPDIRECT3DTEXTURE9 > ( pTexture.GetPointer()->Get() ),
+										&rc,
+										NULL,
+										NULL,
+										color ) ) ){
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to draw." ), -1 );
+		}
+	}
+
 	MapilVoid D3DSprite::DrawScaledTexture(	SharedPointer < Texture > pTexture,
 											MapilFloat32 x, MapilFloat32 y, MapilFloat32 sx, MapilFloat32 sy,
 											MapilBool centerize, MapilUInt32 color )

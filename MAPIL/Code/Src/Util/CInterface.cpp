@@ -1263,6 +1263,24 @@ namespace MAPIL
 										centerize, color );
 	}
 
+	// Draw texture.( with global sprite, cliped. )
+	MapilVoid DrawClipedTexture(	MapilUInt32 index,
+									MapilFloat32 x, MapilFloat32 y,
+									MapilFloat32 sx, MapilFloat32 sy,
+									MapilFloat32 angle,
+									MapilFloat32 cx1, MapilFloat32 cy1,
+									MapilFloat32 cx2, MapilFloat32 cy2,
+									MapilBool centerize, MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index + 50 );
+
+		p->m_Sprite->DrawClipedTexture(	p->m_LocalTextureList[ index ].m_Resource,
+										x, y, sx, sy, angle, cx1, cy1, cx2, cy2,
+										centerize, color );
+	}
+
 	// Get texutre size.
 	MapilVoid GetTextureSize( MapilUInt32 index, MapilUInt32* pX, MapilUInt32* pY )
 	{

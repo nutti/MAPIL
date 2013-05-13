@@ -161,6 +161,14 @@ namespace MAPIL
 									MapilFloat32 posX, MapilFloat32 posY,
 									MapilFloat32 texCoordX, MapilFloat32 texCoordY,
 									MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+	// Draw texture.( with global sprite, cliped. )
+	MapilVoid DrawClipedTexture(	MapilUInt32 index,
+									MapilFloat32 x, MapilFloat32 y,
+									MapilFloat32 sx, MapilFloat32 sy,
+									MapilFloat32 angle,
+									MapilFloat32 cx1, MapilFloat32 cy1,
+									MapilFloat32 cx2, MapilFloat32 cy2,
+									MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
 	// Get texutre size.
 	MapilVoid GetTextureSize( MapilUInt32 index, MapilUInt32* pX, MapilUInt32* pY );
 	// Draw polygon 3D. (without resource holding.)
