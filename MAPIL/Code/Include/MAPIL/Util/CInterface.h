@@ -156,6 +156,11 @@ namespace MAPIL
 							MapilFloat32 posX, MapilFloat32 posY,
 							MapilFloat32 scaleX, MapilFloat32 scaleY,
 							MapilFloat32 angle, MapilBool centerize = MapilTrue, MapilUInt32 color = 0xFFFFFFFF );
+	// Draw texture. ( with global sprite ).
+	MapilVoid DrawTexture(	MapilUInt32 index,
+							const Matrix4x4 < MapilFloat32 >& mat,
+							MapilBool centerize = MapilTrue,
+							MapilUInt32 color = 0xFFFFFFFF );
 	// Draw texture.( with global sprite, cliped. )
 	MapilVoid DrawClipedTexture(	MapilUInt32 index,
 									MapilFloat32 posX, MapilFloat32 posY,

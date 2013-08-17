@@ -11,6 +11,7 @@
 
 // Diag.
 #include "Diag/MapilException.h"
+#include "Diag/Assertion.hpp"
 #include "Diag/Logger.h"
 
 // GUI.

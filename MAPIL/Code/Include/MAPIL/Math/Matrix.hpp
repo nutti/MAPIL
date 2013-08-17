@@ -63,7 +63,7 @@ namespace MAPIL
 
 	//Constructor (1)
 	template < typename Type >
-	Matrix2x2 < Type > ::Matrix2x2() : m_11( 0 ), m_12( 0 ), m_21( 0 ), m_22( 0 )
+	Matrix2x2 < Type > ::Matrix2x2()/* : m_11( 0 ), m_12( 0 ), m_21( 0 ), m_22( 0 )*/
 	{
 	}
 
@@ -77,10 +77,10 @@ namespace MAPIL
 	template < typename Type >
 	Matrix2x2 < Type > ::~Matrix2x2()
 	{
-		m_11 = 0;
+		/*m_11 = 0;
 		m_12 = 0;
 		m_21 = 0;
-		m_22 = 0;
+		m_22 = 0;*/
 	}
 
 	//Add / Ternary operator (Overload of + operator)
@@ -273,9 +273,9 @@ namespace MAPIL
 
 	//Constructor (1)
 	template < typename Type >
-	Matrix3x3 < Type > ::Matrix3x3() :	m_11( 0 ), m_12( 0 ), m_13( 0 ),
+	Matrix3x3 < Type > ::Matrix3x3()/* :	m_11( 0 ), m_12( 0 ), m_13( 0 ),
 										m_21( 0 ), m_22( 0 ), m_23( 0 ),
-										m_31( 0 ), m_32( 0 ), m_33( 0 )
+										m_31( 0 ), m_32( 0 ), m_33( 0 )*/
 	{
 	}
 
@@ -291,7 +291,7 @@ namespace MAPIL
 	template < typename Type >
 	Matrix3x3 < Type > ::~Matrix3x3()
 	{
-		m_11 = 0;
+		/*m_11 = 0;
 		m_12 = 0;
 		m_13 = 0;
 		m_21 = 0;
@@ -299,7 +299,7 @@ namespace MAPIL
 		m_23 = 0;
 		m_31 = 0;
 		m_32 = 0;
-		m_33 = 0;
+		m_33 = 0;*/
 	}
 
 	//Add / Ternary operator (Overload of + operator)
@@ -567,10 +567,10 @@ namespace MAPIL
 
 	//Constructor (1)
 	template < typename Type >
-	Matrix4x4 < Type > ::Matrix4x4() :	m_11( 0 ), m_12( 0 ), m_13( 0 ), m_14( 0 ),
+	Matrix4x4 < Type > ::Matrix4x4()/* :	m_11( 0 ), m_12( 0 ), m_13( 0 ), m_14( 0 ),
 										m_21( 0 ), m_22( 0 ), m_23( 0 ), m_24( 0 ),
 										m_31( 0 ), m_32( 0 ), m_33( 0 ), m_34( 0 ),
-										m_41( 0 ), m_42( 0 ), m_43( 0 ), m_44( 0 )
+										m_41( 0 ), m_42( 0 ), m_43( 0 ), m_44( 0 )*/
 	{
 	}
 
@@ -587,7 +587,7 @@ namespace MAPIL
 	template < typename Type >
 	Matrix4x4 < Type > ::~Matrix4x4()
 	{
-		m_11 = 0;
+	/*	m_11 = 0;
 		m_12 = 0;
 		m_13 = 0;
 		m_14 = 0;
@@ -602,7 +602,7 @@ namespace MAPIL
 		m_41 = 0;
 		m_42 = 0;
 		m_43 = 0;
-		m_44 = 0;
+		m_44 = 0;*/
 	}
 
 	//Add / Ternary operator (Overload of + operator)

@@ -115,6 +115,7 @@ namespace MAPIL
 					while( empty >= 1 ){
 						ALuint buf;
 						alSourceUnqueueBuffers( m_Src, 1, &buf );
+						alDeleteBuffers( 1, &buf );		// Relese memory.
 						alGenBuffers( 1, &buf );
 						m_pWavFile->Load(	m_pWavFile->GetDataPos() + offset,
 											m_pWavFile->GetInfoPos(),
@@ -193,6 +194,7 @@ namespace MAPIL
 					while( empty >= 1 ){
 						ALuint buf;
 						alSourceUnqueueBuffers( m_Src, 1, &buf );
+						alDeleteBuffers( 1, &buf );		// Relese memory.
 						alGenBuffers( 1, &buf );
 						m_pArchiver->Load(	m_FileName.c_str(),
 											data,

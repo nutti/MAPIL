@@ -1247,6 +1247,31 @@ namespace MAPIL
 		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, mat, color );
 	}
 
+	// Draw texture. ( with global sprite ).
+	MapilVoid DrawTexture(	MapilUInt32 index,
+							const Matrix4x4 < MapilFloat32 >& mat,
+							MapilBool centerize,
+							MapilUInt32 color )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalTextureList.size() > index,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), index + 50 );
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > worldMat;
+		if( centerize ){
+			Matrix4x4 < MapilFloat32 > offsetMat;	// Centering of the texture.
+			CreateTranslationMat(	&offsetMat,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_X * 1.0f / 2,
+									- p->m_LocalTextureList[ index ].m_Resource->GetSize().m_Y * 1.0f / 2 );
+			worldMat = offsetMat * mat;				// Centering -> World tranceformation.
+		}
+		else{
+			worldMat = mat;	// World tranceformation.
+		}
+		p->m_Sprite->DrawTexture( p->m_LocalTextureList[ index ].m_Resource, worldMat, color );
+	}
+
 	// Draw texture.( with global sprite, cliped. )
 	MapilVoid DrawClipedTexture(	MapilUInt32 index,
 									MapilFloat32 posX, MapilFloat32 posY,
