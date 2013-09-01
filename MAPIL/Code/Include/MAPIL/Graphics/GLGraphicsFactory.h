@@ -148,6 +148,7 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		INSidedPolygon3D CreateNSidedPolygon3D( const MapilTChar* pKeyStr ){ return INSidedPolygon3D(); }
+		ISkinMeshModel CreateSkinMeshModel( const MapilTChar* pKeyStr ){ return ISkinMeshModel(); }
 		/**
 		*	@brief Delete all the objects whose reference count is 0.
 		*/

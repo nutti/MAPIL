@@ -15,9 +15,12 @@
 
 #include <map>
 
+#include "../../Include/MAPIL/IO/Archiver.h"
 #include "../../Include/MAPIL/Graphics/D3DSkinMeshModel.h"
 #include "../../Include/MAPIL/Graphics/GraphicsDevice.h"
 #include "../../Include/MAPIL/Util/String.h"
+#include "../../Include/MAPIL/Diag/Assertion.hpp"
+#include "../../Include/MAPIL/Diag/MapilException.h"
 
 //-------------------------------------------------------------------
 // Implementation.
@@ -101,18 +104,23 @@ namespace MAPIL
 			pNewMesh->pAdjacency = new DWORD[ pMesh->pMesh->GetNumFaces() * 3 ];
 			::memset( pNewMesh->pAdjacency, 0, pMesh->pMesh->GetNumFaces() * 3 * sizeof( DWORD ) );
 			pNewMesh->MeshData.Type = pMesh->Type;
+			pNewMesh->MeshData.pMesh = NULL;
+
+			
 
 			// Covert to blended mesh.
-			pSkin->ConvertToBlendedMesh(	pMesh->pMesh,
-											0,
-											pAdj,
-											pNewMesh->pAdjacency,
-											0,
-											0,
-											&pNewMesh->m_InflBoneTotal,
-											&pNewMesh->m_BoneGroupTotal,
-											&pNewMesh->m_pBoneCombTable,
-											&pNewMesh->MeshData.pMesh );
+			if( pSkin ){
+				pSkin->ConvertToBlendedMesh(	pMesh->pMesh,
+												0,
+												pAdj,
+												pNewMesh->pAdjacency,
+												0,
+												0,
+												&pNewMesh->m_InflBoneTotal,
+												&pNewMesh->m_BoneGroupTotal,
+												&pNewMesh->m_pBoneCombTable,
+												&pNewMesh->MeshData.pMesh );
+			}
 
 			pNewMesh->NumMaterials = numMtrl;
 			pNewMesh->pMaterials = new ::D3DXMATERIAL [ numMtrl ];
@@ -148,7 +156,9 @@ namespace MAPIL
 			}
 
 			pNewMesh->pSkinInfo = pSkin;
-			pSkin->AddRef();
+			if( pSkin ){
+				pSkin->AddRef();
+			}
 
 			*ppNewMesh = pNewMesh;
 
@@ -159,7 +169,9 @@ namespace MAPIL
 		{
 			D3DSkinMeshModel::MeshContainer* pDelMesh = (D3DSkinMeshModel::MeshContainer*) pMesh;
 
-			pDelMesh->MeshData.pMesh->Release();
+			if( pDelMesh->MeshData.pMesh ){
+				pDelMesh->MeshData.pMesh->Release();
+			}
 			SafeDeleteArray( pDelMesh->Name );
 			SafeDeleteArray( pDelMesh->pAdjacency );
 			if( pDelMesh->pEffects ){
@@ -191,20 +203,25 @@ namespace MAPIL
 	};
 
 
-	D3DSkinMeshModel::D3DSkinMeshModel( SharedPointer < GraphicsDevice > pDev ) :	Model( pDev ),
+	D3DSkinMeshModel::D3DSkinMeshModel( SharedPointer < GraphicsDevice > pDev ) :	SkinMeshModel( pDev ),
 																					m_pAlloc( NULL ),
 																					m_pRootFrame( NULL ),
 																					m_pAnimCtrl( NULL ),
 																					m_pBoneComb( NULL ),
-																					m_pMesh( NULL )
+																					m_pMesh( NULL ),
+																					m_pTexture( NULL )
 
 	{
 	}
 
 	D3DSkinMeshModel::~D3DSkinMeshModel()
 	{
-		m_pAlloc->DestroyFrame( m_pRootFrame );
-		m_pAnimCtrl->Release();
+		if( m_pAlloc != NULL ){
+			m_pAlloc->DestroyFrame( m_pRootFrame );
+		}
+		if( m_pAnimCtrl != NULL ){
+			m_pAnimCtrl->Release();
+		}
 
 		SafeDelete( m_pAlloc );
 		SafeDelete( m_pTexture );
@@ -213,6 +230,8 @@ namespace MAPIL
 
 	MapilVoid D3DSkinMeshModel::Create( const MapilTChar* pFileName )
 	{
+		Assert( !m_IsUsed, CURRENT_POSITION, TSTR( "The skin mesh model was already created." ), -1 );
+
 		m_pAlloc = new AllocateHierarchy;
 
 		::D3DXLoadMeshHierarchyFromX(	pFileName,
@@ -226,32 +245,158 @@ namespace MAPIL
 		m_pMesh = GetMesh( m_pRootFrame );
 		m_pBoneComb = reinterpret_cast < ::D3DXBONECOMBINATION* > ( m_pMesh->m_pBoneCombTable->GetBufferPointer() );
 
+
 		for( MapilInt32 i = 0; i < m_pMesh->NumMaterials; ++i ){
 			if( m_pMesh->pMaterials[ i ].pTextureFilename != NULL && m_pMesh->pMaterials[ i ].pTextureFilename[ 0 ] != '\0' ){
-				m_pTexture = new D3DTexture( m_pDev );
-				MapilInt32 size = ::strlen( m_pMesh->pMaterials[ i ].pTextureFilename ) + 1;
-				MapilTChar* pBuf = new MapilTChar [ size + 1 ];
-				ConvertToTChar( m_pMesh->pMaterials[ i ].pTextureFilename, -1, pBuf, sizeof( MapilTChar ) * ( size + 1 ) );
-				m_pTexture->Create( pBuf );
+				
+				// Setup same path with model file.
+				TString filePath;
+				filePath.clear();
+
+				// Search begin raw texture file name.
+				AString texFileName;
+				texFileName.clear();
+				AStringList alist = GetTokenListFromAString( m_pMesh->pMaterials[ i ].pTextureFilename, "/" );
+				Assert( alist.size() > 0 , CURRENT_POSITION, TSTR( "AStringList is empty." ), -1 );
+				texFileName = alist[ alist.size() - 1 ];
+
+				// Search mode file path.
+				TStringList tlist = GetTokenListFromTString( pFileName, TSTR( "/" ) );
+				for( MapilInt32 i = 0; i < tlist.size() - 1; ++i ){
+					filePath += tlist[ i ];
+					filePath += TSTR( "/" );
+				}
+				
+				MapilTChar* pBuf = new MapilTChar [ texFileName.length() + 1 ];
+				ConvertToTChar( texFileName.c_str(), -1 , pBuf, sizeof( MapilTChar ) * ( texFileName.length() + 1 ) );
+				filePath += pBuf;
 				SafeDeleteArray( pBuf );
+
+				// Create texture.
+				SafeDelete( m_pTexture );
+				m_pTexture = new D3DTexture( m_pDev );
+				m_pTexture->Create( filePath.c_str() );
+				
 				break;
 			}
 		}
 		
 		// Setup bone ID and offset matrix on frame.
 		SetFrameID( m_pRootFrame, m_pMesh->pSkinInfo );
+
+		m_IsUsed = true;
 	}
 	
+	MapilVoid D3DSkinMeshModel::Create( Archiver* pArchiver, const MapilTChar* pXFileName, const MapilTChar* pTextureFileName )
+	{
+		Assert( !m_IsUsed, CURRENT_POSITION, TSTR( "The skin mesh model was already created." ), -1 );
+
+		MapilChar name[ 1024 ];
+		ConvertToMultiByte( pXFileName, -1, name, 1024 );
+
+		MapilInt32 size = pArchiver->GetContentsSize( name );
+		MapilChar* pData = new MapilChar [ size ];
+		pArchiver->Load( name, pData );
+
+		if( FAILED( ::D3DXLoadMeshHierarchyFromXInMemory(	pData,
+												size,
+												D3DXMESH_MANAGED,
+												m_pDev->GetDev().GetPointer(),
+												m_pAlloc,
+												0,
+												reinterpret_cast < ::D3DXFRAME** > ( &m_pRootFrame ),
+												&m_pAnimCtrl ) ) ){
+			SafeDeleteArray( pData );
+			throw MapilException( CURRENT_POSITION, TSTR( "Failed to load mesh from X-file." ), -1 );
+		}
+
+		SafeDeleteArray( pData );
+
+		m_pMesh = GetMesh( m_pRootFrame );
+		m_pBoneComb = reinterpret_cast < ::D3DXBONECOMBINATION* > ( m_pMesh->m_pBoneCombTable->GetBufferPointer() );
+
+		for( MapilInt32 i = 0; i < m_pMesh->NumMaterials; ++i ){
+			if( m_pMesh->pMaterials[ i ].pTextureFilename != NULL && m_pMesh->pMaterials[ i ].pTextureFilename[ 0 ] != '\0' ){
+				
+				// Setup same path with model file.
+				TString filePath;
+				filePath.clear();
+
+				// Search begin raw texture file name.
+				AString texFileName;
+				texFileName.clear();
+				AStringList alist = GetTokenListFromAString( m_pMesh->pMaterials[ i ].pTextureFilename, "/" );
+				Assert( alist.size() > 0 , CURRENT_POSITION, TSTR( "AStringList is empty." ), -1 );
+				texFileName = alist[ alist.size() - 1 ];
+
+				// Search mode file path.
+				TStringList tlist = GetTokenListFromTString( pXFileName, TSTR( "/" ) );
+				for( MapilInt32 i = 0; i < tlist.size() - 1; ++i ){
+					filePath += tlist[ i ];
+					filePath += TSTR( "/" );
+				}
+				
+				MapilTChar* pBuf = new MapilTChar [ texFileName.length() + 1 ];
+				ConvertToTChar( texFileName.c_str(), -1 , pBuf, sizeof( MapilTChar ) * ( texFileName.length() + 1 ) );
+				filePath += pBuf;
+				SafeDeleteArray( pBuf );
+
+				// Create texture.
+				SafeDelete( m_pTexture );
+				m_pTexture = new D3DTexture( m_pDev );
+				m_pTexture->Create( pArchiver, filePath.c_str() );
+				
+				//m_pTexture = new D3DTexture( m_pDev );
+				//m_pTexture->Create( pTextureFileName );
+				break;
+			}
+		}
+		
+		// Setup bone ID and offset matrix on frame.
+		SetFrameID( m_pRootFrame, m_pMesh->pSkinInfo );
+
+		m_IsUsed = true;
+	}
 
 	MapilVoid D3DSkinMeshModel::Draw()
+	{	
+		Matrix4x4 < MapilFloat32 > mat;
+		CreateIdentityMat( &mat );
+		DrawModel( mat );
+	}
+
+	MapilVoid D3DSkinMeshModel::Draw( const Matrix4x4 < MapilFloat32 >& mat )
 	{
-		m_pAnimCtrl->AdvanceTime( 0.0001f, 0 );
-		
+		DrawModel( mat );
+	}
+
+	MapilVoid D3DSkinMeshModel::Draw( MapilDouble time )
+	{
+		m_pAnimCtrl->SetTrackPosition( 0, time );
+		m_pAnimCtrl->AdvanceTime( 0.0, NULL );
+
+		Draw();
+	}
+
+	MapilVoid D3DSkinMeshModel::Draw( MapilDouble time, const Matrix4x4 < MapilFloat32 >& mat )
+	{
+		m_pAnimCtrl->SetTrackPosition( 0, time );
+		m_pAnimCtrl->AdvanceTime( 0.0, NULL );
+
+		Draw( mat );
+	}
+
+	MapilVoid D3DSkinMeshModel::DrawModel( const Matrix4x4 < MapilFloat32 >& mat )
+	{
+		Assert( m_IsUsed, CURRENT_POSITION, TSTR( "The skin mesh model isn't created yet." ), -1 );
+
 		// Update combination matrix.
 		std::map < DWORD, ::D3DXMATRIX > combMatMap;
-		UpdateCombMat( combMatMap, m_pRootFrame );
+		UpdateCombMat( mat, combMatMap, m_pRootFrame );
 
-		m_pDev->GetDev().GetPointer()->SetTexture( 0, reinterpret_cast < ::LPDIRECT3DTEXTURE9 > ( m_pTexture->Get() ) );
+		if( m_pTexture != NULL ){
+			m_pDev->GetDev().GetPointer()->SetTexture( 0, reinterpret_cast < ::LPDIRECT3DTEXTURE9 > ( m_pTexture->Get() ) );
+		}
 
 		if( m_pMesh->NumMaterials > 0 ){
 			m_pDev->GetDev().GetPointer()->SetMaterial( &m_pMesh->pMaterials[ 0 ].MatD3D );
@@ -270,14 +415,6 @@ namespace MAPIL
 			
 			m_pMesh->MeshData.pMesh->DrawSubset( i );
 		}
-	}
-
-	MapilVoid D3DSkinMeshModel::Draw( const Matrix4x4 < MapilFloat32 >& mat )
-	{
-	}
-
-	MapilVoid D3DSkinMeshModel::DrawModel()
-	{
 	}
 
 	D3DSkinMeshModel::MeshContainer* D3DSkinMeshModel::GetMesh( ::D3DXFRAME* pFrame )
@@ -330,7 +467,9 @@ namespace MAPIL
 		FrameIDBuilder::Create( idMap, pSkin, pFrame );
 	}
 
-	MapilVoid D3DSkinMeshModel::UpdateCombMat( std::map < DWORD, D3DXMATRIX >& combMatMap, D3DSkinMeshModel::Frame* pFrame )
+	MapilVoid D3DSkinMeshModel::UpdateCombMat(	const Matrix4x4 < MapilFloat32 >& worldMat,
+												std::map < DWORD, D3DXMATRIX >& combMatMap,
+												D3DSkinMeshModel::Frame* pFrame )
 	{
 		// Update combination matrix.
 		struct CombMatUpdater
@@ -351,9 +490,13 @@ namespace MAPIL
 			}
 		};
 
-		::D3DXMATRIX mat;
-		::D3DXMatrixIdentity( &mat );
-		CombMatUpdater::Update( combMatMap, mat, pFrame );
+		D3DXMATRIXA16 matWorld;
+		for( MapilInt32 i = 0; i < 4; i++ ){
+			for( MapilInt32 j = 0; j < 4; j++ ){
+				matWorld.m[ i ][ j ] = worldMat.m_Elm[ i ][ j ];
+			}
+		}
+		CombMatUpdater::Update( combMatMap, matWorld, pFrame );
 	}
 }
 

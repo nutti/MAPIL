@@ -115,4 +115,60 @@ namespace MAPIL
 #endif
 #endif
 	}
+
+	// Get token list from string.
+	AStringList GetTokenListFromAString( const AString& str, const AString& delim )
+	{
+		AStringList strList;
+		AString::size_type start = 0;
+		while( MapilTrue ){
+			AString::size_type end = str.find( delim, start );
+			// Delimiter found.
+			if( end != AString::npos ){
+				strList.push_back( str.substr( start, end - start ) );
+			}
+			// Delimiter not found.
+			else{
+				strList.push_back( str.substr( start, str.length() - start ) );
+				break;
+			}
+			start = end + delim.length();
+		}
+
+		return strList;
+	}
+
+	// Get token list from wstring.
+	WStringList GetTokenListFromWString( const WString& str, const WString& delim )
+	{
+		WStringList strList;
+		WString::size_type start = 0;
+		while( MapilTrue ){
+			WString::size_type end = str.find( delim, start );
+			// Delimiter found.
+			if( end != WString::npos ){
+				strList.push_back( str.substr( start, end - start ) );
+			}
+			// Delimiter not found.
+			else{
+				strList.push_back( str.substr( start, str.length() - start ) );
+				break;
+			}
+			start = end + delim.length();
+		}
+
+		return strList;
+	}
+
+	// Get token list from tstring.
+	TStringList GetTokenListFromTString( const TString& str, const TString& delim )
+	{
+#if defined ( CHAR_CODE_UNICODE )
+		return GetTokenListFromWString( str, delim );
+#elif defined ( CHAR_CODE_MULTIBYTE )
+#if defined ( OS_WIN_32BIT )
+		return GetTokenListFromAString( str, delim );
+#endif
+#endif
+	}
 }

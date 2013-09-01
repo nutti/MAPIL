@@ -36,7 +36,8 @@ namespace MAPIL
 																						m_TexRM( pDev ),
 																						m_PSpriteRM( pDev ),
 																						m_Rect3DRM( pDev ),
-																						m_NPoly3DRM( pDev )
+																						m_NPoly3DRM( pDev ),
+																						m_SkinModelRM( pDev )
 	{
 		m_CanvasRM.Init();
 		m_Canvas3DRM.Init();
@@ -51,6 +52,7 @@ namespace MAPIL
 		m_PSpriteRM.Init();
 		m_Rect3DRM.Init();
 		m_NPoly3DRM.Init();
+		m_SkinModelRM.Init();
 	}
 	
 	D3DGraphicsFactory::~D3DGraphicsFactory()
@@ -135,6 +137,11 @@ namespace MAPIL
 		return m_NPoly3DRM.Create( pKeyStr );
 	}
 
+	ISkinMeshModel D3DGraphicsFactory::CreateSkinMeshModel( const MapilTChar* pKeyStr )
+	{
+		return m_SkinModelRM.Create( pKeyStr );
+	}
+
 	MapilVoid D3DGraphicsFactory::Reflesh()
 	{
 		m_CanvasRM.Reflesh();
@@ -144,6 +151,7 @@ namespace MAPIL
 		m_DirLightRM.Reflesh();
 		m_PLightRM.Reflesh();
 		m_ModelRM.Reflesh();
+		m_SkinModelRM.Reflesh();
 		m_GraphicsFontRM.Reflesh();
 		m_TexRM.Reflesh();
 		m_PSpriteRM.Reflesh();

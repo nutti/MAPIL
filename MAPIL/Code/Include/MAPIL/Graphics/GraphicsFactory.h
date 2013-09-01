@@ -42,6 +42,7 @@ namespace MAPIL
 	class PointSprite;
 	class Rectangle3D;
 	class NSidedPolygon3D;
+	class SkinMeshModel;
 
 	typedef SharedPointer < Canvas2D >					ICanvas2D;				///< Interface of the Canvas2D class.
 	typedef SharedPointer < Canvas3D >					ICanvas3D;				///< Interface of the Canvas3D class.
@@ -56,6 +57,7 @@ namespace MAPIL
 	typedef SharedPointer < PointSprite >				IPointSprite;			///< Interface of the PointSrpite class.
 	typedef SharedPointer < Rectangle3D >				IRectangle3D;			///< Interface of the Rectangle3D class.
 	typedef SharedPointer < NSidedPolygon3D >			INSidedPolygon3D;			///< Interface of the NSidedPolygon class.
+	typedef SharedPointer < SkinMeshModel >				ISkinMeshModel;			///< Interface of the SkinMeshModel class.
 
 	class GraphicsFactory : public MapilObject
 	{
@@ -156,6 +158,7 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		virtual INSidedPolygon3D CreateNSidedPolygon3D( const MapilTChar* pKeyStr ) = 0;
+		virtual ISkinMeshModel CreateSkinMeshModel( const MapilTChar* pKeyStr ) = 0;
 		/**
 		*	@brief Delete all the objects whose reference count is 0.
 		*/

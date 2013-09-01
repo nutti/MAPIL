@@ -34,6 +34,7 @@
 #include "D3DCanvas2D.h"
 #include "D3DCanvas3D.h"
 #include "D3DSprite.h"
+#include "D3DSkinMeshModel.h"
 
 //-------------------------------------------------------------------
 // Definitions.
@@ -58,6 +59,7 @@ namespace MAPIL
 		GraphicsResourceManager < D3DPointSprite >			m_PSpriteRM;		///< Resource manager for the D3DPointSprite object.
 		GraphicsResourceManager < D3DRectangle3D >			m_Rect3DRM;			///< Resource manager for the D3DRectangle3D object.
 		GraphicsResourceManager < D3DNSidedPolygon3D >		m_NPoly3DRM;		///< Resource manager for the D3DNSidedPolygon3D object.
+		GraphicsResourceManager < D3DSkinMeshModel >		m_SkinModelRM;		///< Resource manager for the D3DSkinMeshModel object.
 	public:
 		/**
 		*	@brief		Constructor.
@@ -153,6 +155,7 @@ namespace MAPIL
 		*	@return			The interface of the created object.
 		*/
 		INSidedPolygon3D CreateNSidedPolygon3D( const MapilTChar* pKeyStr );
+		ISkinMeshModel CreateSkinMeshModel( const MapilTChar* pKeyStr );
 		/**
 		*	@brief Delete all the objects whose reference count is 0.
 		*/

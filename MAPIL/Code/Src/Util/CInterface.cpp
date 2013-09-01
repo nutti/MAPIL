@@ -26,6 +26,7 @@
 #include "../../Include/MAPIL/Graphics/Canvas2D.h"
 #include "../../Include/MAPIL/Graphics/Canvas3D.h"
 #include "../../Include/MAPIL/Graphics/Sprite.h"
+#include "../../Include/MAPIL/Graphics/SkinMeshModel.h"
 
 #include "../../Include/MAPIL/Input/InputFactory.h"
 #include "../../Include/MAPIL/Input/Keyboard.h"
@@ -79,12 +80,23 @@ namespace MAPIL
 		MapilInt32					m_AlphaBlendingMode;
 	};
 
-	typedef std::list < TextureBatchWork >		TextureBatch;
-	typedef std::list < StringBatchWork >		StringBatch;
-	typedef std::list < ModelOn2DBatchWork >	ModelOn2DBatch;
+	// Batch work of skin mesh model on 2D screen.
+	struct SkinModelOn2DBatchWork
+	{
+		MapilUInt32					m_Handle;
+		Matrix4x4 < MapilFloat32 >	m_TransMat;
+		MapilInt32					m_AlphaBlendingMode;
+		MapilDouble					m_Time;
+	};
+
+	typedef std::list < TextureBatchWork >			TextureBatch;
+	typedef std::list < StringBatchWork >			StringBatch;
+	typedef std::list < ModelOn2DBatchWork >		ModelOn2DBatch;
+	typedef std::list < SkinModelOn2DBatchWork >	SkinModelOn2DBatch;
 
 	typedef ResourceTag < IRectangle3D >		Rectangle3DTag;
 	typedef ResourceTag < IModel >				ModelTag;
+	typedef ResourceTag < ISkinMeshModel >		SkinModelTag;
 	typedef ResourceTag < ICamera >				CameraTag;
 	typedef ResourceTag < IGraphicsFont >		GraphicsFontTag;
 	typedef ResourceTag < IPointSprite >		PointSpriteTag;
@@ -96,6 +108,7 @@ namespace MAPIL
 
 	typedef std::vector < Rectangle3DTag >		Rectangle3DList;
 	typedef std::vector < ModelTag >			ModelList;
+	typedef std::vector < SkinModelTag >		SkinModelList;
 	typedef std::vector < CameraTag >			CameraList;
 	typedef std::vector < GraphicsFontTag >		GraphicsFontList;
 	typedef std::vector < PointSpriteTag >		PointSpriteList;
@@ -146,6 +159,7 @@ namespace MAPIL
 		// Local resources.
 		Rectangle3DList			m_LocalRectangle3DList;
 		ModelList				m_LocalModelList;
+		SkinModelList			m_LocalSkinModelList;
 		CameraList				m_LocalCameraList;
 		GraphicsFontList		m_LocalGraphicsFontList;
 		PointSpriteList			m_LocalPointSpriteList;
@@ -159,6 +173,7 @@ namespace MAPIL
 		TextureBatch			m_TextureBatch;
 		StringBatch				m_StringBatch;
 		ModelOn2DBatch			m_ModelOn2DBatch;
+		SkinModelOn2DBatch		m_SkinModelOn2DBatch;
 
 		// Archiver.
 		std::vector < Archiver* >	m_ArchiverList;
@@ -189,6 +204,7 @@ namespace MAPIL
 
 										m_LocalRectangle3DList(),
 										m_LocalModelList(),
+										m_LocalSkinModelList(),
 										m_LocalCameraList(),
 										m_LocalGraphicsFontList(),
 										m_LocalPointSpriteList(),
@@ -200,7 +216,8 @@ namespace MAPIL
 
 										m_TextureBatch(),
 										m_StringBatch(),
-										m_ModelOn2DBatch()
+										m_ModelOn2DBatch(),
+										m_SkinModelOn2DBatch()
 	{
 		m_Logger.Create();
 	}
@@ -1981,6 +1998,149 @@ namespace MAPIL
 		}
 
 		p->m_ModelOn2DBatch.clear();
+
+		p->m_GraphicsCtrl->SetAlphaBlendMode( prevMode );
+	}
+
+	// Create local skin mesh model.
+	MapilUInt32 CreateSkinMeshModel( const MapilChar* pFileName )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pFileName, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		MapilUInt32 index = GetEmptyIndex( &p->m_LocalSkinModelList );
+		SkinModelTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateSkinMeshModel( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( str.c_str() );
+		}
+		if( index == p->m_LocalSkinModelList.size() ){
+			p->m_LocalSkinModelList.push_back( tag );
+		}
+		else{
+			p->m_LocalSkinModelList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Create local skin mesh model (From archiver).
+	MapilUInt32 CreateSkinMeshModel( MapilUInt32 archiveHandle, const MapilChar* pXFilePath, const MapilChar* pTexFilePath )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert( p->m_pGraphicsFactory != NULL, CURRENT_POSITION, TSTR( "Graphics factory is not created yet." ), -1 );
+		Assert( p->m_ArchiverList.size() > archiveHandle, CURRENT_POSITION, TSTR( "Invalid archive index is input." ), -1 );
+		MapilTChar tstr[ 1024 ];
+		ConvertToTChar( pXFilePath, -1, tstr, 1024 );
+		std::basic_string < MapilTChar > str = tstr;
+		ConvertToTChar( pTexFilePath, -1, tstr, 1024 );
+		MapilInt32 index = GetEmptyIndex( &p->m_LocalSkinModelList );
+		SkinModelTag tag;
+		tag.m_IsUsed = MapilTrue;
+		tag.m_Resource = p->m_pGraphicsFactory->CreateSkinMeshModel( str.c_str() );
+		if( !tag.m_Resource->IsValid() ){
+			tag.m_Resource->Create( p->m_ArchiverList[ archiveHandle ], str.c_str(), tstr );
+		}
+		if( index == p->m_LocalSkinModelList.size() ){
+			p->m_LocalSkinModelList.push_back( tag );
+		}
+		else{
+			p->m_LocalSkinModelList[ index ] = tag;
+		}
+
+		return index;
+	}
+
+	// Delete local skin mesh model.
+	MapilVoid DeleteSkinMeshModel( MapilUInt32 index )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		DeleteResource( &p->m_LocalSkinModelList, index, CURRENT_POSITION );
+	}
+
+	// Draw skin mesh model on 2D.
+	MapilVoid AddSkinMeshModelOn2DBatchWork( MapilUInt32 handle, Matrix4x4 < MapilFloat32 > mat, MapilDouble time )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalSkinModelList.size() > handle,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		SkinModelOn2DBatchWork work;
+		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_Handle = handle;
+		work.m_TransMat = mat;
+		work.m_Time = time;
+
+		p->m_SkinModelOn2DBatch.push_back( work );
+	}
+
+	// Draw skin mesh model on 2D.
+	MapilVoid AddSkinMeshModelOn2DBatchWork(	MapilUInt32 handle,
+												MapilFloat32 x, MapilFloat32 y, MapilFloat32 z,
+												MapilFloat32 sx, MapilFloat32 sy, MapilFloat32 sz,
+												MapilFloat32 rx, MapilFloat32 ry, MapilFloat32 rz,
+												MapilDouble time )
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+		Assert(	p->m_LocalSkinModelList.size() > handle,
+				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
+
+		SkinModelOn2DBatchWork work;
+		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_Handle = handle;
+		work.m_Time = time;
+
+		// Create transformation matrix.
+		Matrix4x4 < MapilFloat32 > rotMatX;
+		Matrix4x4 < MapilFloat32 > rotMatY;
+		Matrix4x4 < MapilFloat32 > rotMatZ;
+		Matrix4x4 < MapilFloat32 > scaleMat;
+		Matrix4x4 < MapilFloat32 > transMat;
+		Matrix4x4 < MapilFloat32 > aspectMat;
+
+		CreateRotationXMat( &rotMatX, rx );
+		CreateRotationYMat( &rotMatY, ry );
+		CreateRotationZMat( &rotMatZ, rz );
+		MapilFloat32 aspect = p->m_GC->GetWidth() * 1.0f / p->m_GC->GetHeight();
+		CreateScalingMat( &aspectMat, 1.0f, aspect, 1.0f );
+		CreateScalingMat( &scaleMat, sx, sy, sz );
+		CreateTranslationMat( &transMat, -1.0f + x / ( p->m_GC->GetWidth() * 0.5f ), 1.0f - y / ( p->m_GC->GetHeight() * 0.5f ), z );
+		// Scaling -> Rotation Z -> Rotation Y -> Rotation X -> Translation.
+		work.m_TransMat =  scaleMat * rotMatZ * rotMatY * rotMatX * aspectMat * transMat;
+
+		p->m_SkinModelOn2DBatch.push_back( work );
+	}
+
+	// Do skin mesh model on 2D batch works.
+	MapilVoid DoAllSkinMeshModelOn2DBatchWorks()
+	{
+		ResourceHolder* p = ResourceHolder::GetInst();
+
+		typedef SkinModelOn2DBatch::iterator Iter;
+
+		MapilInt32 prevMode = p->m_GraphicsCtrl->GetAlphaBlendMode();
+		
+		MAPIL::Matrix4x4 < MapilFloat32 > mat;
+		MAPIL::Matrix4x4 < MapilFloat32 > baseMat;
+		MAPIL::Matrix4x4 < MapilFloat32 > invProjMat;
+		MAPIL::Matrix4x4 < MapilFloat32 > invViewMat;
+		invProjMat = p->m_Camera->GetInvProjTransMat();
+		invViewMat = p->m_Camera->GetInvViewTransMat();
+
+		baseMat = invProjMat * invViewMat;
+		
+		for( Iter it = p->m_SkinModelOn2DBatch.begin(); it != p->m_SkinModelOn2DBatch.end(); ++it ){
+			if( prevMode != it->m_AlphaBlendingMode ){
+				p->m_GraphicsCtrl->SetAlphaBlendMode( it->m_AlphaBlendingMode );
+			}
+			mat = it->m_TransMat * baseMat;
+			p->m_LocalSkinModelList[ it->m_Handle ].m_Resource->Draw( it->m_Time, mat );
+		}
+
+		p->m_SkinModelOn2DBatch.clear();
 
 		p->m_GraphicsCtrl->SetAlphaBlendMode( prevMode );
 	}

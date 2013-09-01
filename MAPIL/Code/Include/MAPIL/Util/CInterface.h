@@ -313,6 +313,24 @@ namespace MAPIL
 
 	// Do model on 2D batch works.
 	MapilVoid DoAllModelOn2DBatchWorks();
+
+	// Create local skin mesh model.
+	MapilUInt32 CreateSkinMeshModel( const MapilChar* pFileName );
+	// Create local skin mesh model (From archiver).
+	MapilUInt32 CreateSkinMeshModel( MapilUInt32 archiveHandle, const MapilChar* pXFilePath, const MapilChar* pTexFilePath );
+	// Delete local skin mesh model.
+	MapilVoid DeleteSkinMeshModel( MapilUInt32 index );
+	// Draw skin mesh model on 2D.
+	MapilVoid AddSkinMeshModelOn2DBatchWork( MapilUInt32 handle, Matrix4x4 < MapilFloat32 > mat, MapilDouble time );
+
+	// Draw skin mesh model on 2D.
+	MapilVoid AddSkinMeshModelOn2DBatchWork(	MapilUInt32 handle,
+												MapilFloat32 x, MapilFloat32 y, MapilFloat32 z,
+												MapilFloat32 sx, MapilFloat32 sy, MapilFloat32 sz,
+												MapilFloat32 rx, MapilFloat32 ry, MapilFloat32 rz,
+												MapilDouble time );
+	// Do skin mesh model on 2D batch works.
+	MapilVoid DoAllSkinMeshModelOn2DBatchWorks();
 }
 
 #endif	// USE_C_INTERFACE

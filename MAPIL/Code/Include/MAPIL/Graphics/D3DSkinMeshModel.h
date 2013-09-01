@@ -18,7 +18,7 @@
 #include <d3dx9.h>
 #include <map>
 
-#include "Model.h"
+#include "SkinMeshModel.h"
 #include "D3DTexture.h"
 
 //-------------------------------------------------------------------
@@ -29,7 +29,7 @@ namespace MAPIL
 {
 
 	class AllocateHierarchy;
-	class D3DSkinMeshModel : public Model
+	class D3DSkinMeshModel : public SkinMeshModel
 	{
 	public:
 
@@ -58,17 +58,21 @@ namespace MAPIL
 		MeshContainer*						m_pMesh;
 		D3DTexture*							m_pTexture;
 
-		MapilVoid DrawModel();
+		MapilVoid DrawModel( const Matrix4x4 < MapilFloat32 >& mat );
 		MeshContainer* GetMesh( ::D3DXFRAME* pFrame );
 		MapilVoid SetFrameID( Frame* pFrame, ::ID3DXSkinInfo* pSkin );
-		MapilVoid UpdateCombMat( std::map < DWORD, D3DXMATRIX >& combMatMap, D3DSkinMeshModel::Frame* pFrame );
+		MapilVoid UpdateCombMat(	const Matrix4x4 < MapilFloat32 >& worldMat,
+									std::map < DWORD, D3DXMATRIX >& combMatMap,
+									D3DSkinMeshModel::Frame* pFrame );
 	public:
 		D3DSkinMeshModel( SharedPointer < GraphicsDevice > pDev );
 		~D3DSkinMeshModel();
 		MapilVoid Create( const MapilTChar* pFileName );
-		MapilVoid Create( Archiver* pArchiver, const MapilTChar* pXFileName, const MapilTChar* pTextureFileName ){}
+		MapilVoid Create( Archiver* pArchiver, const MapilTChar* pXFileName, const MapilTChar* pTextureFileName );
 		MapilVoid Draw();
 		MapilVoid Draw( const Matrix4x4 < MapilFloat32 >& mat );
+		MapilVoid Draw( MapilDouble time );
+		MapilVoid Draw( MapilDouble time, const Matrix4x4 < MapilFloat32 >& mat );
 		MapilBool DetectCollision(	const Vector3 < MapilFloat32 >& vRayDir,
 									const Vector3 < MapilFloat32 >& vRayOrig,
 									Vector2 < MapilFloat32 >* pVCollisionPos,

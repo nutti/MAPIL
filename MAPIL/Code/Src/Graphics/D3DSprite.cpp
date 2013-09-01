@@ -402,7 +402,7 @@ namespace MAPIL
 		trans._42 = y;
 		scale._11 = sx;
 		scale._22 = sy;
-		::D3DXMatrixRotationZ( &rot, angle );
+		::D3DXMatrixRotationZ( &rot, -angle );
 
 		matWorld = offset * scale * rot * trans;	// Centering -> Scaling -> Rotation -> Translation.
 
