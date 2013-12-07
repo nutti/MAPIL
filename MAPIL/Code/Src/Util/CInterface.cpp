@@ -2062,14 +2062,14 @@ namespace MAPIL
 	}
 
 	// Draw skin mesh model on 2D.
-	MapilVoid AddSkinMeshModelOn2DBatchWork( MapilUInt32 handle, Matrix4x4 < MapilFloat32 > mat, MapilDouble time )
+	MapilVoid AddSkinMeshModelOn2DBatchWork( MapilUInt32 handle, MapilInt32 alphaMode, Matrix4x4 < MapilFloat32 > mat, MapilDouble time )
 	{
 		ResourceHolder* p = ResourceHolder::GetInst();
 		Assert(	p->m_LocalSkinModelList.size() > handle,
 				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 
 		SkinModelOn2DBatchWork work;
-		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_AlphaBlendingMode = alphaMode;
 		work.m_Handle = handle;
 		work.m_TransMat = mat;
 		work.m_Time = time;
@@ -2078,7 +2078,7 @@ namespace MAPIL
 	}
 
 	// Draw skin mesh model on 2D.
-	MapilVoid AddSkinMeshModelOn2DBatchWork(	MapilUInt32 handle,
+	MapilVoid AddSkinMeshModelOn2DBatchWork(	MapilUInt32 handle, MapilInt32 alphaMode,
 												MapilFloat32 x, MapilFloat32 y, MapilFloat32 z,
 												MapilFloat32 sx, MapilFloat32 sy, MapilFloat32 sz,
 												MapilFloat32 rx, MapilFloat32 ry, MapilFloat32 rz,
@@ -2089,7 +2089,7 @@ namespace MAPIL
 				CURRENT_POSITION, TSTR( "Invalid index is inputted." ), -1 );
 
 		SkinModelOn2DBatchWork work;
-		work.m_AlphaBlendingMode = ALPHA_BLEND_MODE_SEMI_TRANSPARENT;
+		work.m_AlphaBlendingMode = alphaMode;
 		work.m_Handle = handle;
 		work.m_Time = time;
 

@@ -386,25 +386,28 @@ namespace MAPIL
 		::D3DXMATRIXA16 trans;
 		::D3DXMATRIXA16 scale;
 		::D3DXMATRIXA16 rot;
-		::D3DXMATRIXA16 offset;
 
 		::D3DXMatrixIdentity( &trans );
 		::D3DXMatrixIdentity( &scale );
 		::D3DXMatrixIdentity( &rot );
 
 		// World coordinate transformation
-		if( centerize ){
-			::D3DXMatrixIdentity( &offset );
-			offset._41 = - width / 2.0f;
-			offset._42 = - height / 2.0f;
-		}
 		trans._41 = x;
 		trans._42 = y;
 		scale._11 = sx;
 		scale._22 = sy;
 		::D3DXMatrixRotationZ( &rot, -angle );
 
-		matWorld = offset * scale * rot * trans;	// Centering -> Scaling -> Rotation -> Translation.
+		if( centerize ){
+			::D3DXMATRIXA16 offset;
+			::D3DXMatrixIdentity( &offset );
+			offset._41 = - width / 2.0f;
+			offset._42 = - height / 2.0f;
+			matWorld = offset * scale * rot * trans;	// Centering -> Scaling -> Rotation -> Translation.
+		}
+		else{
+			matWorld = scale * rot * trans;
+		}
 
 		m_pD3DSprite->SetTransform( &matWorld );
 
