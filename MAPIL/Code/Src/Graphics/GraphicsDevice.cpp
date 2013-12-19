@@ -584,8 +584,11 @@ namespace MAPIL
 		//Select D3DPRESENT_PARAMETERS structure
 		m_D3DPPNow = ( m_pWnd->IsWndMode() ? m_D3DPPWnd : m_D3DPPFull );
 
+		m_D3DPPNow.MultiSampleType = D3DMULTISAMPLE_NONE;
+		m_D3DPPNow.MultiSampleQuality = 0;
+
 		//Create device
-		if( FAILED( m_pD3D.GetPointer()->CreateDevice(	adapter,
+		if( FAILED(  m_pD3D.GetPointer()->CreateDevice(	adapter,
 														devType,
 														m_pWnd->GetHWnd(),
 														D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
